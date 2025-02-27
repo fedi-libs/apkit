@@ -5,7 +5,7 @@
 groups = ["default", "notturno", "redis", "starlette", "startelle"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:2d6c1afec10c5ae939ef4b81853e46af5173dcbae6b602e4cd40d1ac5a491846"
+content_hash = "sha256:b171e60986f4545facb0f0dcf71d4bc5f1a8f5a59507f797fab9dfbb585f900d"
 
 [[metadata.targets]]
 requires_python = ">=3.12"
@@ -127,7 +127,6 @@ files = [
 name = "apmodel"
 version = "0.2.3"
 requires_python = ">=3.10"
-path = "./apmodel-0.2.3-py3-none-any.whl"
 summary = "ActivityStreams 2.0 and nodeinfo 2.0/2.1 implementation for Python."
 groups = ["default"]
 marker = "python_version >= \"3.12\""
@@ -138,11 +137,12 @@ dependencies = [
 ]
 files = [
     {file = "apmodel-0.2.3-py3-none-any.whl", hash = "sha256:4a22dd7885de44ba02b7c3ae6b7fa073c7a635ff33b989036919b720a6108000"},
+    {file = "apmodel-0.2.3.tar.gz", hash = "sha256:361c519683f871a10d6672d76d200d2d7476efca8d3a92105ea1c1882c3ba5a5"},
 ]
 
 [[package]]
 name = "apsig"
-version = "0.3.0"
+version = "0.3.2"
 requires_python = ">=3.10"
 summary = "Signature implementation used in ActivityPub."
 groups = ["default"]
@@ -151,12 +151,13 @@ dependencies = [
     "cryptography>=43.0.1",
     "jcs>=0.2.1",
     "multiformats>=0.3.1.post4",
+    "pyfill>=0.1.1",
     "pyld[aiohttp,requests]>=2.0.4",
     "pynacl>=1.5.0",
 ]
 files = [
-    {file = "apsig-0.3.0-py3-none-any.whl", hash = "sha256:5aa5eff49a315c220155f206adc5e73180419b9cf4abfcd151c5f51bda95275a"},
-    {file = "apsig-0.3.0.tar.gz", hash = "sha256:050859f1aab52bbd6fe59eee06c4cd067126281cc1a8fe54b5a485eaf40f3811"},
+    {file = "apsig-0.3.2-py3-none-any.whl", hash = "sha256:0bfc60550785694c841ba47a5d37e448a23506547b06280a26cfa3e95a151eec"},
+    {file = "apsig-0.3.2.tar.gz", hash = "sha256:313de92feefb773d9c3b0949d836a8ee5776f53ed62625b93d393a45b41f5c0e"},
 ]
 
 [[package]]
@@ -509,6 +510,34 @@ files = [
 ]
 
 [[package]]
+name = "importlib-metadata"
+version = "8.6.1"
+requires_python = ">=3.9"
+summary = "Read metadata from Python packages"
+groups = ["default"]
+marker = "python_version >= \"3.12\""
+dependencies = [
+    "typing-extensions>=3.6.4; python_version < \"3.8\"",
+    "zipp>=3.20",
+]
+files = [
+    {file = "importlib_metadata-8.6.1-py3-none-any.whl", hash = "sha256:02a89390c1e15fdfdc0d7c6b25cb3e62650d0494005c97d6f148bf5b9787525e"},
+    {file = "importlib_metadata-8.6.1.tar.gz", hash = "sha256:310b41d755445d74569f993ccfc22838295d9fe005425094fad953d7f15c8580"},
+]
+
+[[package]]
+name = "izulu"
+version = "0.5.4"
+requires_python = ">=3.6"
+summary = "The exceptional library"
+groups = ["default"]
+marker = "python_version >= \"3.12\""
+files = [
+    {file = "izulu-0.5.4-py3-none-any.whl", hash = "sha256:6431499a04f68daca0b852dfa5cfbcb7be804166bcdc4efd4dd4e6dd7a3e5898"},
+    {file = "izulu-0.5.4.tar.gz", hash = "sha256:a6619402ab3c04ca32bbfb5000138287691e0b47d9794ba55a10af403ed23644"},
+]
+
+[[package]]
 name = "jcs"
 version = "0.2.1"
 requires_python = ">=3.6.2"
@@ -677,6 +706,18 @@ files = [
 ]
 
 [[package]]
+name = "packaging"
+version = "24.2"
+requires_python = ">=3.8"
+summary = "Core utilities for Python packages"
+groups = ["default"]
+marker = "python_version >= \"3.12\""
+files = [
+    {file = "packaging-24.2-py3-none-any.whl", hash = "sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759"},
+    {file = "packaging-24.2.tar.gz", hash = "sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f"},
+]
+
+[[package]]
 name = "propcache"
 version = "0.2.1"
 requires_python = ">=3.9"
@@ -730,6 +771,18 @@ marker = "python_version >= \"3.12\""
 files = [
     {file = "pycparser-2.22-py3-none-any.whl", hash = "sha256:c3702b6d3dd8c7abc1afa565d7e63d53a1d0bd86cdc24edd75470f4de499cfcc"},
     {file = "pycparser-2.22.tar.gz", hash = "sha256:491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6"},
+]
+
+[[package]]
+name = "pycron"
+version = "3.1.2"
+requires_python = "<4.0,>=3.9"
+summary = "Simple cron-like parser, which determines if current datetime matches conditions."
+groups = ["default"]
+marker = "python_version >= \"3.12\""
+files = [
+    {file = "pycron-3.1.2-py3-none-any.whl", hash = "sha256:30e4a01889dfb471e80cc76a5c0ab87e675146a7f6d2d66a2e4bdb4e2975ef3d"},
+    {file = "pycron-3.1.2.tar.gz", hash = "sha256:114c71bc61002b850a416e33e72a8c6de75b9f5c4228e86d7babd8a7ea232d94"},
 ]
 
 [[package]]
@@ -793,14 +846,14 @@ files = [
 
 [[package]]
 name = "pyfill"
-version = "0.1.1"
+version = "0.1.2"
 requires_python = ">=3.9"
 summary = "pyfill is a tool to detect Python versions and automatically replace deprecated features (e.g. datetime.utcnow) with alternative methods."
 groups = ["default"]
 marker = "python_version >= \"3.12\""
 files = [
-    {file = "pyfill-0.1.1-py3-none-any.whl", hash = "sha256:468ef3582e427581b8ef97fa15d52dd93ffa3ff1a8857d63b4944ca95d17cd59"},
-    {file = "pyfill-0.1.1.tar.gz", hash = "sha256:71d919c51ad152fe005e91aee72493db5f4ba313087cd648028676bceb206479"},
+    {file = "pyfill-0.1.2-py3-none-any.whl", hash = "sha256:0566902fe6075d3554767d4aa265fbeb7bfb01876e5d07103ba00988f63333cc"},
+    {file = "pyfill-0.1.2.tar.gz", hash = "sha256:e8be1a3f17d1b6afd635c65128ae1432307b2470de3bf328c56d164f111dc347"},
 ]
 
 [[package]]
@@ -857,6 +910,17 @@ files = [
     {file = "PyNaCl-1.5.0-cp36-abi3-win32.whl", hash = "sha256:e46dae94e34b085175f8abb3b0aaa7da40767865ac82c928eeb9e57e1ea8a543"},
     {file = "PyNaCl-1.5.0-cp36-abi3-win_amd64.whl", hash = "sha256:20f42270d27e1b6a29f54032090b972d97f0a1b0948cc52392041ef7831fee93"},
     {file = "PyNaCl-1.5.0.tar.gz", hash = "sha256:8ac7448f09ab85811607bdd21ec2464495ac8b7c66d146bf545b0f08fb9220ba"},
+]
+
+[[package]]
+name = "pytz"
+version = "2025.1"
+summary = "World timezone definitions, modern and historical"
+groups = ["default"]
+marker = "python_version >= \"3.12\""
+files = [
+    {file = "pytz-2025.1-py2.py3-none-any.whl", hash = "sha256:89dd22dca55b46eac6eda23b2d72721bf1bdfef212645d81513ef5d03038de57"},
+    {file = "pytz-2025.1.tar.gz", hash = "sha256:c2db42be2a2518b28e65f9207c4d05e6ff547d1efa4086469ef855e4ab70178e"},
 ]
 
 [[package]]
@@ -941,6 +1005,44 @@ dependencies = [
 files = [
     {file = "starlette-0.46.0-py3-none-any.whl", hash = "sha256:913f0798bd90ba90a9156383bcf1350a17d6259451d0d8ee27fc0cf2db609038"},
     {file = "starlette-0.46.0.tar.gz", hash = "sha256:b359e4567456b28d473d0193f34c0de0ed49710d75ef183a74a5ce0499324f50"},
+]
+
+[[package]]
+name = "taskiq"
+version = "0.11.13"
+requires_python = "<4.0,>=3.9"
+summary = "Distributed task queue with full async support"
+groups = ["default"]
+marker = "python_version >= \"3.12\""
+dependencies = [
+    "anyio>=3",
+    "importlib-metadata",
+    "izulu==0.5.4",
+    "packaging>=19",
+    "pycron<4.0.0,>=3.0.0",
+    "pydantic<=3.0,>=1.0",
+    "pytz",
+    "taskiq-dependencies<2,>=1.3.1",
+    "typing-extensions>=3.10.0.0",
+]
+files = [
+    {file = "taskiq-0.11.13-py3-none-any.whl", hash = "sha256:df4db3c2d43b33360b1de18d9d7195397e553fa45b7a559be26236f08cecddad"},
+    {file = "taskiq-0.11.13.tar.gz", hash = "sha256:6d6d14807921b8ffa95a8418f992cf30edb9d8f9557c5f737c82ecaab8c387ea"},
+]
+
+[[package]]
+name = "taskiq-dependencies"
+version = "1.5.7"
+requires_python = "<4.0,>=3.9"
+summary = "FastAPI like dependency injection implementation"
+groups = ["default"]
+marker = "python_version >= \"3.12\""
+dependencies = [
+    "typing-extensions>=4.6.3; python_version < \"3.10\"",
+]
+files = [
+    {file = "taskiq_dependencies-1.5.7-py3-none-any.whl", hash = "sha256:6fcee5d159bdb035ef915d4d848826169b6f06fe57cc2297a39b62ea3e76036f"},
+    {file = "taskiq_dependencies-1.5.7.tar.gz", hash = "sha256:0d3b240872ef152b719153b9526d866d2be978aeeaea6600e878414babc2dcb4"},
 ]
 
 [[package]]
@@ -1067,4 +1169,16 @@ files = [
     {file = "yarl-1.18.3-cp313-cp313-win_amd64.whl", hash = "sha256:578e281c393af575879990861823ef19d66e2b1d0098414855dd367e234f5b3c"},
     {file = "yarl-1.18.3-py3-none-any.whl", hash = "sha256:b57f4f58099328dfb26c6a771d09fb20dbbae81d20cfb66141251ea063bd101b"},
     {file = "yarl-1.18.3.tar.gz", hash = "sha256:ac1801c45cbf77b6c99242eeff4fffb5e4e73a800b5c4ad4fc0be5def634d2e1"},
+]
+
+[[package]]
+name = "zipp"
+version = "3.21.0"
+requires_python = ">=3.9"
+summary = "Backport of pathlib-compatible object wrapper for zip files"
+groups = ["default"]
+marker = "python_version >= \"3.12\""
+files = [
+    {file = "zipp-3.21.0-py3-none-any.whl", hash = "sha256:ac1bbe05fd2991f160ebce24ffbac5f6d11d83dc90891255885223d42b3cd931"},
+    {file = "zipp-3.21.0.tar.gz", hash = "sha256:2c9958f6430a2040341a52eb608ed6dd93ef4392e02ffe219417c1b28b5dd1f4"},
 ]
