@@ -5,7 +5,7 @@ description = "Powerful Toolkit for ActivityPub Implementations."
 authors = [
     {name = "AmaseCocoa", email = "cocoa@amase.cc"},
 ]
-dependencies = ["apsig>=0.3.0", "pyfill>=0.1.0" , "apmodel"]
+dependencies = ["apsig>=0.4.0", "pyfill>=0.1.0" , "apmodel"]
 requires-python = ">=3.10"
 readme = "README.md"
 classifiers = [
