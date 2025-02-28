@@ -39,6 +39,7 @@ class APKit:
         self.nodeinfo_funcs = {"2.0": self.default_nodeinfo}
 
         self.activity_funcs: dict = {}
+        self.inbox_func = None
 
         self.config: Config = config if config else Config()
 
@@ -56,6 +57,13 @@ class APKit:
         def decorator(func):
             self.nodeinfo_funcs[version] = func
             print(self.nodeinfo_funcs)
+            return func
+
+        return decorator
+
+    def on_inbox(self):
+        def decorator(func):
+            self.inbox_func = func
             return func
 
         return decorator
