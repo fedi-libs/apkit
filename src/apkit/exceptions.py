@@ -1,0 +1,2 @@
+class APTypeError(Exception):
+    pass
