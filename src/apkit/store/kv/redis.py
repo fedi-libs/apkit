@@ -9,7 +9,6 @@ class RedisStore(BaseStore):
         super().__init__()
         self.redis = aioredis.from_url(f"redis://{password + "@" if password else ""}{host}:{port}/{db}") # host=host, port=port, db=db, password=password
 
-
     async def set(self, key, value): 
         await self.redis.set(f"apkit:{key}", value, ex=86400)
 
