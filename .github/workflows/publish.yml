@@ -1,0 +1,58 @@
+name: Publish Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Merge main into stable
+        run: |
+          git checkout origin/stable
+          git merge -m "build: merge latest main branch" origin/main
+          git push origin HEAD:stable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/apsig
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v4
+
+      - name: Set PDM_BUILD_SCM_VERSION
+        run: echo "PDM_BUILD_SCM_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Display PDM_BUILD_SCM_VERSION
+        run: echo "PDM_BUILD_SCM_VERSION is $PDM_BUILD_SCM_VERSION"
+
+      - name: Build Package
+        run: |
+          pdm install --production
+          pdm build
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
