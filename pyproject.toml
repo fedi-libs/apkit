@@ -1,11 +1,11 @@
 [project]
 name = "apkit"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Powerful Toolkit for ActivityPub Implementations."
 authors = [
     {name = "AmaseCocoa", email = "cocoa@amase.cc"},
 ]
-dependencies = ["apsig>=0.4.0", "pyfill>=0.1.0" , "apmodel"]
+dependencies = ["apsig>=0.4.0", "pyfill>=0.1.0" , "apmodel>=0.2.4", "aiohttp>=3.11.13", "cryptography>=44.0.1", "aiosqlite>=0.21.0", "starlette>=0.46.2"]
 requires-python = ">=3.10"
 readme = "README.md"
 classifiers = [
@@ -18,18 +18,10 @@ classifiers = [
 license = {text = "MIT"}
 
 [project.optional-dependencies]
-startelle = [
-    "starlette>=0.45.3",
-]
-notturno = [
-    "notturno>=0.1.4",
-]
-starlette = [
-    "uvicorn>=0.34.0",
-]
 redis = [
     "redis>=5.2.1",
 ]
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
@@ -37,3 +29,9 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
+
+
+[tool.pdm.version]
+source = "scm"
+write_to = "apkit/_version.py"
+write_template = "__version__ = '{}'"
