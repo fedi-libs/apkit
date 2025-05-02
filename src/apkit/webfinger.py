@@ -41,6 +41,9 @@ class Resource:
     username: str
     host: str
 
+    def to_string(self) -> str:
+        return f"acct:{self.username}@{self.host}"
+
     def parse(self, resource: str) -> Resource:
         if resource.startswith("acct:"):
             username_split = resource.split(":")[1].split("@")
