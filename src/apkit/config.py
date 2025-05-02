@@ -5,8 +5,11 @@ import logging
 from .store.base import BaseStore
 from .store.kv.inmemory import InMemoryStore
 
+from ._version import __version__
+
 class Config:
     allow_private_ip: bool = False
+    user_agent = f"apkit/{__version__}"
     max_redirects: int = 5
     kv: BaseStore = InMemoryStore()
     inbox_urls: list[str] = ["/inbox"]
