@@ -1,17 +1,6 @@
+import functools
 from typing import Optional
 
-from apmodel import (
-    Accept,
-    Announce,
-    Block,
-    Create,
-    Delete,
-    Follow,
-    Like,
-    Reject,
-    Undo,
-    Update,
-)
 from apmodel.nodeinfo.ni20.nodeinfo import (
     NodeInfo,
     ProtocolEnum,
@@ -40,8 +29,10 @@ class APKit:
 
         self.activity_funcs: dict = {}
         self.inbox_func = None
+        self.webfinger_func = None
 
         self.config: Config = config if config else Config()
+        self.config.compile()
 
     async def default_nodeinfo(self) -> NodeInfo | dict:
         return NodeInfo(
@@ -55,85 +46,39 @@ class APKit:
 
     def nodeinfo(self, version: str):
         def decorator(func):
-            self.nodeinfo_funcs[version] = func
-            print(self.nodeinfo_funcs)
-            return func
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            self.nodeinfo_funcs[version] = wrapper
+            return wrapper
+        return decorator
+
+    def inbox(self):
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            self.inbox_func = wrapper
+            return wrapper
 
         return decorator
 
-    def on_inbox(self):
+    def webfinger(self):
         def decorator(func):
-            self.inbox_func = func
-            return func
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            self.webfinger_func = wrapper
+            return wrapper
 
         return decorator
-
-    def on_create(self):
+    
+    def on(self, type):
         def decorator(func):
-            self.activity_funcs[Create] = func
-            return func
-
-        return decorator
-
-    def on_undo(self):
-        def decorator(func):
-            self.activity_funcs[Undo] = func
-            return func
-
-        return decorator
-
-    def on_accept(self):
-        def decorator(func):
-            self.activity_funcs[Accept] = func
-            return func
-
-        return decorator
-
-    def on_reject(self):
-        def decorator(func):
-            self.activity_funcs[Reject] = func
-            return func
-
-        return decorator
-
-    def on_like(self):
-        def decorator(func):
-            self.activity_funcs[Like] = func
-            return func
-
-        return decorator
-
-    def on_delete(self):
-        def decorator(func):
-            self.activity_funcs[Delete] = func
-            return func
-
-        return decorator
-
-    def on_update(self):
-        def decorator(func):
-            self.activity_funcs[Update] = func
-            return func
-
-        return decorator
-
-    def on_follow(self):
-        def decorator(func):
-            self.activity_funcs[Follow] = func
-            return func
-
-        return decorator
-
-    def on_announce(self):
-        def decorator(func):
-            self.activity_funcs[Announce] = func
-            return func
-
-        return decorator
-
-    def on_block(self):
-        def decorator(func):
-            self.activity_funcs[Block] = func
-            return func
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            self.activity_funcs[type] = wrapper
+            return wrapper
 
         return decorator
