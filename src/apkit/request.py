@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import asyncio
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from apsig.draft import Signer as DraftSigner
+from apmodel import Object, Link, Activity
 import aiohttp
 from cryptography.hazmat.primitives.asymmetric import rsa
 
@@ -60,8 +61,11 @@ class ApRequest:
         return response
 
     async def signed_post(
-        self, url: str, data: Dict[str, Any], headers: Optional[Dict[str, str]] = None
+        self, url: str, data: Union[Dict[str, Any], Object, Activity, Link], headers: Optional[Dict[str, str]] = None
     ) -> aiohttp.ClientResponse:
+        if isinstance(data, Object) or isinstance(data, Link) or isinstance(data, Activity):
+            data = data.to_dict()
+
         if self.private_key is None or self.key_id is None:
             raise ValueError("Private key and key ID must be set for signing.")
 
