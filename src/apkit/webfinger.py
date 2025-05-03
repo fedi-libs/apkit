@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
 from dataclasses import dataclass
+from urllib.parse import urlparse
 
 @dataclass
 class Link:
@@ -50,5 +51,16 @@ class Resource:
             self.username = username_split[0]
             self.host = username_split[1]
             return self
+        elif resource.startswith("https://") or resource.startswith("http://"):
+            url = urlparse(resource)
+            if url.path.startswith("/@"):
+                self.username = url.path[2:]
+                if url.hostname:
+                    self.host = url.hostname
+                    return self
+                else:
+                    raise ValueError("Invalid url hostname.")
+            else:
+                raise ValueError("Invalid url format. Excepted 'https://host/@username")
         else:
             raise ValueError("Invalid resource format. Expected 'acct:username@host'.")
