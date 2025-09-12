@@ -8,7 +8,8 @@
 ### 🐛 Bug Fixes
 
 - Allow resource to parse even if resource is url (limited support)
-## [0.2.0](https://github.com/fedi-libs/apmodel/releases/tag/0.2.0) - 2025-05-02
+
+## [0.2.0](https://github.com/fedi-libs/apkit/releases/tag/0.2.0) - 2025-05-02
 
 ### 🚀 Features
 
