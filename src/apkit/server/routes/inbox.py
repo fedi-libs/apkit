@@ -2,7 +2,6 @@ import json
 import sys
 from typing import Callable, Dict, Union, TYPE_CHECKING
 import logging
-from pprint import pprint
 
 import apmodel
 from fastapi import Request, Response

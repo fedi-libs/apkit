@@ -48,17 +48,12 @@ class Context:
                 if isinstance(key.private_key, rsa.RSAPrivateKey):
                     priv_key = key.private_key
                     key_id = key.key_id
-                    print("RSAPrivateKey Found.")
                     break
             if priv_key and key_id and inbox:
                 async with client.post(inbox, key_id=key_id, signature=priv_key, json=activity) as resp:
-                    print(resp.ok)
-                    print(await resp.text())
                     return None
             else:
-                print(f"PrivateKey: {priv_key}")
-                print(f"KeyId: {key_id}")
-                print(f"Inbox: {inbox}")
+                pass
 
     async def get_actor_keys(self, identifier: Optional[str]) -> List[ActorKey]:
         if identifier:
