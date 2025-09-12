@@ -1,5 +1,5 @@
 
-## How to Contribution
+## How to Contribute
 
 Thank you for your interest in contributing to `apkit`! To ensure a smooth collaboration, please read and follow these guidelines.
 
