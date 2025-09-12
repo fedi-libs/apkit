@@ -214,8 +214,6 @@ class InboxVerifier:
                 return True
         except Exception as e:
             self.logger.debug(f"LDSignature verification failed; {str(e)}")
-        else:
-            self.logger.debug("LDSignature verification skipped;")
         try:
             draft = await self.__verify_draft(body, url, method, headers)
             if draft:
