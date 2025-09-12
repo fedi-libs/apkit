@@ -1,0 +1,34 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - uv sync --locked --all-extras --dev
+    silent: true
+  sync:
+    cmds:
+      - uv sync --all-extras --dev
+    silent: true
+  upgrade:
+    cmds:
+      - uv lock --upgrade
+      - uv sync --locked --all-extras --dev
+    silent: true
+  test:
+    cmds:
+      - uv run pytest
+    silent: true
+  build:
+    cmds:
+      - cmd: rm --rf dist
+        platforms: [linux, darwin]
+      - cmd: rmdir /s /q dist
+        platforms: [windows]
+      - uv build
+    silent: true
+  changelog:
+    cmds:
+      - uv run git cliff -o CHANGELOG.md
+      - git add CHANGELOG.md
+      - 'git commit -m "chore: update changelog [skip ci]"'
+    silent: true
