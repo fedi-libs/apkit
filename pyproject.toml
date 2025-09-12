@@ -9,8 +9,8 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "aiohttp>=3.12.15",
-    "apmodel>=0.4.0",
-    "apsig>=0.5.3",
+    "apmodel>=0.4.1",
+    "apsig>=0.5.4",
     "httpx>=0.28.1",
 ]
 
