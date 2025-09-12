@@ -40,19 +40,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v4
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+            version: ">=0.7.21,<0.8"
 
-      - name: Set PDM_BUILD_SCM_VERSION
-        run: echo "PDM_BUILD_SCM_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Set SETUPTOOLS_SCM_PRETEND_VERSION
+        run: echo "SETUPTOOLS_SCM_PRETEND_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      - name: Display PDM_BUILD_SCM_VERSION
-        run: echo "PDM_BUILD_SCM_VERSION is $PDM_BUILD_SCM_VERSION"
+      - name: Display SETUPTOOLS_SCM_PRETEND_VERSION
+        run: echo "SETUPTOOLS_SCM_PRETEND_VERSION is $SETUPTOOLS_SCM_PRETEND_VERSION"
 
       - name: Build Package
         run: |
-          pdm install --production
-          pdm build
+          uv sync --locked
+          uv build
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

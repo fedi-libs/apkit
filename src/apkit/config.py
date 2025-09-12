@@ -1,25 +1,18 @@
+from dataclasses import dataclass, field
+from typing import Any, Awaitable, Callable, Generic, List, Optional, TYPE_CHECKING
 
-from logging import Logger
-import logging
+from .cache import Cache
+from .kv import KT, VT, KeyValueStore
+from .kv.inmemory import InMemoryKV
 
-from .store.base import BaseStore
-from .store.kv.inmemory import InMemoryStore
+if TYPE_CHECKING:
+    from .server.types import ActorKey
 
-from ._version import __version__
+@dataclass
+class AppConfig(Generic[KT, VT]):
+    actor_keys: Optional[Callable[[str], Awaitable[List["ActorKey"]]]] = None
+    kv: KeyValueStore[KT, Any] = field(default_factory=InMemoryKV)
+    cache: Cache = field(default_factory=lambda: Cache(None))
 
-class Config:
-    allow_private_ip: bool = False
-    user_agent = f"apkit/{__version__}"
-    max_redirects: int = 5
-    kv: BaseStore = InMemoryStore()
-    inbox_urls: list[str] = ["/inbox"]
-
-    logger: Logger = logging.getLogger("apkit")
-
-    def compile(self):
-        """Compile inbox_urls, etc. into a usable format
-        """
-        urls = []
-        for url in self.inbox_urls:
-            urls.append(url.replace("{identifier}", r"[^/]+"))
-        self.inbox_urls = urls
+    def __post_init__(self):
+        self.cache = Cache(self.kv) if self.cache._store is None else self.cache # pyright: ignore[reportAttributeAccessIssue]

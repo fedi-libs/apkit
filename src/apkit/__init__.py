@@ -1,11 +1,4 @@
-from .apkit import APKit
-from .config import Config
-from .request import ApRequest
-from ._version import __version__
+from .server.app import ActivityPubServer
+from ._version import __version__, __version_tuple__
 
-__all__ = [
-    "APKit",
-    "Config",
-    "ApRequest",
-    "__version__",
-]
+__all__ = ["ActivityPubServer", "__version__", "__version_tuple__"]
