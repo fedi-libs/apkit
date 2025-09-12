@@ -12,7 +12,6 @@ dependencies = [
     "apmodel>=0.4.0",
     "apsig>=0.5.3",
     "httpx>=0.28.1",
-    "niquests>=3.15.2",
 ]
 
 [project.urls]
@@ -21,6 +20,9 @@ Issues = "https://github.com/fedi-libs/apkit/issues"
 Changelog = "https://github.com/fedi-libs/apkit/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
+redis = [
+    "redis>=5.0.4",
+]
 server = [
     "fastapi>=0.116.1",
     "uvicorn>=0.35.0",
