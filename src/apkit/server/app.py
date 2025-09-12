@@ -24,6 +24,8 @@ from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
 from starlette.routing import BaseRoute
 
+from apkit.server.routes.outbox import create_outbox_route
+
 from ..client.models import Resource as WebfingerResource
 from .subrouter import SubRouter
 from .types import ActorKey, Context, Outbox
@@ -140,9 +142,11 @@ class ActivityPubServer(FastAPI):
         return await r(request=request)
 
     async def __outbox_route(self, request: Request):
-        func = self.__ap_outbox
-        if func:
-            return await func(Context(self, Activity(), request))
+        if self.__ap_outbox:
+            r = create_outbox_route(self, self.__ap_outbox)
+            if r:
+                return await r(request=request)
+        return Response("Not Found", status_code=404)
 
     async def __webfinger_route(self, request: Request):
         func = self.__ap_webfinger_route

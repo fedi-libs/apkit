@@ -39,6 +39,5 @@ def create_inbox_route(apkit: "ActivityPubServer", config: AppConfig, routes: Di
             else:
                 logger.debug("Activity received but, Not found :(")
                 return JSONResponse({"message": "Ok"}, status_code=200)
-        pprint(activity)
         return JSONResponse({"message": "Body is not Activity"}, status_code=400)
     return on_inbox_internal
