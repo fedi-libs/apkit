@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 
 @dataclass(frozen=True)
 class Resource:
@@ -8,6 +8,7 @@ class Resource:
 
     username: str
     host: str
+    url: Optional[str]
 
     def __str__(self) -> str:
         return f"acct:{self.username}@{self.host}"
@@ -20,10 +21,11 @@ class Resource:
 
         match = re.match(r"^([^@]+)@([^@]+)$", resource_str)
         if not match:
-            raise ValueError(f"Invalid resource format: {resource_str}")
+            return cls(username="", host="", url=resource_str)
+            #raise ValueError(f"Invalid resource format: {resource_str}")
 
         username, host = match.groups()
-        return cls(username=username, host=host)
+        return cls(username=username, host=host, url=None)
 
     def export(self) -> str:
         return f"acct:{self.username}@{self.host}"
