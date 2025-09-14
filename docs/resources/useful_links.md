@@ -26,8 +26,6 @@ This section includes links to the source code for `apkit` and its core dependen
 !!! tip "Add your project!"
     Are you using `apkit` in your project? We'd love to feature it here! Please [open a pull request](https://github.com/fedi-libs/apkit/pulls) to add it to the list.
 
-### Author's Resource
-
 ## Developer Resources
 
 General resources that are useful when contributing to `apkit`.
