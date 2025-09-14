@@ -34,7 +34,6 @@ The key features are:
 
 * **FastAPI-based Server**: Build high-performance, production-ready ActivityPub servers with the power and simplicity of FastAPI.
 * **Async Client**: Interact with other Fediverse servers using a modern `async` HTTP client.
-* **Pydantic Models**: Robust, type-hinted models for ActivityPub objects, providing data validation and editor support.
 * **Built-in Helpers**: Simplified setup for Webfinger, NodeInfo, HTTP Signatures, and other Fediverse protocols.
 * **Extensible**: Designed to be flexible and easy to extend for your own custom ActivityPub logic.
 
