@@ -18,6 +18,10 @@ tasks:
     cmds:
       - uv run pytest
     silent: true
+  docs:
+    cmds:
+      - uv run mkdocs build
+    silent: true
   build:
     cmds:
       - cmd: rm --rf dist

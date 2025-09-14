@@ -1,0 +1,70 @@
+site_name: apkit
+site_url: https://fedi-libs.github.io/apkit
+repo_url: https://github.com/fedi-libs/apkit
+edit_uri: edit/main/docs/
+
+nav:
+  - Home: index.md
+  - Tutorial: tutorial.md
+  - Guides:
+    - Overview: guides/index.md
+    - Configuration: guides/configuration.md
+    - Client: guides/client.md
+    - Server: guides/server.md
+    - Models: guides/models.md
+    - KV Store: guides/kv_store.md
+  - Resources:
+    - Overview: resources/index.md
+    - Contribution Guide: resources/contributing.md
+    - Useful Links: resources/useful_links.md
+    - Security Policy: resources/security.md
+  - About: about.md
+
+theme:
+  name: material
+  language: en
+  palette:
+    primary: red
+    scheme: slate
+    accent: purple
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - tags
+    - content.action.edit
+
+plugins:
+  - search
+
+markdown_extensions:
+  # Python Markdown
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+
+  # Python Markdown Extensions
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
