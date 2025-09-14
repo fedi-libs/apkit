@@ -26,6 +26,8 @@ This section includes links to the source code for `apkit` and its core dependen
 !!! tip "Add your project!"
     Are you using `apkit` in your project? We'd love to feature it here! Please [open a pull request](https://github.com/fedi-libs/apkit/pulls) to add it to the list.
 
+*   **[How to Build a Simple ActivityPub Reminder Bot in Python](https://hackers.pub/@cocoa/2025/how-to-build-a-simple-activitypub-reminder-bot-in-python) ([PythonとActivityPubでリマインダーBotを作ろう](https://zenn.dev/amasecocoa/articles/1449d43069d549#%E3%81%BE%E3%81%A8%E3%82%81))** by @AmaseCocoa
+
 ## Developer Resources
 
 General resources that are useful when contributing to `apkit`.
