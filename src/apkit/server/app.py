@@ -206,13 +206,13 @@ class ActivityPubServer(FastAPI):
             return decorator(func)
 
         return decorator
-
+        
     def outbox(self, *args) -> None:
         for path in args:
             self.add_api_route(
                 path=path,
                 endpoint=self.__outbox_route,
-                methods=["POST"],
+                methods=["GET"],
                 name=f"__apkit_outbox_{path}",
                 include_in_schema=False,
             )
