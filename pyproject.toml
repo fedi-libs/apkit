@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "AmaseCocoa", email = "cocoa@amase.cc" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "aiohttp>=3.12.15",
     "apmodel>=0.4.1",
