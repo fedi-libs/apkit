@@ -3,7 +3,9 @@
 </style>
 
 <p align="center">
-  <h1>apkit</h1>
+  <a href="https://fedi-libs.github.io/apkit">
+    <img src="https://raw.githubusercontent.com/fedi-libs/assets/refs/heads/main/png/apkit.png" alt="apkit" />
+  </a>
 </p>
 <p align="center">
     <em>Powerful Toolkit for ActivityPub Implementations.</em>
