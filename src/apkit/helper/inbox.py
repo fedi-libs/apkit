@@ -46,7 +46,11 @@ class InboxVerifier:
         keys = {}
         if isinstance(actor.publicKey, CryptographicKey):
             keys[actor.publicKey.id] = actor.publicKey.publicKeyPem
-        elif "publicKeyPem" in actor.publicKey:
+        elif (
+            isinstance(actor.publicKey, dict)
+            and "id" in actor.publicKey
+            and "publicKeyPem" in actor.publicKey
+        ):
             keys[actor.publicKey["id"]] = actor.publicKey["publicKeyPem"]
         if actor.assertionMethod:
             for method in actor.assertionMethod:
