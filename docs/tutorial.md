@@ -25,7 +25,7 @@ First, let's import the necessary components and set up a basic server and a `Pe
 import uuid
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
-from cryptography.hazmat.primitives import rsa
+from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 
 from apkit.server import ActivityPubServer, SubRouter
@@ -35,7 +35,7 @@ from apkit.models import (
     Person, CryptographicKey, Follow, Actor as APKitActor,
     Nodeinfo, NodeinfoSoftware, NodeinfoProtocol, NodeinfoServices, NodeinfoUsage, NodeinfoUsageUsers
 )
-from apkit.client.models import Resource, WebfingerResult, WebfingerLink
+from apkit.client import WebfingerResource, WebfingerResult, WebfingerLink
 from apkit.client.asyncio.client import ActivityPubClient
 
 # --- Configuration ---
@@ -89,7 +89,7 @@ Webfinger allows users on other servers to find your actor using an address like
 ```python
 # main.py (continued)
 @app.webfinger()
-async def webfinger_endpoint(request: Request, acct: Resource) -> Response:
+async def webfinger_endpoint(request: Request, acct: WebfingerResource) -> Response:
     if acct.username == "demo" and acct.host == HOST:
         link = WebfingerLink(
             rel="self",
@@ -208,7 +208,7 @@ Here is the complete code for `main.py`:
 import uuid
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
-from cryptography.hazmat.primitives import rsa
+from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 
 from apkit.server import ActivityPubServer, SubRouter
@@ -218,7 +218,7 @@ from apkit.models import (
     Person, CryptographicKey, Follow, Actor as APKitActor,
     Nodeinfo, NodeinfoSoftware, NodeinfoProtocol, NodeinfoServices, NodeinfoUsage, NodeinfoUsageUsers
 )
-from apkit.client.models import Resource, WebfingerResult, WebfingerLink
+from apkit.client import WebfingerResource, WebfingerResult, WebfingerLink
 from apkit.client.asyncio.client import ActivityPubClient
 
 # --- Configuration ---
@@ -268,7 +268,7 @@ async def get_actor_endpoint(identifier: str):
     return JSONResponse({"error": "Not Found"}, status_code=404)
 
 @app.webfinger()
-async def webfinger_endpoint(request: Request, acct: Resource) -> Response:
+async def webfinger_endpoint(request: Request, acct: WebfingerResource) -> Response:
     if acct.username == "demo" and acct.host == HOST:
         link = WebfingerLink(
             rel="self",
