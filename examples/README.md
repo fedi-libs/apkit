@@ -6,7 +6,7 @@ message (Note) to another user using federation.
 
 ## Prerequisites
 
-1. Python 3.8 or higher
+1. Python 3.11 or higher
 2. Virtual environment (recommended)
 3. ngrok installed (for local testing)
 4. A Fediverse account to send messages to
