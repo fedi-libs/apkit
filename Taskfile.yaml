@@ -15,8 +15,17 @@ tasks:
       - uv sync --locked --all-extras --dev
     silent: true
   test:
+    deps:
+      - default
     cmds:
       - uv run pytest
+    silent: true
+  test-coverage:
+    deps:
+      - default
+    cmds:
+      - uv run coverage run -m pytest
+      - uv run coverage html
     silent: true
   docs:
     cmds:
