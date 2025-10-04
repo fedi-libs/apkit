@@ -32,13 +32,17 @@ logger = logging.getLogger(__name__)
 HOST = os.getenv("APKIT_DOMAIN")
 if HOST is None:
     logger.error(
-        "Envirconment variable APKIT_DOMANI is not set. See README.md how to set the variable."
+        "Environnment variable APKIT_DOMANI is not set. See README.md how to set the variable."
     )
     sys.exit(1)
 
 logger.info(f"Using {HOST} as host name.")
 
 USER_ID = "demo"
+
+logger.info(
+    f"You can now find the actor by searching for @{USER_ID}@{HOST} on the Fediverse."
+)
 
 # --- Key Persistence ---
 KEY_FILE = "private_key.pem"

@@ -10,6 +10,10 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from datetime import datetime, UTC
 
+if len(sys.argv) < 2:
+    print("USAGE: python send_message.py <RECEPIENT_URI>", file=sys.stderr)
+    sys.exit(1)
+
 # --- Logging Setup ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,6 +29,7 @@ if HOST is None:
 logger.info(f"Using {HOST} as host name.")
 
 USER_ID = "demo"
+
 
 # --- Key Persistence ---
 KEY_FILE = "private_key.pem"
@@ -74,9 +79,11 @@ actor = Person(
 
 async def send_note(recepient: str) -> None:
     async with ActivityPubClient() as client:
+        # TODO: convert username like alice@social.example.net to URI
+
         # Fetch a remote Actor
         target_actor = await client.actor.fetch(recepient)
-        print(f"Fetched actor: {target_actor.name}")
+        logger.info(f"Fetched actor: {target_actor.name}")
 
         # Get the inbox URL from the actor's profile
         inbox_url = target_actor.inbox
@@ -108,7 +115,8 @@ async def send_note(recepient: str) -> None:
         # Deliver the activity
         logger.info("Delivering activity...")
 
-        print(create.to_json())
+        # Uncomment the following line if you want to see the code of the activity.
+        # print(create.to_json())
 
         resp = await client.post(
             inbox_url, key_id=actor.publicKey.id, signature=private_key, json=create
@@ -120,4 +128,6 @@ async def send_note(recepient: str) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(send_note())
+    recepient = sys.argv[1]
+
+    asyncio.run(send_note(recepient))

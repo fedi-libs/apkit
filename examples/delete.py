@@ -10,6 +10,11 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from datetime import datetime, UTC
 
+if len(sys.argv) < 3:
+    print("USAGE: python delete.py <RECEPIENT_URI> <OBJECT_ID>", file=sys.stderr)
+    sys.exit(1)
+
+
 # --- Logging Setup ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -72,11 +77,11 @@ actor = Person(
 )
 
 
-async def delete_note(recepient: str, target_uri: str) -> None:
+async def delete_note(recepient: str, object_id: str) -> None:
     async with ActivityPubClient() as client:
         # Fetch a remote Actor
         target_actor = await client.actor.fetch(recepient)
-        print(f"Fetched actor: {target_actor.name}")
+        logger.info(f"Fetched actor: {target_actor.name}")
 
         # Get the inbox URL from the actor's profile
         inbox_url = target_actor.inbox
@@ -89,7 +94,7 @@ async def delete_note(recepient: str, target_uri: str) -> None:
         delete = Delete(
             id=f"https://{HOST}/activities/{uuid.uuid4()}",
             actor=f"https://{HOST}/users/{USER_ID}",
-            object=target_uri,
+            object=object_id,
             published=datetime.now(UTC).isoformat() + "Z",
             to=[target_actor.id],
             cc=["https://www.w3.org/ns/activitystreams#Public"],
@@ -105,4 +110,7 @@ async def delete_note(recepient: str, target_uri: str) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(delete_note())
+    recepient = sys.argv[1]
+    object_id = sys.argv[2]
+
+    asyncio.run(delete_note(recepient, object_id))
