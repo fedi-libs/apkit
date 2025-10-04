@@ -147,7 +147,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.12.15" },
-    { name = "apmodel", git = "https://github.com/fedi-libs/apmodel.git?branch=better-loader" },
+    { name = "apmodel", git = "https://github.com/fedi-libs/apmodel.git" },
     { name = "apsig", git = "https://github.com/fedi-libs/apsig.git" },
     { name = "fastapi", marker = "extra == 'server'", specifier = ">=0.116.1" },
     { name = "httpx", specifier = ">=0.28.1" },
@@ -168,8 +168,8 @@ docs = [
 
 [[package]]
 name = "apmodel"
-version = "0.4.1.post1.dev2+g0a6d77971"
-source = { git = "https://github.com/fedi-libs/apmodel.git?branch=better-loader#0a6d77971fabb822fe221ce23c18f33256e01dd0" }
+version = "0.4.4"
+source = { git = "https://github.com/fedi-libs/apmodel.git#004b1fc2e7a36e7154647217b5f6b9d4ab79a5ac" }
 dependencies = [
     { name = "cryptography" },
     { name = "multiformats" },
