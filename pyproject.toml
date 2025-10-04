@@ -48,6 +48,7 @@ version-file = "src/apkit/_version.py"
 
 [dependency-groups]
 dev = [
+    "coverage>=7.10.7",
     "git-cliff>=2.10.0",
     "pytest>=8.4.1",
 ]
