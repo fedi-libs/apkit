@@ -112,7 +112,7 @@ async def send_note():
             id=f"https://{HOST}/notes/{uuid.uuid4()}",
             attributedTo=actor.id,
             content=f"<p>Hello from apkit</p>",
-            published=datetime.now(UTC).isoformat() + "Z",
+            published=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             to=[target_actor.id],
             cc=["https://www.w3.org/ns/activitystreams#Public"],
         )
