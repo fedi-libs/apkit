@@ -1,6 +1,6 @@
-# apikit examples
+# apkit examples
 
-This guide demonstrates how to use apikit to interact with other servers on
+This guide demonstrates how to use apkit to interact with other servers on
 the Fediverse using the ActivityPub protocol. The example shows how to send a
 message (Note) to another user using federation.
 
