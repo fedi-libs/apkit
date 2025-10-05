@@ -177,7 +177,7 @@ async def delete_note():
             id=f"https://{HOST}/activities/{uuid.uuid4()}",
             actor=f"https://{HOST}/users/{USER_ID}",
             object=URI,
-            published=datetime.now(UTC).isoformat() + "Z",
+            published=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             to=[target_actor.id],
             cc=["https://www.w3.org/ns/activitystreams#Public"],
         )
