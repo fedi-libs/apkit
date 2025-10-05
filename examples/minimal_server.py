@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 HOST = os.getenv("APKIT_DOMAIN")
 if HOST is None:
     logger.error(
-        "Environnment variable APKIT_DOMANI is not set. See README.md how to set the variable."
+        "Environnment variable APKIT_DOMAIN is not set. See README.md how to set the variable."
     )
     sys.exit(1)
 
