@@ -175,7 +175,7 @@ async def delete_note():
         # Delete activity
         delete = Delete(
             id=f"https://{HOST}/activities/{uuid.uuid4()}",
-            actor=f"https://{HOST}/users/{USER_ID}",
+            actor=actor.id,
             object=URI,
             published=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             to=[target_actor.id],
