@@ -122,7 +122,7 @@ async def send_note():
             id=f"https://{HOST}/creates/{uuid.uuid4()}",
             actor=actor.id,
             object=note.to_json(),            # embed the note into the activity
-            published=datetime.now(UTC).isoformat() + "Z",
+            published=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             to=note.to,                       # re-use the information from the note
             cc=note.cc
         )
