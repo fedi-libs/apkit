@@ -7,7 +7,7 @@ import os
 import sys
 
 from apkit.server import ActivityPubServer
-from apkit.server.types import Context, ActorKey
+from apkit.server.types import Context, ActorKey, Outbox
 from apkit.server.responses import ActivityResponse
 from apkit.models import (
     Person,
@@ -20,6 +20,8 @@ from apkit.models import (
     NodeinfoServices,
     NodeinfoUsage,
     NodeinfoUsageUsers,
+    OrderedCollection,
+    OrderedCollectionPage,
 )
 from apkit.client import WebfingerResource, WebfingerResult, WebfingerLink
 from apkit.client.asyncio.client import ActivityPubClient
@@ -140,6 +142,23 @@ async def nodeinfo_endpoint():
         )
     )
 
+@app.on(Outbox)
+async def outbox(ctx: Context):
+    identifier = ctx.request.path_params.get("identifier")
+
+    if identifier != USER_ID:
+        return Response(status_code=404)
+
+    if not ctx.request.query_params.get("page"):
+        outbox = OrderedCollection()
+        outbox.totalItems = 0  # No letter in the mail today.
+        outbox.id = f"https://{HOST}/users/{identifier}/outbox"
+        outbox.first = f"{outbox.id}?page=true"
+        outbox.last = f"{outbox.id}?min_id=0&page=true"
+    else:
+        outbox = OrderedCollectionPage()
+
+    return ActivityResponse(outbox)
 
 # --- Activity Handlers ---
 @app.on(Follow)
