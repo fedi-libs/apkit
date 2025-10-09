@@ -95,7 +95,7 @@ app = ActivityPubServer()
 
 # --- Key Retrieval Function ---
 # This function provides the private key for signing outgoing activities.
-async def get_keys_for_actor(identifier: str) -> list[ActorKey]:
+def get_keys_for_actor(identifier: str) -> list[ActorKey]:
     if identifier == USER_ID:
         return [ActorKey(key_id=actor.publicKey.id, private_key=private_key)]
     return []
@@ -143,7 +143,7 @@ async def nodeinfo_endpoint():
 
 # --- Activity Handlers ---
 @app.on(Follow)
-async def on_follow_activity(ctx: Context):
+async def on_follow_activity(ctx: Context) -> Response:
     activity = ctx.activity
     if not isinstance(activity, Follow):
         return JSONResponse({"error": "Invalid activity type"}, status_code=400)
@@ -161,9 +161,13 @@ async def on_follow_activity(ctx: Context):
             {"error": "Could not resolve follower actor"}, status_code=400
         )
 
+    logger.info(f"🫂 {follower_actor.name} follows me.")
+
     # Automatically accept the follow request
-    accept_activity = activity.accept()
+    id_ = "https://{HOST}/activity/{uuid.uuid4()}"
+    accept_activity = activity.accept(id_, actor)
 
     # Send the signed Accept activity back to the follower's inbox
-    await ctx.send(get_keys_for_actor, follower_actor, accept_activity)
+    keys = get_keys_for_actor(USER_ID)
+    await ctx.send(keys, follower_actor, accept_activity)
     return Response(status_code=202)
