@@ -7,7 +7,7 @@ import os
 import sys
 
 from apkit.server import ActivityPubServer
-from apkit.server.types import Context, ActorKey
+from apkit.server.types import Context, ActorKey, Outbox
 from apkit.server.responses import ActivityResponse
 from apkit.models import (
     Person,
@@ -20,6 +20,8 @@ from apkit.models import (
     NodeinfoServices,
     NodeinfoUsage,
     NodeinfoUsageUsers,
+    OrderedCollection,
+    OrderedCollectionPage,
 )
 from apkit.client import WebfingerResource, WebfingerResult, WebfingerLink
 from apkit.client.asyncio.client import ActivityPubClient
@@ -95,7 +97,7 @@ app = ActivityPubServer()
 
 # --- Key Retrieval Function ---
 # This function provides the private key for signing outgoing activities.
-async def get_keys_for_actor(identifier: str) -> list[ActorKey]:
+def get_keys_for_actor(identifier: str) -> list[ActorKey]:
     if identifier == USER_ID:
         return [ActorKey(key_id=actor.publicKey.id, private_key=private_key)]
     return []
@@ -140,10 +142,27 @@ async def nodeinfo_endpoint():
         )
     )
 
+@app.on(Outbox)
+async def outbox(ctx: Context):
+    identifier = ctx.request.path_params.get("identifier")
+
+    if identifier != USER_ID:
+        return Response(status_code=404)
+
+    if not ctx.request.query_params.get("page"):
+        outbox = OrderedCollection()
+        outbox.totalItems = 0  # No letter in the mail today.
+        outbox.id = f"https://{HOST}/users/{identifier}/outbox"
+        outbox.first = f"{outbox.id}?page=true"
+        outbox.last = f"{outbox.id}?min_id=0&page=true"
+    else:
+        outbox = OrderedCollectionPage()
+
+    return ActivityResponse(outbox)
 
 # --- Activity Handlers ---
 @app.on(Follow)
-async def on_follow_activity(ctx: Context):
+async def on_follow_activity(ctx: Context) -> Response:
     activity = ctx.activity
     if not isinstance(activity, Follow):
         return JSONResponse({"error": "Invalid activity type"}, status_code=400)
@@ -161,9 +180,13 @@ async def on_follow_activity(ctx: Context):
             {"error": "Could not resolve follower actor"}, status_code=400
         )
 
+    logger.info(f"🫂 {follower_actor.name} follows me.")
+
     # Automatically accept the follow request
-    accept_activity = activity.accept()
+    id_ = "https://{HOST}/activity/{uuid.uuid4()}"
+    accept_activity = activity.accept(id_, actor)
 
     # Send the signed Accept activity back to the follower's inbox
-    await ctx.send(get_keys_for_actor, follower_actor, accept_activity)
+    keys = get_keys_for_actor(USER_ID)
+    await ctx.send(keys, follower_actor, accept_activity)
     return Response(status_code=202)
