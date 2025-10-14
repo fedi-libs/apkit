@@ -1,6 +1,7 @@
 import re
-from dataclasses import dataclass
 from typing import Any, Dict, List, Union, Optional
+
+from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Resource:
@@ -8,7 +9,7 @@ class Resource:
 
     username: str
     host: str
-    url: Optional[str]
+    url: Optional[str] = None
 
     def __str__(self) -> str:
         return f"acct:{self.username}@{self.host}"
