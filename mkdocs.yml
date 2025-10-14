@@ -13,6 +13,9 @@ nav:
     - Server: guides/server.md
     - Models: guides/models.md
     - KV Store: guides/kv_store.md
+    - Advanced:
+      - Overview: guides/advanced/index.md
+      - Framework Integration: guides/advanced/framework_integration.md
   - Resources:
     - Overview: resources/index.md
     - Contribution Guide: resources/contributing.md

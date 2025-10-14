@@ -26,9 +26,11 @@ from starlette.routing import BaseRoute
 
 from apkit.server.routes.outbox import create_outbox_route
 
+from ..abc.server import AbstractApkitIntegration
 from ..client.models import Resource as WebfingerResource
+from ..types import Outbox
 from .subrouter import SubRouter
-from .types import ActorKey, Context, Outbox
+from .types import ActorKey, Context
 
 from ..config import AppConfig
 from .routes.nodeinfo import nodeinfo_links_route
@@ -37,7 +39,7 @@ from .routes.inbox import create_inbox_route
 AppType = TypeVar("AppType", bound="ActivityPubServer")
 
 
-class ActivityPubServer(FastAPI):
+class ActivityPubServer(AbstractApkitIntegration, FastAPI):
     def __init__(
         self: AppType,
         *,
@@ -172,19 +174,7 @@ class ActivityPubServer(FastAPI):
         )
         return super().setup()
 
-    """
-    def on(self, type: Union[type[Activity], type[Outbox]]):
-        def decorator(func):
-            if type == Activity:
-                self.__ap_events[type] = func
-            elif type == Outbox:
-                self.__ap_outbox = func
-            return func
-
-        return decorator
-    """
-
-    def on(self, type: Union[type[Activity], type[Outbox]], func: Optional[Callable] = None,):
+    def on(self, type: Union[type[Activity], type[Outbox]], func: Optional[Callable] = None):
         def decorator(func: Callable) -> Callable:
             if  issubclass(type, Activity):
                 self.__ap_events[type] = func

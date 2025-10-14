@@ -3,16 +3,16 @@ version: '3'
 tasks:
   default:
     cmds:
-      - uv sync --locked --all-extras --dev
+      - uv sync --locked --all-extras --all-groups
     silent: true
   sync:
     cmds:
-      - uv sync --all-extras --dev
+      - uv sync --all-extras --all-groups
     silent: true
   upgrade:
     cmds:
       - uv lock --upgrade
-      - uv sync --locked --all-extras --dev
+      - uv sync --locked --all-extras --all-groups
     silent: true
   test:
     deps:

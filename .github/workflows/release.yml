@@ -2,7 +2,6 @@ name: Run release action
 on:
   push:
     branches:
-      - main
       - stable
 
 jobs:
@@ -18,4 +17,4 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
-          target-branch: stable 
+          target-branch: ${{ github.ref_name }}
