@@ -25,7 +25,7 @@ class ActorFetcher:
         else:
             raise ValueError(f"Failed to resolve Actor: {url}")
 
-    async def fetch(self, url: str) -> Union[ActivityPubModel, dict]:
+    def fetch(self, url: str) -> Union[ActivityPubModel, dict]:
         resp = self.__client.get(url, headers={"User-Agent": "apkit/0.3.0", "Accept": "application/activity+json"})
         if resp.ok:
             data = resp.parse()

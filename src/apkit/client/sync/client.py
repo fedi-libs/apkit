@@ -81,7 +81,7 @@ class ActivityPubClient:
                     )
                     signed_rsa2017 = True
             elif isinstance(signature.private_key, ed25519.Ed25519PrivateKey):
-                if "fep8b32" in sign_with and body and signed_fep8b32:
+                if "fep8b32" in sign_with and body and not signed_fep8b32:
                     now = (
                         datetime.datetime.now().isoformat(sep="T", timespec="seconds")
                         + "Z"
@@ -102,9 +102,9 @@ class ActivityPubClient:
                         },
                     )
                     signed_fep8b32 = True
-        return json.dumps(body, ensure_ascii=False).encode("utf-8") if not isinstance(
-            body, bytes
-        ) else json.loads(body), headers
+        if isinstance(body, bytes):
+            return body, headers
+        return json.dumps(body, ensure_ascii=False).encode("utf-8"), headers
 
     def __transform_to_bytes(
         self, content: typing.Union[bytes, str, dict, ActivityPubModel]
