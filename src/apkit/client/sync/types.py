@@ -1,7 +1,7 @@
 from email.message import Message
 
 import apmodel
-from apmodel.extra.cid.data_integrity_proof import Union
+from typing import Union
 from apmodel.types import ActivityPubModel
 import charset_normalizer as chardet
 from typing import Any, Callable
