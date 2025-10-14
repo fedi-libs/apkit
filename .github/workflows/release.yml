@@ -6,7 +6,7 @@ on:
       - stable
 
 jobs:
-  hello-world:
+  autorelease:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v2
