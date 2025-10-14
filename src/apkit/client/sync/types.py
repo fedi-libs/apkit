@@ -1,4 +1,5 @@
 from email.message import Message
+import json
 
 import apmodel
 from apmodel.extra.cid.data_integrity_proof import Union
@@ -8,10 +9,11 @@ from typing import Any, Callable
 from typing_extensions import Optional
 import httpcore
 
-from aiohttp.typedefs import JSONDecoder, DEFAULT_JSON_DECODER
-
 from .exceptions import ContentTypeError
 from .._common import _is_expected_content_type
+
+JSONDecoder = Callable[[str], Any]
+DEFAULT_JSON_DECODER = json.loads
 
 class Response:
     def __init__(self, response: httpcore.Response) -> None:
