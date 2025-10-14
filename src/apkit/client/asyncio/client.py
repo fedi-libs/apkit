@@ -1,6 +1,6 @@
 import asyncio
-import datetime
 import json
+import warnings
 from ssl import SSLContext
 from typing import (
     Any,
@@ -13,6 +13,7 @@ from typing import (
     Sequence,
     Type,
     Union,
+    Literal,
 )
 
 import aiohttp
@@ -32,14 +33,14 @@ from aiohttp.http_writer import (
     StreamWriter as StreamWriter,
 )
 from aiohttp.typedefs import JSONEncoder, LooseCookies, LooseHeaders, StrOrURL
-import apsig
-from apsig import draft
 from apmodel.types import ActivityPubModel
 from yarl import URL, Query
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 
 from .types import _RequestContextManager, ActivityPubClientResponse
 from .actor import ActorFetcher
+from ...types import ActorKey
+from .._common import sign_request
 
 
 class ActivityPubClient(aiohttp.ClientSession):
@@ -154,7 +155,25 @@ class ActivityPubClient(aiohttp.ClientSession):
         max_line_size: Optional[int] = None,
         max_field_size: Optional[int] = None,
         middlewares: Optional[Sequence[aiohttp.ClientMiddlewareType]] = None,
+        signatures: List[ActorKey] = [],
+        sign_with: List[Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]] = [
+            "draft-cavage",
+            "rsa2017",
+            "fep8b32",
+        ],
     ) -> ActivityPubClientResponse:
+        j, headers = await asyncio.to_thread(
+            sign_request,
+            str(str_or_url),
+            headers=dict(headers) if headers else {},
+            signatures=signatures,
+            body=json,
+            sign_with=sign_with,
+            as_dict=True,
+        )
+        if j and not isinstance(j, bytes):
+            json = j
+            
         return await super()._request(
             method,
             str_or_url,
@@ -189,22 +208,47 @@ class ActivityPubClient(aiohttp.ClientSession):
             middlewares=middlewares,
         )  # pyright: ignore[reportArgumentType, reportReturnType]
 
-    def get( # pyright: ignore[reportIncompatibleMethodOverride]
+    def get(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         url: str | URL,
         *,
         allow_redirects: bool = True,
         headers: Optional[LooseHeaders] = None,
+        
+        signatures: List[ActorKey] = [],
+        sign_with: List[
+            Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
+        ] = ["draft-cavage", "rsa2017", "fep8b32"],
+        
+        # deprecated
         key_id: Optional[str] = None,
         signature: Optional[Union[rsa.RSAPrivateKey, ed25519.Ed25519PrivateKey]] = None,
+        
         **kwargs: Any,
     ) -> _RequestContextManager:
+        if key_id or signature:
+            warnings.warn(
+                "key_id and signature are deprecated. Use signatures and sign_with instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            
+        if not signatures and signature and key_id:
+            signatures = [
+                ActorKey(
+                    key_id=key_id,
+                    private_key=signature
+                )
+            ]
+
         return _RequestContextManager(
             self._request(
                 aiohttp.hdrs.METH_GET,
                 url,
                 allow_redirects=allow_redirects,
                 headers=headers,
+                signatures=signatures,
+                sign_with=sign_with,
                 **kwargs,
             )
         )
@@ -213,47 +257,57 @@ class ActivityPubClient(aiohttp.ClientSession):
         self,
         url: str | URL,
         *,
-        key_id: str,
-        signature: Union[rsa.RSAPrivateKey, ed25519.Ed25519PrivateKey],
-        sign_http: bool = True,
-        sign_ld: bool = False,
         json: Union[dict, ActivityPubModel] = {},
         headers: Optional[LooseHeaders] = None,
+        
+        signatures: List[ActorKey] = [],
+        sign_with: List[
+            Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
+        ] = [],  # TODO: "draft-cavage", "rsa2017", "fep8b32"
+        
+        # deprecated
+        key_id: Optional[str] = None,
+        signature: Optional[Union[rsa.RSAPrivateKey, ed25519.Ed25519PrivateKey]] = None,
+        sign_http: bool = True,
+        sign_ld: bool = False,
+        
         **kwargs: Any,
     ) -> _RequestContextManager:
-        if isinstance(json, ActivityPubModel):
-            json = json.to_json()
-        if not isinstance(signature, ed25519.Ed25519PrivateKey):
-            if sign_http:
-                signer = draft.Signer(
-                    headers=dict(headers) if headers else {},
-                    method="POST",
-                    url=str(url),
+        if key_id or signature:
+            warnings.warn(
+                "key_id and signature are deprecated. Use signatures and sign_with instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if not (key_id and signature):
+                raise ValueError("key_id and signature must be provided together")
+        
+        if not signatures and signature and key_id:
+            signatures = [
+                ActorKey(
                     key_id=key_id,
-                    private_key=signature,
-                    body=json,
+                    private_key=signature
                 )
-                headers = signer.sign()
+            ]
 
-            if sign_ld:
-                ld_signer = apsig.LDSignature()
-                json = ld_signer.sign(doc=json, creator=key_id, private_key=signature)
-        else:
-            if sign_http:
-                now = (
-                    datetime.datetime.now().isoformat(sep="T", timespec="seconds") + "Z"
-                )
-                fep_8b32_signer = apsig.ProofSigner(private_key=signature)
-                json = fep_8b32_signer.sign(
-                    unsecured_document=json,
-                    options={
-                        "type": "DataIntegrityProof",
-                        "cryptosuite": "eddsa-jcs-2022",
-                        "proofPurpose": "assertionMethod",
-                        "verificationMethod": key_id,
-                        "created": now,
-                    },
-                )
+        if sign_with == []:
+            if signatures == []:
+                if sign_http:
+                    sign_with.append("draft-cavage")
+                    sign_with.append("fep8b32")
+                if sign_ld:
+                    sign_with.append("rsa2017")
+            else:
+                sign_with = ["draft-cavage", "rsa2017", "fep8b32"]
+
         return _RequestContextManager(
-            self._request(aiohttp.hdrs.METH_POST, url, json=json, headers=headers, **kwargs)
+            self._request(
+                aiohttp.hdrs.METH_POST,
+                url,
+                json=json,
+                headers=headers,
+                signatures=signatures,
+                sign_with=sign_with,
+                **kwargs,
+            )
         )
