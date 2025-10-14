@@ -41,6 +41,7 @@ from .types import _RequestContextManager, ActivityPubClientResponse
 from .actor import ActorFetcher
 from ...types import ActorKey
 from .._common import sign_request
+from ..._version import __version__
 
 
 class ActivityPubClient(aiohttp.ClientSession):
@@ -80,8 +81,10 @@ class ActivityPubClient(aiohttp.ClientSession):
         max_field_size: int = 8190,
         fallback_charset_resolver: _CharsetResolver = lambda r, b: "utf-8",
         middlewares: Sequence[aiohttp.ClientMiddlewareType] = (),
-        ssl_shutdown_timeout: Union[_SENTINEL, None, float] = sentinel,
+        ssl_shutdown_timeout: Union[_SENTINEL, None, float] = sentinel, 
+        user_agent: str = f"apkit/{__version__}"
     ) -> None:
+        self.user_agent = user_agent
         self.actor: ActorFetcher = ActorFetcher(self)
         super().__init__(
             base_url,
@@ -173,6 +176,9 @@ class ActivityPubClient(aiohttp.ClientSession):
         )
         if j and not isinstance(j, bytes):
             json = j
+            
+        if headers.get("User-Agent") is None:
+            headers["User-Agent"] = self.user_agent
             
         return await super()._request(
             method,
