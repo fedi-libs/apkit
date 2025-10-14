@@ -37,8 +37,6 @@ class Response:
         except Exception:
             return None
             
-        return None
-
     @property
     def ok(self) -> bool:
         return self.status >= 200 and self.status <= 299
