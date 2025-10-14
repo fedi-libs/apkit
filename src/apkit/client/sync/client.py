@@ -81,7 +81,7 @@ class ActivityPubClient:
                     )
                     signed_rsa2017 = True
             elif isinstance(signature.private_key, ed25519.Ed25519PrivateKey):
-                if "fep8b32" in sign_with and body and signed_fep8b32:
+                if "fep8b32" in sign_with and body and not signed_fep8b32:
                     now = (
                         datetime.datetime.now().isoformat(sep="T", timespec="seconds")
                         + "Z"
