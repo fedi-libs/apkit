@@ -153,8 +153,17 @@ class ActivityPubClient:
         if allow_redirect:
             if response.status in [301, 307, 308]:
                 for i in range(max_redirects):
+                    location = (
+                        {
+                            key.decode("utf-8"): value.decode("utf-8")
+                            for key, value in response.headers
+                        }
+                    ).get("Location")
                     response = self.__http.request(
-                        method=method.upper(), url=url, headers=headers, content=content
+                        method=method.upper(),
+                        url=location,
+                        headers=headers,
+                        content=content,
                     )
                     if response.status not in [301, 307, 308]:
                         return Response(response)
