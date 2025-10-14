@@ -12,7 +12,7 @@ class ActorFetcher:
         self.__client: "ActivityPubClient" = client
 
     def resolve(self, username: str, host: str) -> models.WebfingerResult:
-        """Resolves an actor's profile from a remote server asynchronously."""
+        """Resolves an actor's profile from a remote server."""
         resource = models.Resource(username=username, host=host)
         url = _common.build_webfinger_url(host=host, resource=resource)
 
