@@ -13,6 +13,7 @@ import httpcore
 from .actor import ActorFetcher
 from .exceptions import TooManyRedirects, NotImplementedWarning
 from .types import Response
+from .._common import sign_request
 from ...types import ActorKey
 from ..._version import __version__
 
@@ -138,7 +139,7 @@ class ActivityPubClient:
         if content is not None:
             content = self.__transform_to_bytes(content)
         if signatures != []:
-            content, headers = self.__sign_request(
+            content, headers = sign_request(
                 url=bytes(url).decode("ascii")
                 if isinstance(url, httpcore.URL)
                 else url,
@@ -146,7 +147,10 @@ class ActivityPubClient:
                 signatures=signatures,
                 body=content,
                 sign_with=sign_with,
+                as_dict=False
             )
+            if not isinstance(content, bytes):
+                raise ValueError
         response = self.__http.request(
             method=method.upper(), url=url, headers=headers, content=content
         )
