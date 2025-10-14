@@ -267,9 +267,9 @@ class ActivityPubClient(aiohttp.ClientSession):
         headers: Optional[LooseHeaders] = None,
         
         signatures: List[ActorKey] = [],
-        sign_with: List[
+        sign_with: Optional[List[
             Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
-        ] = ["draft-cavage", "rsa2017", "fep8b32"],
+        ]] = None,
         
         # deprecated
         key_id: Optional[str] = None,
@@ -291,6 +291,16 @@ class ActivityPubClient(aiohttp.ClientSession):
                     private_key=signature
                 )
             ]
+            
+        final_sign_with: Optional[List[
+            Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
+        ]] = sign_with
+        if final_sign_with is None:
+            if signatures:
+                final_sign_with = ["draft-cavage"]
+            else:
+                final_sign_with = []
+                final_sign_with.extend(["draft-cavage"])
 
         return _RequestContextManager(
             self._request(
@@ -299,7 +309,7 @@ class ActivityPubClient(aiohttp.ClientSession):
                 allow_redirects=allow_redirects,
                 headers=headers,
                 signatures=signatures,
-                sign_with=sign_with,
+                sign_with=final_sign_with,
                 **kwargs,
             )
         )
@@ -312,9 +322,9 @@ class ActivityPubClient(aiohttp.ClientSession):
         headers: Optional[LooseHeaders] = None,
         
         signatures: List[ActorKey] = [],
-        sign_with: List[
+        sign_with: Optional[List[
             Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
-        ] = [],  # TODO: "draft-cavage", "rsa2017", "fep8b32"
+        ]] = None,  # TODO: "draft-cavage", "rsa2017", "fep8b32"
         
         # deprecated
         key_id: Optional[str] = None,
@@ -341,16 +351,19 @@ class ActivityPubClient(aiohttp.ClientSession):
                 )
             ]
 
-        if sign_with == []:
-            if signatures == []:
-                if sign_http:
-                    sign_with.append("draft-cavage")
-                    sign_with.append("fep8b32")
-                if sign_ld:
-                    sign_with.append("rsa2017")
+        final_sign_with: Optional[List[
+            Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
+        ]] = sign_with
+        if final_sign_with is None:
+            if signatures:
+                final_sign_with = ["draft-cavage", "rsa2017", "fep8b32"]
             else:
-                sign_with = ["draft-cavage", "rsa2017", "fep8b32"]
-
+                final_sign_with = []
+                if sign_http:
+                    final_sign_with.extend(["draft-cavage", "fep8b32"])
+                if sign_ld:
+                    final_sign_with.append("rsa2017")
+                    
         return _RequestContextManager(
             self._request(
                 aiohttp.hdrs.METH_POST,
@@ -358,7 +371,7 @@ class ActivityPubClient(aiohttp.ClientSession):
                 json=json,
                 headers=headers,
                 signatures=signatures,
-                sign_with=sign_with,
+                sign_with=final_sign_with,
                 **kwargs,
             )
         )
