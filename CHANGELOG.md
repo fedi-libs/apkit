@@ -14,6 +14,14 @@
 ### 🚜 Refactor
 
 - Remove Author's Resource
+## [0.3.3](https://github.com/fedi-libs/apkit/compare/0.3.2...v0.3.3) (2025-10-14)
+
+
+### Bug Fixes
+
+* **ci:** add missing file to stable ([690dfd4](https://github.com/fedi-libs/apkit/commit/690dfd4fc93c66892d9136a491e6207282d25bf3))
+* **ci:** add missing files for stable ([9cea65c](https://github.com/fedi-libs/apkit/commit/9cea65c48e179275a788bd4b92a3d74fbcf0a3e4))
+
 ## [0.3.1](https://github.com/fedi-libs/apkit/releases/tag/0.3.1) - 2025-09-14
 
 ### 🚀 Features
