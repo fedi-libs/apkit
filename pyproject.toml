@@ -46,10 +46,13 @@ version_scheme = "no-guess-dev"
 [tool.hatch.build.hooks.vcs]
 version-file = "src/apkit/_version.py"
 
+[tool.ruff]
+# In addition to the standard set of exclusions, omit all tests, plus a specific file.
+extend-exclude = ["tests", "src/_version.py"]
+
 [dependency-groups]
 dev = [
     "coverage>=7.10.7",
-    "git-cliff>=2.10.0",
     "pytest>=8.4.1",
 ]
 docs = [
