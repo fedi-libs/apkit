@@ -4,6 +4,7 @@ import warnings
 from ssl import SSLContext
 from typing import (
     Any,
+    Dict,
     Awaitable,
     Callable,
     Iterable,
@@ -43,6 +44,50 @@ from ...types import ActorKey
 from .._common import sign_request
 from ..._version import __version__
 
+def ensure_user_agent_and_reconstruct(headers: LooseHeaders, user_agent: str) -> Dict[str, str]:
+
+    processed_headers: Dict[str, str] = {}
+    
+    if isinstance(headers, Mapping):
+        for k, v in headers.items():
+            key_str = str(k)
+            key_lower = key_str.lower()
+            
+            if key_lower not in processed_headers:
+                processed_headers[key_lower] = v
+                processed_headers[key_lower + "_original_key"] = key_str
+            
+    elif isinstance(headers, Iterable):
+        for k, v in headers:
+            key_str = str(k)
+            key_lower = key_str.lower()
+            
+            if key_lower not in processed_headers:
+                processed_headers[key_lower] = v
+                processed_headers[key_lower + "_original_key"] = key_str
+                
+    else:
+        raise TypeError(f"Unsupported header type: {type(headers)}")
+
+    user_agent_key_lower = 'user-agent'
+    if user_agent_key_lower not in processed_headers:
+        processed_headers[user_agent_key_lower] = user_agent
+        processed_headers[user_agent_key_lower + "_original_key"] = 'User-Agent'
+
+    final_headers: Dict[str, str] = {}
+    for key_lower, value in processed_headers.items():
+        if key_lower.endswith("_original_key"):
+            continue
+            
+        original_key = processed_headers.get(key_lower + "_original_key")
+        
+        if original_key:
+            final_headers[original_key] = value
+        else:
+            standard_key = key_lower.replace('-', ' ').title().replace(' ', '-')
+            final_headers[standard_key] = value
+            
+    return final_headers
 
 class ActivityPubClient(aiohttp.ClientSession):
     def __init__(
@@ -165,20 +210,20 @@ class ActivityPubClient(aiohttp.ClientSession):
             "fep8b32",
         ],
     ) -> ActivityPubClientResponse:
-        j, headers = await asyncio.to_thread(
-            sign_request,
-            str(str_or_url),
-            headers=dict(headers) if headers else {},
-            signatures=signatures,
-            body=json,
-            sign_with=sign_with,
-            as_dict=True,
-        )
-        if j and not isinstance(j, bytes):
-            json = j
+        headers = ensure_user_agent_and_reconstruct(headers if headers else {}, self.user_agent)
+        if signatures != [] and sign_with:
+            j, headers = await asyncio.to_thread(
+                sign_request,
+                str(str_or_url),
+                headers=headers,
+                signatures=signatures,
+                body=json,
+                sign_with=sign_with,
+                as_dict=True,
+            )
+            if j and not isinstance(j, bytes):
+                json = j
             
-        if headers.get("User-Agent") is None:
-            headers["User-Agent"] = self.user_agent
             
         return await super()._request(
             method,
