@@ -9,6 +9,7 @@ from apkit.models import Person, Note, CryptographicKey, Create
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from datetime import datetime, UTC
+from apkit.client.models import Resource as WebfingerResource
 
 if len(sys.argv) < 2:
     print("USAGE: python send_message.py <RECEPIENT_URI>", file=sys.stderr)
@@ -79,7 +80,18 @@ actor = Person(
 
 async def send_note(recepient: str) -> None:
     async with ActivityPubClient() as client:
-        # TODO: convert username like alice@social.example.net to URI
+        if not recepient.startswith("http"):
+            # this a human readable account name like alice@example.net
+
+            # remove a possible @ sign at the start
+            recepient = recepient.lstrip("@")
+
+            # Use Webfinger to find the actor's URI
+            res = WebfingerResource.parse(recepient)
+            webfinger_result = await client.actor.resolve(res.username, res.host)
+
+            # read the ActivityPub link from the result
+            recepient = webfinger_result.get("application/activity+json").href
 
         # Fetch a remote Actor
         target_actor = await client.actor.fetch(recepient)
@@ -106,7 +118,7 @@ async def send_note(recepient: str) -> None:
         create = Create(
             id=f"https://{HOST}/creates/{uuid.uuid4()}",
             actor=actor.id,
-            object=note.to_json(),
+            object=note,
             published=datetime.now(UTC).isoformat() + "Z",
             to=note.to,
             cc=note.cc,
@@ -119,7 +131,10 @@ async def send_note(recepient: str) -> None:
         # print(create.to_json())
 
         resp = await client.post(
-            inbox_url, key_id=actor.publicKey.id, signature=private_key, json=create
+            inbox_url,
+            key_id=actor.publicKey.id,
+            signature=private_key,
+            json=create.to_json(keep_object=True),
         )
         logger.info(f"Delivery result: {resp.status}")
 
