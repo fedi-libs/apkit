@@ -81,9 +81,12 @@ async def follow(actor_id: str) -> None:
     async with ActivityPubClient() as client:
         if not actor_id.startswith("http"):
             # this a human readable account name like alice@example.net
+
+            # remove a possible @ sign at the start
+            actor_id = actor_id.lstrip("@")
+
             # Use Webfinger to find the actor's URI
             res = WebfingerResource.parse(actor_id)
-
             webfinger_result = await client.actor.resolve(res.username, res.host)
 
             # read the ActivityPub link from the result
@@ -99,7 +102,7 @@ async def follow(actor_id: str) -> None:
 
         logger.info(f"Found actor's inbox: {inbox_url}")
 
-        # Like activity
+        # Follow activity
         activity = Follow(
             id=f"https://{HOST}/activities/{uuid.uuid4()}",
             actor=f"https://{HOST}/users/{USER_ID}",
