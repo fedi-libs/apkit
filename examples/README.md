@@ -9,7 +9,8 @@ message (Note) to another user using federation.
 1. Python 3.11 or higher
 2. Virtual environment (recommended)
 3. ngrok installed (for local testing)
-4. A Fediverse account to send messages to
+4. A Fediverse account to send messages to (<https://activitypub.academy> is a
+   great place for experiments with temporary Mastodon accounts)
 
 ## Installation
 
@@ -66,6 +67,12 @@ Now you can try the various example actions:
 
 ```shell
 python send_message.py alice@social.example.com   # <<< change this to your Fediverse account name
+```
+
+### Follow an account
+
+```shell
+python folow.py alice@social.example.com   # <<< change this to the account you want to follow
 ```
 
 ### Like a message
