@@ -176,7 +176,7 @@ docs = [
 
 [[package]]
 name = "apmodel"
-version = "0.4.4"
+version = "0.4.4.post1.dev0+g004b1fc2e.d20251018"
 source = { git = "https://github.com/fedi-libs/apmodel.git#004b1fc2e7a36e7154647217b5f6b9d4ab79a5ac" }
 dependencies = [
     { name = "cryptography" },

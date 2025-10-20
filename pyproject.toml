@@ -11,6 +11,7 @@ dependencies = [
     "aiohttp>=3.12.15",
     "apmodel>=0.4.1",
     "apsig>=0.5.4",
+    "certifi>=2025.8.3",
     "charset-normalizer>=3.4.3",
     "httpcore[http2,socks]>=1.0.9",
     "httpx>=0.28.1",
@@ -52,7 +53,7 @@ version-file = "src/apkit/_version.py"
 
 [tool.ruff]
 # In addition to the standard set of exclusions, omit all tests, plus a specific file.
-extend-exclude = ["tests", "src/_version.py"]
+extend-exclude = ["tests", "src/apkit/_version.py"]
 
 [dependency-groups]
 dev = [
