@@ -1,0 +1,36 @@
+{
+  "release-type": "python",
+  "changelog-path": "CHANGELOG.md",
+  "default-branch": "main",
+  "branches": [
+    {
+      "name": "stable",
+      "release-type": "python",
+      "draft": true,
+      "prerelease": false,
+      "changelog-path": "CHANGELOG.md"
+    }
+  ],
+  "include-component-in-tag": false,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "packages": {
+    ".": {
+      "default-branch": "main",
+      "changelog-sections": [
+        { "type": "change", "section": "Changes" },
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "revert", "section": "Reverts" },
+        { "type": "docs", "section": "Documentation", "hidden": true },
+        { "type": "perf", "section": "Performance Improvements", "hidden": true },
+        { "type": "chore", "section": "Miscellaneous Chores", "hidden": true },
+        { "type": "test", "section": "Tests", "hidden": true },
+        { "type": "style", "section": "Styles", "hidden": true },
+        { "type": "refactor", "section": "Code Refactoring", "hidden": true },
+        { "type": "ci", "section": "Continuous Integration", "hidden": true }
+      ],
+      "include-component-in-tag": false
+    }
+  }
+}

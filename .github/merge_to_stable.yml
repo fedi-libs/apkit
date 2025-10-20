@@ -1,0 +1,51 @@
+name: Manual Merge Develop to Stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Merge reason (e.g., "Monthly Release Candidate" or "Hotfix Merge")'
+        required: false
+        default: 'Standard merge from develop to stable'
+
+jobs:
+  merge_branches:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write 
+      
+    steps:
+      - name: Checkout stable branch
+        uses: actions/checkout@v4
+        with:
+          ref: stable
+          fetch-depth: 0
+
+      - name: Configure Git User
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Merge develop into stable
+        id: merge
+        run: |
+          git fetch origin develop
+          
+          git merge origin/develop -m "Merge branch 'develop' into stable [Automated Merge]"
+          
+          if [ $? -eq 0 ]; then
+            echo "merge_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "merge_status=failure" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Push merged stable branch
+        if: steps.merge.outputs.merge_status == 'success'
+        run: git push origin stable
+        
+      - name: Notify on Merge Failure
+        if: steps.merge.outputs.merge_status == 'failure'
+        run: |
+          echo "::error::Merge from develop to stable failed due to conflicts. Please resolve manually."

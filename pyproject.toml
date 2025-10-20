@@ -11,7 +11,11 @@ dependencies = [
     "aiohttp>=3.12.15",
     "apmodel>=0.4.1",
     "apsig>=0.5.4",
+    "charset-normalizer>=3.4.3",
+    "httpcore[http2,socks]>=1.0.9",
     "httpx>=0.28.1",
+    "requests>=2.32.5",
+    "types-requests>=2.32.4.20250913",
 ]
 
 [project.urls]
@@ -46,10 +50,13 @@ version_scheme = "no-guess-dev"
 [tool.hatch.build.hooks.vcs]
 version-file = "src/apkit/_version.py"
 
+[tool.ruff]
+# In addition to the standard set of exclusions, omit all tests, plus a specific file.
+extend-exclude = ["tests", "src/_version.py"]
+
 [dependency-groups]
 dev = [
     "coverage>=7.10.7",
-    "git-cliff>=2.10.0",
     "pytest>=8.4.1",
 ]
 docs = [
