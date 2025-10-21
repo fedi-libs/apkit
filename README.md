@@ -7,15 +7,18 @@
     <em>Powerful Toolkit for ActivityPub Implementations.</em>
 </p>
 <p align="center">
-<a href="https://github.com/fedi-libs/apkit/actions/workflows/publish.yml" target="_blank">
-    <img src="https://github.com/fedi-libs/apkit/actions/workflows/publish.yml/badge.svg" alt="Test">
-</a>
-<a href="https://pypi.org/project/apkit" target="_blank">
-    <img src="https://img.shields.io/pypi/v/apkit.svg" alt="Package version">
-</a>
-<a href="https://pypi.org/project/apkit" target="_blank">
-    <img src="https://img.shields.io/pypi/pyversions/apkit.svg" alt="Supported Python versions">
-</a>
+  <a href="https://github.com/fedi-libs/apkit/actions/workflows/publish.yml" target="_blank">
+      <img src="https://github.com/fedi-libs/apkit/actions/workflows/publish.yml/badge.svg" alt="Test">
+  </a>
+  <a href="https://pypi.org/project/apkit" target="_blank">
+      <img src="https://img.shields.io/pypi/v/apkit.svg" alt="Package version">
+  </a>
+  <a href="https://pypi.org/project/apkit" target="_blank">
+      <img src="https://img.shields.io/pypi/pyversions/apkit.svg" alt="Supported Python versions">
+  </a>
+  <a href="https://deepwiki.com/fedi-libs/apkit" target="_blank">
+      <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki">
+  </a>
 </p>
 
 ---

@@ -1,7 +1,17 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Awaitable, Callable, Dict, List, Literal, Optional, Sequence, Union
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Sequence,
+    Union,
+)
 from apmodel import Activity
 from fastapi.params import Depends
 from fastapi import APIRouter, Request, Response
@@ -12,7 +22,8 @@ from starlette.routing import BaseRoute
 from starlette.types import ASGIApp, Lifespan
 
 from ..client.models import Resource as WebfingerResource
-from .types import Context, Outbox
+from .types import Context
+from ..types import Outbox
 
 
 class SubRouter(APIRouter):
@@ -39,7 +50,9 @@ class SubRouter(APIRouter):
     ) -> None:
         self._ap_events = {}
         self._ap_outbox: Optional[Callable[[Context], Awaitable[Any]]] = None
-        self._ap_webfinger_route: Optional[Callable[[Request,WebfingerResource], Awaitable[Any]]] = None
+        self._ap_webfinger_route: Optional[
+            Callable[[Request, WebfingerResource], Awaitable[Any]]
+        ] = None
         super().__init__(
             prefix=prefix,
             tags=tags,
@@ -60,14 +73,18 @@ class SubRouter(APIRouter):
             generate_unique_id_function=generate_unique_id_function,
         )
 
-    def on(self, type: Union[type[Activity], type[Outbox]], func: Optional[Callable] = None,):
+    def on(
+        self,
+        type: Union[type[Activity], type[Outbox]],
+        func: Optional[Callable] = None,
+    ):
         def decorator(func: Callable) -> Callable:
             if type == Activity:
                 self._ap_events[type] = func
             elif type == Outbox:
                 self._ap_outbox = func
             return func
-        
+
         if func is not None:
             return decorator(func)
 
@@ -77,7 +94,7 @@ class SubRouter(APIRouter):
         def decorator(func: Callable) -> Callable:
             self._ap_webfinger_route = func
             return func
-        
+
         if func is not None:
             return decorator(func)
 
@@ -104,7 +121,7 @@ class SubRouter(APIRouter):
             if version == "2.0":
                 self.add_api_route(
                     path=route,
-                    endpoint=fn, 
+                    endpoint=fn,
                     methods=["GET"],
                     name="__apkit_nodeinfo_2.0",
                     include_in_schema=False,
@@ -123,7 +140,7 @@ class SubRouter(APIRouter):
             return decorator(func)
 
         return decorator
-    
+
     def include_router(
         self,
         router: APIRouter | SubRouter,
@@ -152,5 +169,11 @@ class SubRouter(APIRouter):
         )
         if isinstance(router, SubRouter):
             self._ap_events = {**router._ap_events, **self._ap_events}
-            self._ap_outbox = self._ap_outbox if not router._ap_outbox else router._ap_outbox
-            self._ap_webfinger_route = self._ap_webfinger_route if not router._ap_webfinger_route else router._ap_webfinger_route
+            self._ap_outbox = (
+                self._ap_outbox if not router._ap_outbox else router._ap_outbox
+            )
+            self._ap_webfinger_route = (
+                self._ap_webfinger_route
+                if not router._ap_webfinger_route
+                else router._ap_webfinger_route
+            )

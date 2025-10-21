@@ -36,7 +36,7 @@ def create_inbox_route(apkit: "ActivityPubServer", config: AppConfig, routes: Di
                 else:
                     return JSONResponse({"message": "Signature Verification Failed"}, status_code=401)
             else:
-                logger.debug("Activity received but, Not found :(")
+                logger.debug(f"Activity received but no handler registered for activity type {type(activity)}")
                 return JSONResponse({"message": "Ok"}, status_code=200)
         return JSONResponse({"message": "Body is not Activity"}, status_code=400)
     return on_inbox_internal

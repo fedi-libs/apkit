@@ -5,21 +5,14 @@ from apmodel import Activity
 from apmodel.vocab.activity import Accept, Reject
 from apmodel.types import ActivityPubModel
 from apmodel.vocab.actor import Actor, ActorEndpoints
-from cryptography.hazmat.primitives.asymmetric import rsa, ed25519
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import Request
 
+from ..types import ActorKey
 from ..client.asyncio.client import ActivityPubClient
 
 if TYPE_CHECKING:
     from .app import ActivityPubServer
-
-@dataclass
-class ActorKey:
-    key_id: str
-    private_key: rsa.RSAPrivateKey | ed25519.Ed25519PrivateKey
-
-class Outbox:
-    pass
 
 @dataclass
 class Context:
