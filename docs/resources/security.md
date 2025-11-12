@@ -12,7 +12,7 @@ If you believe you have found a security vulnerability in `apkit` or any of its 
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please send an email to **`cocoa@amase.cc`**.
+Instead, please send an private report from https://github.com/fedi-libs/apkit/security. (To reduce the burden, please do not use the previously designated reporting destination as the reporting destination.)
 
 Please include the following details with your report:
 
