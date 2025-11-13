@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from apmodel.types import ActivityPubModel
 
@@ -12,12 +12,17 @@ class ActorFetcher:
     def __init__(self, client: "ActivityPubClient"):
         self.__client: "ActivityPubClient" = client
 
-    def resolve(self, username: str, host: str) -> models.WebfingerResult:
+    def resolve(self, username: str, host: str, headers: dict = {
+        "Accept": "application/jrd+json"
+    }) -> models.WebfingerResult:
         """Resolves an actor's profile from a remote server."""
+        headers = _common.ensure_user_agent_and_reconstruct(
+            headers, self.__client.user_agent
+        )
         resource = models.Resource(username=username, host=host)
         url = _common.build_webfinger_url(host=host, resource=resource)
 
-        resp = self.__client.get(url)
+        resp = self.__client.get(url, headers=headers)
         if resp.ok:
             data = resp.json()
             result = models.WebfingerResult.from_dict(data)
@@ -26,13 +31,15 @@ class ActorFetcher:
         else:
             raise ValueError(f"Failed to resolve Actor: {url}")
 
-    def fetch(self, url: str) -> Union[ActivityPubModel, dict]:
+    def fetch(self, url: str, headers: dict = {
+        "Accept": "application/activity+json"
+    }) -> Union[ActivityPubModel, dict]:
+        headers = _common.ensure_user_agent_and_reconstruct(
+            headers, self.__client.user_agent
+        )
         resp = self.__client.get(
             url,
-            headers={
-                "User-Agent": "apkit/0.3.0",
-                "Accept": "application/activity+json",
-            },
+            headers=headers,
         )
         if resp.ok:
             data = resp.parse()

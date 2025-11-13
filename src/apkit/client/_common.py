@@ -2,9 +2,19 @@
 import datetime
 import json
 import warnings
-from typing import List, Literal, Optional, Tuple, Union
+from typing import (
+    Dict,
+    Iterable,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Tuple,
+    Union,
+)
 
 import apsig
+from aiohttp.typedefs import LooseHeaders
 from apmodel.types import ActivityPubModel
 from apsig import draft
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
@@ -12,6 +22,53 @@ from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from ..types import ActorKey
 from .exceptions import NotImplementedWarning
 from .models import Resource, WebfingerResult
+
+
+def ensure_user_agent_and_reconstruct(
+    headers: LooseHeaders, user_agent: str
+) -> Dict[str, str]:
+    processed_headers: Dict[str, str] = {}
+
+    if isinstance(headers, Mapping):
+        for k, v in headers.items():
+            key_str = str(k)
+            key_lower = key_str.lower()
+
+            if key_lower not in processed_headers:
+                processed_headers[key_lower] = v
+                processed_headers[key_lower + "_original_key"] = key_str
+
+    elif isinstance(headers, Iterable):
+        for k, v in headers:
+            key_str = str(k)
+            key_lower = key_str.lower()
+
+            if key_lower not in processed_headers:
+                processed_headers[key_lower] = v
+                processed_headers[key_lower + "_original_key"] = key_str
+
+    else:
+        raise TypeError(f"Unsupported header type: {type(headers)}")
+
+    user_agent_key_lower = "user-agent"
+    if user_agent_key_lower not in processed_headers:
+        processed_headers[user_agent_key_lower] = user_agent
+        processed_headers[user_agent_key_lower + "_original_key"] = "User-Agent"
+
+    final_headers: Dict[str, str] = {}
+    for key_lower, value in processed_headers.items():
+        if key_lower.endswith("_original_key"):
+            continue
+
+        original_key = processed_headers.get(key_lower + "_original_key")
+
+        if original_key:
+            final_headers[original_key] = value
+        else:
+            standard_key = key_lower.replace("-", " ").title().replace(" ", "-")
+            final_headers[standard_key] = value
+
+    return final_headers
 
 
 def sign_request(
@@ -23,8 +80,8 @@ def sign_request(
         Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
     ] = [
         "draft-cavage",
-#        "rsa2017",
-#        "fep8b32",
+        #        "rsa2017",
+        #        "fep8b32",
     ],
     as_dict: bool = False,
 ) -> Tuple[Optional[Union[bytes, dict]], dict]:
