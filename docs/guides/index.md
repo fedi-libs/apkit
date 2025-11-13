@@ -6,6 +6,7 @@ Choose a topic to learn more:
 
 - [Configuration](./configuration.md)
 - [Using the Client](./client.md)
+- [Generating Nodeinfo](./nodeinfo.md)
 - [Advanced Server Features](./server.md)
 - [Working with Models](./models.md)
 - [Key-Value Storage](./kv_store.md)
