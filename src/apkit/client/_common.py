@@ -2,16 +2,16 @@
 import datetime
 import json
 import warnings
-from typing import List, Optional, Union, Literal, Tuple
+from typing import List, Literal, Optional, Tuple, Union
 
 import apsig
-from apsig import draft
 from apmodel.types import ActivityPubModel
+from apsig import draft
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 
+from ..types import ActorKey
 from .exceptions import NotImplementedWarning
 from .models import Resource, WebfingerResult
-from ..types import ActorKey
 
 
 def sign_request(
@@ -19,10 +19,12 @@ def sign_request(
     headers: dict,
     signatures: List[ActorKey],
     body: Optional[Union[dict, ActivityPubModel, bytes]] = None,
-    sign_with: List[Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]] = [
+    sign_with: List[
+        Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
+    ] = [
         "draft-cavage",
-        "rsa2017",
-        "fep8b32",
+#        "rsa2017",
+#        "fep8b32",
     ],
     as_dict: bool = False,
 ) -> Tuple[Optional[Union[bytes, dict]], dict]:
@@ -59,7 +61,11 @@ def sign_request(
             if "rsa2017" in sign_with and body and not signed_rsa2017:
                 ld_signer = apsig.LDSignature()
                 body = ld_signer.sign(
-                    doc=(body if not isinstance(body, bytes) else json.loads(body)),
+                    doc=(
+                        body
+                        if not isinstance(body, bytes)
+                        else json.loads(body)
+                    ),
                     creator=signature.key_id,
                     private_key=signature.private_key,
                 )
@@ -67,12 +73,19 @@ def sign_request(
         elif isinstance(signature.private_key, ed25519.Ed25519PrivateKey):
             if "fep8b32" in sign_with and body and not signed_fep8b32:
                 now = (
-                    datetime.datetime.now().isoformat(sep="T", timespec="seconds") + "Z"
+                    datetime.datetime.now().isoformat(
+                        sep="T", timespec="seconds"
+                    )
+                    + "Z"
                 )
-                fep_8b32_signer = apsig.ProofSigner(private_key=signature.private_key)
+                fep_8b32_signer = apsig.ProofSigner(
+                    private_key=signature.private_key
+                )
                 body = fep_8b32_signer.sign(
                     unsecured_document=(
-                        body if not isinstance(body, bytes) else json.loads(body)
+                        body
+                        if not isinstance(body, bytes)
+                        else json.loads(body)
                     ),
                     options={
                         "type": "DataIntegrityProof",
@@ -104,7 +117,9 @@ def validate_webfinger_result(
         )
 
 
-def _is_expected_content_type(actual_ctype: str, expected_ctype_prefix: str) -> bool:
+def _is_expected_content_type(
+    actual_ctype: str, expected_ctype_prefix: str
+) -> bool:
     mime_type = actual_ctype.split(";")[0].strip().lower()
 
     if mime_type == "application/json":

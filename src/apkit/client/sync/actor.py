@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Union
 
 from apmodel.types import ActivityPubModel
+
 from .. import _common, models
 
 if TYPE_CHECKING:
@@ -26,7 +27,13 @@ class ActorFetcher:
             raise ValueError(f"Failed to resolve Actor: {url}")
 
     def fetch(self, url: str) -> Union[ActivityPubModel, dict]:
-        resp = self.__client.get(url, headers={"User-Agent": "apkit/0.3.0", "Accept": "application/activity+json"})
+        resp = self.__client.get(
+            url,
+            headers={
+                "User-Agent": "apkit/0.3.0",
+                "Accept": "application/activity+json",
+            },
+        )
         if resp.ok:
             data = resp.parse()
             return data
