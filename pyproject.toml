@@ -52,7 +52,7 @@ version-file = "src/apkit/_version.py"
 
 [tool.ruff]
 # In addition to the standard set of exclusions, omit all tests, plus a specific file.
-extend-exclude = ["tests", "src/apkit/_version.py"]
+extend-exclude = ["tests", "src/apkit/_version.py", "src/apkit/nodeinfo/__init__.py"]
 
 [dependency-groups]
 dev = [
