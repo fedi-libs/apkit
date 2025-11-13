@@ -1,24 +1,10 @@
 from apmodel.nodeinfo.nodeinfo import (
-    Nodeinfo,  # noqa: F401
-)
-from apmodel.nodeinfo.nodeinfo import (
-    NodeinfoInbound as Inbound,  # noqa: F401
-)
-from apmodel.nodeinfo.nodeinfo import (
-    NodeinfoOutbound as Outbound,  # noqa: F401
-)
-from apmodel.nodeinfo.nodeinfo import (
-    NodeinfoProtocol as Protocol,  # noqa: F401
-)
-from apmodel.nodeinfo.nodeinfo import (
-    NodeinfoServices as Services,  # noqa: F401
-)
-from apmodel.nodeinfo.nodeinfo import (
-    NodeinfoSoftware as Software,  # noqa: F401
-)
-from apmodel.nodeinfo.nodeinfo import (
-    NodeinfoUsage as Usage,  # noqa: F401
-)
-from apmodel.nodeinfo.nodeinfo import (
-    NodeinfoUsageUsers as Users,  # noqa: F401
+    Nodeinfo,  # noqa: F401, I001
+    NodeinfoInbound as Inbound,  # noqa: F401, I001
+    NodeinfoOutbound as Outbound,  # noqa: F401, I001
+    NodeinfoProtocol as Protocol,  # noqa: F401, I001
+    NodeinfoServices as Services,  # noqa: F401, I001
+    NodeinfoSoftware as Software,  # noqa: F401, I001
+    NodeinfoUsage as Usage,  # noqa: F401, I001
+    NodeinfoUsageUsers as Users,  # noqa: F401, I001
 )
