@@ -110,8 +110,8 @@ class NodeinfoBuilder:
         if not self.__protocols:
             raise ValueError("Protocols list cannot be empty.")
 
-        if not self.__services_inbound or not self.__services_outbound:
-            raise ValueError("Both inbound and outbound services lists are mandatory.")
+        if self.__services_inbound is None or self.__services_outbound is None:
+            raise ValueError("Both inbound and outbound services lists must be set.")
 
         if self.__usage_users_total is None:
             raise ValueError("Total number of users ('usage.users.total') must be set.")
