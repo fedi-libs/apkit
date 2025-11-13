@@ -81,7 +81,12 @@ class NodeinfoBuilder:
         return self
 
     def set_usage(
-        self, users_total: int, local_comments: int, local_posts: int, active_halfyear: int, active_month: int
+        self,
+        users_total: int,
+        local_comments: Optional[int] = None,
+        local_posts: Optional[int] = None,
+        active_halfyear: Optional[int] = None,
+        active_month: Optional[int] = None,
     ) -> "NodeinfoBuilder":
         self.__usage_users_total = users_total
         self.__usage_local_comments = local_comments
