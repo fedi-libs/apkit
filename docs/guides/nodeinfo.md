@@ -69,27 +69,34 @@ builder = NodeinfoBuilder(version="2.1")
 try:
     nodeinfo = (
         builder
+        # 2. Set server software information
         .set_software(
             name="MyAwesomeServer",
             version="1.2.3",
             repository="https://git.example.com/user/myawesomeserver",
             homepage="https://maws.example.com"
-        ) # 2. Set server software information
-        .set_protocols([Protocol.ACTIVITYPUB]) # 3. Define supported protocols
+        ) 
+        # 3. Define supported protocols
+        .set_protocols([Protocol.ACTIVITYPUB]) 
+        # 4. Specify inbound and outbound services
         .set_services(
             inbound=["atom1.0", "rss2.0"],
             outbound=[Outbound.MASTODON, "twitter"]
-        ) # 4. Specify inbound and outbound services
+        ) 
+        # 5. Set user statistics
         .set_usage(
             users_total=150,
             active_halfyear=75,
             active_month=40,
             local_posts=5000,
             local_comments=25000
-        ) # 5. Set user statistics
-        .set_open_registrations(True) # 6. Set registration policy
-        .set_metadata({"nodeName": "My Awesome Node"}) # 7. Add arbitrary metadata
-        .build() # 8. Build the final Nodeinfo object
+        ) 
+        # 6. Set registration policy
+        .set_open_registrations(True)
+        # 7. Add arbitrary metadata 
+        .set_metadata({"nodeName": "My Awesome Node"})
+        # 8. Build the final Nodeinfo object
+        .build() 
     )
     # The object can be easily converted to a dictionary or JSON
     print(nodeinfo.to_json(indent=2))
