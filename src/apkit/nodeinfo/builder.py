@@ -81,7 +81,12 @@ class NodeinfoBuilder:
         return self
 
     def set_usage(
-        self, users_total: int, local_comments: int, local_posts: int, active_halfyear: int, active_month: int
+        self,
+        users_total: int,
+        local_comments: Optional[int] = None,
+        local_posts: Optional[int] = None,
+        active_halfyear: Optional[int] = None,
+        active_month: Optional[int] = None,
     ) -> "NodeinfoBuilder":
         self.__usage_users_total = users_total
         self.__usage_local_comments = local_comments
@@ -105,14 +110,14 @@ class NodeinfoBuilder:
         if not self.__protocols:
             raise ValueError("Protocols list cannot be empty.")
 
-        if not self.__services_inbound or not self.__services_outbound:
-            raise ValueError("Both inbound and outbound services lists are mandatory.")
+        if self.__services_inbound is None or self.__services_outbound is None:
+            raise ValueError("Both inbound and outbound services lists must be set.")
 
         if self.__usage_users_total is None:
             raise ValueError("Total number of users ('usage.users.total') must be set.")
 
-        if not isinstance(self.__open_registrations, bool):
-            raise TypeError("'openRegistrations' must be a boolean value.")
+        if self.__open_registrations is None:
+            raise ValueError("'openRegistrations' must be set.")
 
         if self.version == "2.0":
             if self.__software_homepage or self.__software_repository:
