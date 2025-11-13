@@ -116,8 +116,8 @@ class NodeinfoBuilder:
         if self.__usage_users_total is None:
             raise ValueError("Total number of users ('usage.users.total') must be set.")
 
-        if not isinstance(self.__open_registrations, bool):
-            raise TypeError("'openRegistrations' must be a boolean value.")
+        if self.__open_registrations is None:
+            raise ValueError("'openRegistrations' must be set.")
 
         if self.version == "2.0":
             if self.__software_homepage or self.__software_repository:
