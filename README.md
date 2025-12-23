@@ -13,8 +13,8 @@
   <a href="https://pypi.org/project/apkit" target="_blank">
       <img src="https://img.shields.io/pypi/v/apkit.svg" alt="Package version">
   </a>
-  <a href="https://pypi.org/project/apkit" target="_blank">
-      <img src="https://img.shields.io/pypi/pyversions/apkit.svg" alt="Supported Python versions">
+  <a href="https://results.pre-commit.ci/latest/github/fedi-libs/apkit/main" target="_blank">
+      <img src="https://results.pre-commit.ci/badge/github/fedi-libs/apkit/main.svg" alt="pre-commit.ci status">
   </a>
   <a href="https://deepwiki.com/fedi-libs/apkit" target="_blank">
       <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki">
