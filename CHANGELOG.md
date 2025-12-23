@@ -38,6 +38,25 @@
 * **server:** Error message clarified when no handler is registered ([e409ead](https://github.com/fedi-libs/apkit/commit/e409eadc688dc4cfaa0c14756e1605f8a05bac0e))
 * typo in help text ([4f8f8a2](https://github.com/fedi-libs/apkit/commit/4f8f8a26fb4a2882d0f2646938b64d323af80731))
 
+## [0.3.4](https://github.com/fedi-libs/apkit/compare/v0.3.3...v0.3.4) (2025-12-23)
+
+
+### Features
+
+* add test ci ([b584b8c](https://github.com/fedi-libs/apkit/commit/b584b8cf1506f2bbce461dd7f682fabd1aace3c4))
+* **nodeinfo:** Add NodeinfoBuilder ([99f89e3](https://github.com/fedi-libs/apkit/commit/99f89e3e7102b1b838c8973c24027f1ee42946ff))
+* **nodeinfo:** Add NodeinfoBuilder ([f6c6f26](https://github.com/fedi-libs/apkit/commit/f6c6f26e4ac0a434d9de257f22f2ff2cfee8e040))
+
+
+### Bug Fixes
+
+* add pytest-cov ([037c97a](https://github.com/fedi-libs/apkit/commit/037c97a6fa6efc3e0b9e9885cdac020186260880))
+* **client:** use correct user-agent in actor fetches ([5602dd9](https://github.com/fedi-libs/apkit/commit/5602dd980ad5519afa51a11ab9c1232ff73860a4))
+* **client:** use correct user-agent in actor fetches ([a00c4f2](https://github.com/fedi-libs/apkit/commit/a00c4f236afa15c16b29486f95566f5869fb5b41))
+* **docs:** improve to readability document ([605f385](https://github.com/fedi-libs/apkit/commit/605f385a43ae6a69f31e619cfc07a5d9987721f3))
+* support apmodel 0.5.1 ([4e26c19](https://github.com/fedi-libs/apkit/commit/4e26c19fed8ec175019a09a34bbb70851d4bc264))
+* support apmodel 0.5.1 ([d570b34](https://github.com/fedi-libs/apkit/commit/d570b3408cc23cecdb3cc6c3caea38a1d6e72847))
+
 ## [0.3.1](https://github.com/fedi-libs/apkit/releases/tag/0.3.1) - 2025-09-14
 
 ### 🚀 Features
