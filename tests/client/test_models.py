@@ -62,7 +62,7 @@ class TestResource:
         """Test that Resource is immutable (frozen dataclass)."""
         resource = Resource(username="alice", host="example.com", url=None)
         with pytest.raises(FrozenInstanceError):
-            resource.username = "eve"
+            resource.username = "eve" # pyrefly: ignore
 
 
 class TestLink:
@@ -102,7 +102,7 @@ class TestLink:
         """Test that Link is immutable (frozen dataclass)."""
         link = Link(rel="profile", type="text/html", href="https://example.com/profile")
         with pytest.raises(FrozenInstanceError):
-            link.rel = "self"
+            link.rel = "self" # pyrefly: ignore
 
 
 class TestWebfingerResult:
@@ -268,7 +268,7 @@ class TestWebfingerResult:
         result = WebfingerResult(subject=subject, links=links)
 
         with pytest.raises(FrozenInstanceError):
-            result.subject = Resource(username="bob", host="example.com", url=None)
+            result.subject = Resource(username="bob", host="example.com", url=None) # pyrefly: ignore
 
 
 def test_integration():
@@ -308,6 +308,7 @@ def test_integration():
 
     # Test getting specific links
     activity_json_link = reconstructed.get("application/activity+json")
+    assert isinstance(activity_json_link, Link)
     assert activity_json_link is not None
     assert activity_json_link.rel == "self"
 

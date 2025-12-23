@@ -1,20 +1,19 @@
-# This file will contain common logic shared between sync and asyncio clients.
 import datetime
 import json
 import warnings
 from typing import (
+    Any,
     Dict,
     Iterable,
     List,
-    Literal,
     Mapping,
     Optional,
     Tuple,
     Union,
 )
 
+import apmodel
 import apsig
-from aiohttp.typedefs import LooseHeaders
 from apmodel.types import ActivityPubModel
 from apsig import draft
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
@@ -24,49 +23,43 @@ from .exceptions import NotImplementedWarning
 from .models import Resource, WebfingerResult
 
 
-def ensure_user_agent_and_reconstruct(
-    headers: LooseHeaders, user_agent: str
-) -> Dict[str, str]:
-    processed_headers: Dict[str, str] = {}
+def ensure_user_agent_and_reconstruct(headers: Any, user_agent: str) -> Dict[str, str]:
+    processed_headers: Dict[str, Any] = {}
 
-    if isinstance(headers, Mapping):
-        for k, v in headers.items():
-            key_str = str(k)
-            key_lower = key_str.lower()
+    match headers:
+        case Mapping() as m:
+            items = m.items()
+        case Iterable() as i:
+            items = i
+        case None:
+            items = []
+        case _:
+            raise TypeError(f"Unsupported header type: {type(headers)}")
 
-            if key_lower not in processed_headers:
-                processed_headers[key_lower] = v
-                processed_headers[key_lower + "_original_key"] = key_str
+    for k, v in items:
+        key_str = str(k)
+        key_lower = key_str.lower()
 
-    elif isinstance(headers, Iterable):
-        for k, v in headers:
-            key_str = str(k)
-            key_lower = key_str.lower()
+        if key_lower not in processed_headers:
+            processed_headers[key_lower] = v
+            processed_headers[f"{key_lower}_original_key"] = key_str
 
-            if key_lower not in processed_headers:
-                processed_headers[key_lower] = v
-                processed_headers[key_lower + "_original_key"] = key_str
-
-    else:
-        raise TypeError(f"Unsupported header type: {type(headers)}")
-
-    user_agent_key_lower = "user-agent"
-    if user_agent_key_lower not in processed_headers:
-        processed_headers[user_agent_key_lower] = user_agent
-        processed_headers[user_agent_key_lower + "_original_key"] = "User-Agent"
+    if "user-agent" not in processed_headers:
+        processed_headers["user-agent"] = user_agent
+        processed_headers["user-agent_original_key"] = "User-Agent"
 
     final_headers: Dict[str, str] = {}
     for key_lower, value in processed_headers.items():
         if key_lower.endswith("_original_key"):
             continue
 
-        original_key = processed_headers.get(key_lower + "_original_key")
+        original_key = processed_headers.get(f"{key_lower}_original_key")
 
         if original_key:
-            final_headers[original_key] = value
+            final_headers[original_key] = str(value)
         else:
             standard_key = key_lower.replace("-", " ").title().replace(" ", "-")
-            final_headers[standard_key] = value
+            final_headers[standard_key] = str(value)
 
     return final_headers
 
@@ -76,9 +69,7 @@ def sign_request(
     headers: dict,
     signatures: List[ActorKey],
     body: Optional[Union[dict, ActivityPubModel, bytes]] = None,
-    sign_with: List[
-        Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
-    ] = [
+    sign_with: List[str] = [
         "draft-cavage",
         #        "rsa2017",
         #        "fep8b32",
@@ -86,7 +77,7 @@ def sign_request(
     as_dict: bool = False,
 ) -> Tuple[Optional[Union[bytes, dict]], dict]:
     if isinstance(body, ActivityPubModel):
-        body = body.to_json()
+        body = apmodel.to_dict(body)
 
     signed_cavage = False
     signed_rsa2017 = False
@@ -118,11 +109,7 @@ def sign_request(
             if "rsa2017" in sign_with and body and not signed_rsa2017:
                 ld_signer = apsig.LDSignature()
                 body = ld_signer.sign(
-                    doc=(
-                        body
-                        if not isinstance(body, bytes)
-                        else json.loads(body)
-                    ),
+                    doc=(body if not isinstance(body, bytes) else json.loads(body)),
                     creator=signature.key_id,
                     private_key=signature.private_key,
                 )
@@ -130,19 +117,12 @@ def sign_request(
         elif isinstance(signature.private_key, ed25519.Ed25519PrivateKey):
             if "fep8b32" in sign_with and body and not signed_fep8b32:
                 now = (
-                    datetime.datetime.now().isoformat(
-                        sep="T", timespec="seconds"
-                    )
-                    + "Z"
+                    datetime.datetime.now().isoformat(sep="T", timespec="seconds") + "Z"
                 )
-                fep_8b32_signer = apsig.ProofSigner(
-                    private_key=signature.private_key
-                )
+                fep_8b32_signer = apsig.ProofSigner(private_key=signature.private_key)
                 body = fep_8b32_signer.sign(
                     unsecured_document=(
-                        body
-                        if not isinstance(body, bytes)
-                        else json.loads(body)
+                        body if not isinstance(body, bytes) else json.loads(body)
                     ),
                     options={
                         "type": "DataIntegrityProof",
@@ -174,9 +154,7 @@ def validate_webfinger_result(
         )
 
 
-def _is_expected_content_type(
-    actual_ctype: str, expected_ctype_prefix: str
-) -> bool:
+def _is_expected_content_type(actual_ctype: str, expected_ctype_prefix: str) -> bool:
     mime_type = actual_ctype.split(";")[0].strip().lower()
 
     if mime_type == "application/json":

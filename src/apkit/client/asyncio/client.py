@@ -8,7 +8,6 @@ from typing import (
     Callable,
     Iterable,
     List,
-    Literal,
     Mapping,
     Optional,
     Sequence,
@@ -59,9 +58,7 @@ class ActivityPubClient(aiohttp.ClientSession):
         auth: Optional[aiohttp.BasicAuth] = None,
         json_serialize: JSONEncoder = json.dumps,
         request_class: Type[aiohttp.ClientRequest] = aiohttp.ClientRequest,
-        response_class: Type[
-            aiohttp.ClientResponse
-        ] = ActivityPubClientResponse,
+        response_class: Type[aiohttp.ClientResponse] = ActivityPubClientResponse,
         ws_response_class: Type[
             aiohttp.ClientWebSocketResponse
         ] = aiohttp.ClientWebSocketResponse,
@@ -161,9 +158,7 @@ class ActivityPubClient(aiohttp.ClientSession):
         max_field_size: Optional[int] = None,
         middlewares: Optional[Sequence[aiohttp.ClientMiddlewareType]] = None,
         signatures: List[ActorKey] = [],
-        sign_with: List[
-            Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
-        ] = [
+        sign_with: List[str] = [
             "draft-cavage",
             "rsa2017",
             "fep8b32",
@@ -185,6 +180,7 @@ class ActivityPubClient(aiohttp.ClientSession):
             if j and not isinstance(j, bytes):
                 json = j
 
+        # pyrefly: ignore
         return await super()._request(
             method,
             str_or_url,
@@ -217,23 +213,19 @@ class ActivityPubClient(aiohttp.ClientSession):
             max_line_size=max_line_size,
             max_field_size=max_field_size,
             middlewares=middlewares,
-        )  # pyright: ignore[reportArgumentType, reportReturnType]
+        )
 
-    def get(  # pyright: ignore[reportIncompatibleMethodOverride]
+    def get(  # pyrefly: ignore[bad-override]
         self,
         url: str | URL,
         *,
         allow_redirects: bool = True,
         headers: Optional[LooseHeaders] = None,
         signatures: List[ActorKey] = [],
-        sign_with: Optional[
-            List[Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]]
-        ] = None,
+        sign_with: Optional[List[str]] = None,
         # deprecated
         key_id: Optional[str] = None,
-        signature: Optional[
-            Union[rsa.RSAPrivateKey, ed25519.Ed25519PrivateKey]
-        ] = None,
+        signature: Optional[Union[rsa.RSAPrivateKey, ed25519.Ed25519PrivateKey]] = None,
         **kwargs: Any,
     ) -> _RequestContextManager:
         if key_id or signature:
@@ -246,9 +238,7 @@ class ActivityPubClient(aiohttp.ClientSession):
         if not signatures and signature and key_id:
             signatures = [ActorKey(key_id=key_id, private_key=signature)]
 
-        final_sign_with: Optional[
-            List[Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]]
-        ] = sign_with
+        final_sign_with: Optional[List[str]] = sign_with
         if final_sign_with is None:
             if signatures:
                 final_sign_with = ["draft-cavage"]
@@ -268,25 +258,21 @@ class ActivityPubClient(aiohttp.ClientSession):
             )
         )
 
-    def post(  # pyright: ignore[reportIncompatibleMethodOverride]
+    def post(  # pyrefly: ignore
         self,
         url: str | URL,
         *,
         json: Union[dict, ActivityPubModel] = {},
         headers: Optional[LooseHeaders] = None,
         signatures: List[ActorKey] = [],
-        sign_with: Optional[
-            List[Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]]
-        ] = [
+        sign_with: Optional[List[str]] = [
             "draft-cavage",
             "rsa2017",
             "fep8b32",
         ],  # TODO: "draft-cavage", "rsa2017", "fep8b32"
         # deprecated
         key_id: Optional[str] = None,
-        signature: Optional[
-            Union[rsa.RSAPrivateKey, ed25519.Ed25519PrivateKey]
-        ] = None,
+        signature: Optional[Union[rsa.RSAPrivateKey, ed25519.Ed25519PrivateKey]] = None,
         sign_http: bool = True,
         sign_ld: bool = False,
         **kwargs: Any,
@@ -298,16 +284,12 @@ class ActivityPubClient(aiohttp.ClientSession):
                 stacklevel=2,
             )
             if not (key_id and signature):
-                raise ValueError(
-                    "key_id and signature must be provided together"
-                )
+                raise ValueError("key_id and signature must be provided together")
 
         if not signatures and signature and key_id:
             signatures = [ActorKey(key_id=key_id, private_key=signature)]
 
-        final_sign_with: Optional[
-            List[Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]]
-        ] = sign_with
+        final_sign_with: Optional[List[str]] = sign_with
         if final_sign_with is None:
             if signatures:
                 final_sign_with = ["draft-cavage", "rsa2017", "fep8b32"]

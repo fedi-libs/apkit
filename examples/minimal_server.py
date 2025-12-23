@@ -56,9 +56,7 @@ KEY_FILE = "private_key.pem"
 if os.path.exists(KEY_FILE):
     logger.info(f"Loading existing private key from {KEY_FILE}.")
     with open(KEY_FILE, "rb") as f:
-        private_key = crypto_serialization.load_pem_private_key(
-            f.read(), password=None
-        )
+        private_key = crypto_serialization.load_pem_private_key(f.read(), password=None)
 else:
     logger.info(
         f"No key file found. Generating new private key and saving to {KEY_FILE}."
@@ -144,9 +142,7 @@ async def creates(identifier: str):
 
 
 @app.webfinger()
-async def webfinger_endpoint(
-    request: Request, acct: WebfingerResource
-) -> Response:
+async def webfinger_endpoint(request: Request, acct: WebfingerResource) -> Response:
     if acct.username == USER_ID and acct.host == HOST:
         link = WebfingerLink(
             rel="self",
@@ -154,9 +150,7 @@ async def webfinger_endpoint(
             href=f"https://{HOST}/users/{USER_ID}",
         )
         wf_result = WebfingerResult(subject=acct, links=[link])
-        return JSONResponse(
-            wf_result.to_json(), media_type="application/jrd+json"
-        )
+        return JSONResponse(wf_result.to_json(), media_type="application/jrd+json")
     return JSONResponse({"message": "Not Found"}, status_code=404)
 
 

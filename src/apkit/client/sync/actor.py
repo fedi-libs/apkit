@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 from apmodel.types import ActivityPubModel
 
@@ -12,9 +12,12 @@ class ActorFetcher:
     def __init__(self, client: "ActivityPubClient"):
         self.__client: "ActivityPubClient" = client
 
-    def resolve(self, username: str, host: str, headers: dict = {
-        "Accept": "application/jrd+json"
-    }) -> models.WebfingerResult:
+    def resolve(
+        self,
+        username: str,
+        host: str,
+        headers: dict = {"Accept": "application/jrd+json"},
+    ) -> models.WebfingerResult:
         """Resolves an actor's profile from a remote server."""
         headers = _common.ensure_user_agent_and_reconstruct(
             headers, self.__client.user_agent
@@ -31,9 +34,9 @@ class ActorFetcher:
         else:
             raise ValueError(f"Failed to resolve Actor: {url}")
 
-    def fetch(self, url: str, headers: dict = {
-        "Accept": "application/activity+json"
-    }) -> Union[ActivityPubModel, dict]:
+    def fetch(
+        self, url: str, headers: dict = {"Accept": "application/activity+json"}
+    ) -> ActivityPubModel | dict | list | str | None:
         headers = _common.ensure_user_agent_and_reconstruct(
             headers, self.__client.user_agent
         )

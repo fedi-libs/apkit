@@ -1,19 +1,19 @@
-from email.message import Message
 import json
+from email.message import Message
+from typing import Any, Callable
 
 import apmodel
-from typing import Union
-from apmodel.types import ActivityPubModel
 import charset_normalizer as chardet
-from typing import Any, Callable
-from typing_extensions import Optional
 import httpcore
+from apmodel.types import ActivityPubModel
+from typing_extensions import Optional
 
-from .exceptions import ContentTypeError
 from .._common import _is_expected_content_type
+from .exceptions import ContentTypeError
 
 JSONDecoder = Callable[[str], Any]
 DEFAULT_JSON_DECODER = json.loads
+
 
 class Response:
     def __init__(self, response: httpcore.Response) -> None:
@@ -21,40 +21,40 @@ class Response:
 
     def _get_encoding_from_header(self) -> Optional[str]:
         ctype_value = self.headers.get("Content-Type")
-        
+
         if not ctype_value:
             return None
-        
+
         try:
             msg = Message()
-            msg['Content-Type'] = ctype_value 
-            
-            charset = msg.get_param('charset')
-            
+            msg["Content-Type"] = ctype_value
+
+            charset = msg.get_param("charset")
+
             if isinstance(charset, str):
                 return charset.lower()
-            
+
             return None
-                
+
         except Exception:
             return None
-            
+
     @property
     def ok(self) -> bool:
         return self.status >= 200 and self.status <= 299
-        
+
     @property
     def status(self) -> int:
         return self.__response.status
-        
+
     @property
     def body(self) -> bytes:
         return self.__response.content
-        
+
     @property
     def headers(self) -> dict[str, str]:
         return {
-            key.decode('utf-8'): value.decode('utf-8') 
+            key.decode("utf-8"): value.decode("utf-8")
             for key, value in self.__response.headers
         }
 
@@ -67,8 +67,8 @@ class Response:
     ) -> Any:
         """Read and decodes JSON response."""
         if content_type:
-            ctype = self.headers.get("Content-Type", "").lower() 
-            
+            ctype = self.headers.get("Content-Type", "").lower()
+
             if not _is_expected_content_type(ctype, content_type):
                 raise ContentTypeError(
                     message=(
@@ -79,7 +79,7 @@ class Response:
                 )
 
         if self.body is None:
-             return None
+            return None
 
         stripped = self.body.strip()
         if not stripped:
@@ -87,7 +87,7 @@ class Response:
 
         if encoding is None:
             header_encoding = self._get_encoding_from_header()
-            
+
             if header_encoding:
                 encoding = header_encoding
             else:
@@ -95,7 +95,7 @@ class Response:
                 if best_match:
                     encoding = best_match.encoding
                 else:
-                    encoding = 'utf-8'
+                    encoding = "utf-8"
 
         return loads(stripped.decode(encoding))
 
@@ -104,9 +104,6 @@ class Response:
         *,
         encoding: Optional[str] = None,
         loads: JSONDecoder = DEFAULT_JSON_DECODER,
-    ) -> Union[ActivityPubModel, dict]:
-        json = self.json(
-            encoding=encoding,
-            loads=loads
-        )
+    ) -> Optional[dict | str | list | ActivityPubModel]:
+        json = self.json(encoding=encoding, loads=loads)
         return apmodel.load(json)

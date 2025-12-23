@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from apmodel.types import ActivityPubModel
 
@@ -36,7 +36,7 @@ class ActorFetcher:
 
     async def fetch(
         self, url: str, headers: dict = {"Accept": "application/activity+json"}
-    ) -> Union[ActivityPubModel, dict]:
+    ) -> ActivityPubModel | dict | list | str | None:
         headers = _common.ensure_user_agent_and_reconstruct(
             headers if headers else {}, self.__client.user_agent
         )

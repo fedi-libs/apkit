@@ -1,0 +1,36 @@
+{
+    "languages": {
+        "Python": {
+            "language_servers": ["ruff", "pyrefly"]
+        }
+    },
+    "lsp": {
+        "pyrefly": {
+            "binary": {
+                "path": ".venv/bin/pyrefly",
+                "arguments": ["lsp"]
+            },
+            "settings": {
+                "python": {
+                    "pythonPath": ".venv/bin/python"
+                },
+                "pyrefly": {
+                    "project_includes": ["src/**/*.py", "tests/**/*.py"],
+                    "project_excludes": ["**/.[!/.]*", "**/*venv/**"],
+                    "search_path": ["src"],
+                    "ignore_errors_in_generated_code": true
+                }
+            }
+        },
+        "ruff": {
+            "initialization_options": {
+                "settings": {
+                    "lineLength": 80,
+                    "lint": {
+                        "extendSelect": ["I"]
+                    }
+                }
+            }
+        }
+    }
+}
