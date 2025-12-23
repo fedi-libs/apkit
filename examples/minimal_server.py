@@ -17,7 +17,6 @@ from apkit.models import (
     CryptographicKey,
     Follow,
     Nodeinfo,
-    NodeinfoProtocol,
     NodeinfoServices,
     NodeinfoSoftware,
     NodeinfoUsage,
@@ -160,9 +159,9 @@ async def nodeinfo_endpoint():
         Nodeinfo(
             version="2.1",
             software=NodeinfoSoftware(name="apkit-demo", version="0.1.0"),
-            protocols=[NodeinfoProtocol.ACTIVITYPUB],
+            protocols=["activitypub"],
             services=NodeinfoServices(inbound=[], outbound=[]),
-            openRegistrations=False,
+            open_registrations=False,
             usage=NodeinfoUsage(users=NodeinfoUsageUsers(total=1)),
             metadata={},
         )

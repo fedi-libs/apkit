@@ -1,14 +1,15 @@
 import asyncio
 import logging
 import os
-import uuid
 import sys
+import uuid
+from datetime import UTC, datetime
+
+from cryptography.hazmat.primitives import serialization as crypto_serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 from apkit.client.asyncio import ActivityPubClient
-from apkit.models import Person, CryptographicKey, Like
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization as crypto_serialization
-from datetime import datetime, UTC
+from apkit.models import CryptographicKey, Like, Person
 
 if len(sys.argv) < 2:
     print("USAGE: python like.py <OBJECT_ID>", file=sys.stderr)
@@ -65,14 +66,14 @@ public_key_pem = (
 actor = Person(
     id=f"https://{HOST}/users/{USER_ID}",
     name="apkit Demo",
-    preferredUsername="demo",
+    preferred_username="demo",
     summary="This is a demo actor powered by apkit!",
     inbox=f"https://{HOST}/users/{USER_ID}/inbox",
     outbox=f"https://{HOST}/users/{USER_ID}/outbox",
-    publicKey=CryptographicKey(
+    public_key=CryptographicKey(
         id=f"https://{HOST}/users/{USER_ID}#main-key",
         owner=f"https://{HOST}/users/{USER_ID}",
-        publicKeyPem=public_key_pem,
+        public_key_pem=public_key_pem,
     ),
 )
 
@@ -109,7 +110,10 @@ async def like(object_id: str) -> None:
         logger.info("Delivering activity...")
 
         resp = await client.post(
-            inbox_url, key_id=actor.publicKey.id, signature=private_key, json=activity
+            inbox_url,
+            key_id=actor.publicKey.id,
+            signature=private_key,
+            json=activity,
         )
         logger.info(f"Delivery result: {resp.status}")
         logger.info(f"To undo this action, use this URI: {activity.id}")
