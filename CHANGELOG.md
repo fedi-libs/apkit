@@ -38,6 +38,15 @@
 * **server:** Error message clarified when no handler is registered ([e409ead](https://github.com/fedi-libs/apkit/commit/e409eadc688dc4cfaa0c14756e1605f8a05bac0e))
 * typo in help text ([4f8f8a2](https://github.com/fedi-libs/apkit/commit/4f8f8a26fb4a2882d0f2646938b64d323af80731))
 
+## [0.3.6](https://github.com/fedi-libs/apkit/compare/v0.3.5...v0.3.6) (2025-12-23)
+
+
+### Bug Fixes
+
+* **docs:** fix examples ([cfeb59a](https://github.com/fedi-libs/apkit/commit/cfeb59a0abcf5c7929c647631def62271c3bc570))
+* **docs:** nodeinfo and examples ([e47c822](https://github.com/fedi-libs/apkit/commit/e47c822fb2ed3ea0c70cf38842f29806e88177e2))
+* **server:** Nodeinfo support in ActivityResponse ([8426a95](https://github.com/fedi-libs/apkit/commit/8426a956c7cf664a7a25ce12251fe6a5b4c94418))
+
 ## [0.3.5](https://github.com/fedi-libs/apkit/compare/v0.3.4...v0.3.5) (2025-12-23)
 
 
