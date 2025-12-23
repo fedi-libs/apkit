@@ -25,12 +25,12 @@ builder.set_software(
 )
 
 # 3. Define supported protocols
-builder.set_protocols([Protocol.ACTIVITYPUB])
+builder.set_protocols(["activitypub"])
 
 # 4. Specify inbound and outbound services
 builder.set_services(
     inbound=["atom1.0", "rss2.0"],
-    outbound=[Outbound.MASTODON, "twitter"]
+    outbound=["twitter"]
 )
 
 # 5. Set user statistics
@@ -77,11 +77,11 @@ try:
             homepage="https://maws.example.com"
         ) 
         # 3. Define supported protocols
-        .set_protocols([Protocol.ACTIVITYPUB]) 
+        .set_protocols(["activitypub"]) 
         # 4. Specify inbound and outbound services
         .set_services(
             inbound=["atom1.0", "rss2.0"],
-            outbound=[Outbound.MASTODON, "twitter"]
+            outbound=["twitter"]
         ) 
         # 5. Set user statistics
         .set_usage(
@@ -108,7 +108,7 @@ except (ValueError, TypeError) as e:
 
 - **`__init__(version="2.1")`**: Creates a new builder instance. Accepts `"2.1"` or `"2.0"`.
 - **`set_software(...)`**: Sets the server's software details. `name` and `version` are required.
-- **`set_protocols(...)`**: Defines the protocols the server supports, like `Protocol.ACTIVITYPUB`.
+- **`set_protocols(...)`**: Defines the protocols the server supports, like `activitypub`.
 - **`set_services(...)`**: Lists the inbound and outbound services the server can connect to.
 - **`set_usage(...)`**: Provides user and content statistics. `users_total` is required.
 - **`set_open_registrations(...)`**: A boolean indicating if new user registrations are open. This is required.
@@ -137,7 +137,6 @@ The example above would produce the following JSON output:
       "rss2.0"
     ],
     "outbound": [
-      "mastodon",
       "twitter"
     ]
   },

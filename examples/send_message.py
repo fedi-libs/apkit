@@ -1,15 +1,16 @@
 import asyncio
 import logging
 import os
-import uuid
 import sys
+import uuid
+from datetime import UTC, datetime
+
+from cryptography.hazmat.primitives import serialization as crypto_serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 from apkit.client.asyncio import ActivityPubClient
-from apkit.models import Person, Note, CryptographicKey, Create
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization as crypto_serialization
-from datetime import datetime, UTC
 from apkit.client.models import Resource as WebfingerResource
+from apkit.models import Create, CryptographicKey, Note, Person
 
 if len(sys.argv) < 2:
     print("USAGE: python send_message.py <RECEPIENT_URI>", file=sys.stderr)
@@ -66,14 +67,14 @@ public_key_pem = (
 actor = Person(
     id=f"https://{HOST}/users/{USER_ID}",
     name="apkit Demo",
-    preferredUsername="demo",
+    preferred_username="demo",
     summary="This is a demo actor powered by apkit!",
     inbox=f"https://{HOST}/users/{USER_ID}/inbox",
     outbox=f"https://{HOST}/users/{USER_ID}/outbox",
-    publicKey=CryptographicKey(
+    public_key=CryptographicKey(
         id=f"https://{HOST}/users/{USER_ID}#main-key",
         owner=f"https://{HOST}/users/{USER_ID}",
-        publicKeyPem=public_key_pem,
+        public_key_pem=public_key_pem,
     ),
 )
 
@@ -107,7 +108,7 @@ async def send_note(recepient: str) -> None:
         # Create note
         note = Note(
             id=f"https://{HOST}/notes/{uuid.uuid4()}",
-            attributedTo=actor.id,
+            attributed_to=actor.id,
             content="<p>Hello from apkit</p>",
             published=datetime.now(UTC).isoformat() + "Z",
             to=[target_actor.id],
