@@ -16,14 +16,14 @@ Instead, please send an private report from https://github.com/fedi-libs/apkit/s
 
 Please include the following details with your report:
 
-*   A description of the vulnerability and its potential impact.
-*   Steps to reproduce the vulnerability.
-*   Any proof-of-concept code.
+- A description of the vulnerability and its potential impact.
+- Steps to reproduce the vulnerability.
+- Any proof-of-concept code.
 
 ## Our Commitment
 
-*   We will acknowledge receipt of your vulnerability report as soon as possible.
-*   We will work with you to understand and validate the issue.
-*   We will work to release a patch in a timely manner.
+- We will acknowledge receipt of your vulnerability report as soon as possible.
+- We will work with you to understand and validate the issue.
+- We will work to release a patch in a timely manner.
 
 We thank you for helping to keep `apkit` and its users safe.

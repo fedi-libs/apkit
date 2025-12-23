@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 KT = TypeVar("KT")
 VT = TypeVar("VT")
@@ -34,7 +34,9 @@ class KeyValueStore(ABC, Generic[KT, VT]):
         raise NotImplementedError
 
     @abstractmethod
-    async def async_set(self, key: KT, value: VT, ttl_seconds: int | None = 3600) -> None:
+    async def async_set(
+        self, key: KT, value: VT, ttl_seconds: int | None = 3600
+    ) -> None:
         """Sets a value in the store."""
         raise NotImplementedError
 

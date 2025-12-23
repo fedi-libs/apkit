@@ -1,5 +1,6 @@
-class TooManyRedirects(Exception):
+class TooManyRedirectsError(Exception):
     pass
-    
+
+
 class NotImplementedWarning(Warning):
     pass

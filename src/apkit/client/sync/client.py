@@ -1,20 +1,16 @@
-import datetime
 import json
 import typing
-import warnings
 
-import apsig
+import apmodel
 import httpcore
 from apmodel.types import ActivityPubModel
-from apsig import draft
-from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from typing_extensions import Optional
 
 from ..._version import __version__
 from ...types import ActorKey
 from .._common import ensure_user_agent_and_reconstruct, sign_request
 from .actor import ActorFetcher
-from .exceptions import TooManyRedirects
+from .exceptions import TooManyRedirectsError
 from .types import Response
 
 
@@ -34,18 +30,21 @@ class ActivityPubClient:
             self.__http.close()
 
     def __transform_to_bytes(
-        self, content: typing.Union[bytes, str, dict, ActivityPubModel]
+        self, content: bytes | str | dict | ActivityPubModel
     ) -> bytes:
-        if isinstance(content, bytes):
-            return content
-        elif isinstance(content, str):
-            return content.encode("utf-8")
-        elif isinstance(content, dict):
-            return json.dumps(content, ensure_ascii=False).encode("utf-8")
-        elif isinstance(content, ActivityPubModel):
-            return json.dumps(content.to_json(), ensure_ascii=False).encode(
-                "utf-8"
-            )
+        match content:
+            case bytes():
+                return content
+            case str():
+                return content.encode("utf-8")
+            case dict():
+                return json.dumps(content, ensure_ascii=False).encode("utf-8")
+            case ActivityPubModel() as model:
+                return json.dumps(apmodel.to_dict(model), ensure_ascii=False).encode(
+                    "utf-8"
+                )
+            case _:
+                raise TypeError(f"Unsupported type: {type(content)}")
 
     def request(
         self,
@@ -56,9 +55,7 @@ class ActivityPubClient:
         allow_redirect: bool = True,
         max_redirects: int = 5,
         signatures: typing.List[ActorKey] = [],
-        sign_with: typing.List[
-            typing.Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
-        ] = ["draft-cavage", "rsa2017", "fep8b32"],
+        sign_with: typing.List[str] = ["draft-cavage", "rsa2017", "fep8b32"],
     ) -> Response:
         if not self.__http:
             raise NotImplementedError
@@ -79,7 +76,12 @@ class ActivityPubClient:
             if not isinstance(content, bytes):
                 raise ValueError
         response = self.__http.request(
-            method=method.upper(), url=url, headers=headers, content=content
+            method=method.upper(),
+            url=url,
+            headers=[
+                (k.encode("utf-8"), v.encode("utf-8")) for k, v in headers.items()
+            ],
+            content=content,
         )
         if allow_redirect:
             if response.status in [301, 307, 308]:
@@ -90,15 +92,20 @@ class ActivityPubClient:
                             for key, value in response.headers
                         }
                     ).get("Location")
+                    if not location:
+                        break
                     response = self.__http.request(
                         method=method.upper(),
                         url=location,
-                        headers=headers,
+                        headers=[
+                            (k.encode("utf-8"), v.encode("utf-8"))
+                            for k, v in headers.items()
+                        ],
                         content=content,
                     )
                     if response.status not in [301, 307, 308]:
                         return Response(response)
-                raise TooManyRedirects
+                raise TooManyRedirectsError
         return Response(response)
 
     def post(
@@ -109,9 +116,7 @@ class ActivityPubClient:
         allow_redirect: bool = True,
         max_redirects: int = 5,
         signatures: typing.List[ActorKey] = [],
-        sign_with: typing.List[
-            typing.Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
-        ] = ["draft-cavage", "rsa2017", "fep8b32"],
+        sign_with: typing.List[str] = ["draft-cavage", "rsa2017", "fep8b32"],
     ) -> Response:
         if body is not None:
             body = self.__transform_to_bytes(body)
@@ -134,9 +139,7 @@ class ActivityPubClient:
         allow_redirect: bool = True,
         max_redirects: int = 5,
         signatures: typing.List[ActorKey] = [],
-        sign_with: typing.List[
-            typing.Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]
-        ] = ["draft-cavage", "rsa2017", "fep8b32"],
+        sign_with: typing.List[str] = ["draft-cavage", "rsa2017", "fep8b32"],
     ) -> Response:
         resp = self.request(
             "GET",

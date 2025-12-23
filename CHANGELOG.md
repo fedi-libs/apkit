@@ -14,6 +14,7 @@
 ### 🚜 Refactor
 
 - Remove Author's Resource
+
 ## [0.3.1](https://github.com/fedi-libs/apkit/releases/tag/0.3.1) - 2025-09-14
 
 ### 🚀 Features
@@ -23,6 +24,7 @@
 ### 🐛 Bug Fixes
 
 - Urlを渡された場合に処理できない問題
+
 ## [0.3.0](https://github.com/fedi-libs/apkit/releases/tag/0.3.0) - 2025-09-12
 
 ### 🚀 Features
@@ -36,7 +38,7 @@
 - Allow resource to parse even if resource is url (limited support)
 - Remove verifier from outbox
 - Remove debugging code
-- *(server)* Remove debugging codes
+- _(server)_ Remove debugging codes
 - Update lockfile
 
 ### ⚙️ Miscellaneous Tasks
@@ -44,6 +46,7 @@
 - Update changelog [skip ci]
 - Changelog [skip ci]
 - Bump package version
+
 ## [0.2.0](https://github.com/fedi-libs/apkit/releases/tag/0.2.0) - 2025-05-02
 
 ### 🚀 Features

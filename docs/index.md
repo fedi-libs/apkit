@@ -34,17 +34,17 @@
 
 The key features are:
 
-* **FastAPI-based Server**: Build high-performance, production-ready ActivityPub servers with the power and simplicity of FastAPI.
-* **Async Client**: Interact with other Fediverse servers using a modern `async` HTTP client.
-* **Built-in Helpers**: Simplified setup for Webfinger, NodeInfo, HTTP Signatures, and other Fediverse protocols.
-* **Extensible**: Designed to be flexible and easy to extend for your own custom ActivityPub logic.
+- **FastAPI-based Server**: Build high-performance, production-ready ActivityPub servers with the power and simplicity of FastAPI.
+- **Async Client**: Interact with other Fediverse servers using a modern `async` HTTP client.
+- **Built-in Helpers**: Simplified setup for Webfinger, NodeInfo, HTTP Signatures, and other Fediverse protocols.
+- **Extensible**: Designed to be flexible and easy to extend for your own custom ActivityPub logic.
 
 ## Requirements
 
-* Python 3.12+
-* [FastAPI](https://fastapi.tiangolo.com/) for the server part.
-* [apmodel](https://github.com/fedi-libs/apmodel) for ActivityPub models.
-* [apsig](https://github.com/fedi-libs/apsig) for HTTP Signatures.
+- Python 3.12+
+- [FastAPI](https://fastapi.tiangolo.com/) for the server part.
+- [apmodel](https://github.com/fedi-libs/apmodel) for ActivityPub models.
+- [apsig](https://github.com/fedi-libs/apsig) for HTTP Signatures.
 
 ## Installation
 

@@ -12,9 +12,10 @@ from typing import (
     Sequence,
     Union,
 )
+
 from apmodel import Activity
-from fastapi.params import Depends
 from fastapi import APIRouter, Request, Response
+from fastapi.params import Depends
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse
@@ -22,8 +23,8 @@ from starlette.routing import BaseRoute
 from starlette.types import ASGIApp, Lifespan
 
 from ..client.models import Resource as WebfingerResource
-from .types import Context
 from ..types import Outbox
+from .types import Context
 
 
 class SubRouter(APIRouter):

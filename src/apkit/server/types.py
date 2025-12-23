@@ -31,13 +31,13 @@ class Context:
             key_id = None
 
             if (
-                target.endpoints is ActorEndpoints
-                and target.endpoints.sharedInbox
+                isinstance(target.endpoints, ActorEndpoints)
+                and target.endpoints.shared_inbox
             ):
                 if not isinstance(activity, Accept) and not isinstance(
                     activity, Reject
                 ):
-                    inbox = target.endpoints.sharedInbox
+                    inbox = target.endpoints.shared_inbox
             else:
                 inbox = target.inbox
             if not isinstance(inbox, str):
@@ -51,7 +51,7 @@ class Context:
             if priv_key and key_id and inbox:
                 async with client.post(
                     inbox, key_id=key_id, signature=priv_key, json=activity
-                ) as resp:
+                ) as _:
                     return None
             else:
                 pass

@@ -24,7 +24,6 @@ from apmodel.nodeinfo.nodeinfo import (
 from apmodel.nodeinfo.nodeinfo import (
     NodeinfoUsageUsers as Users,  # noqa: F401
 )
-from apmodel.types import Undefined
 
 
 class NodeinfoBuilder:
@@ -34,25 +33,23 @@ class NodeinfoBuilder:
         self.__protocols = None
         self.__open_registrations = None
         self.__metadata = {}
-        
+
         # nodeinfo.software
         self.__software_name = None
         self.__software_version = None
         self.__software_repository = None
         self.__software_homepage = None
-        
+
         # nodeinfo.services
         self.__services_inbound = None
         self.__services_outbound = None
-        
+
         # nodeinfo.usage
         self.__usage_users_total = None
         self.__usage_local_comments = None
         self.__usage_local_posts = None
         self.__usage_active_halfyear = None
         self.__usage_active_month = None
-        
-        
 
     def set_software(
         self,
@@ -67,14 +64,14 @@ class NodeinfoBuilder:
         self.__software_homepage = homepage
         return self
 
-    def set_protocols(
-        self, protocols: list[Union[str, Protocol]]
-    ) -> "NodeinfoBuilder":
+    def set_protocols(self, protocols: list[Union[str, Protocol]]) -> "NodeinfoBuilder":
         self.__protocols = protocols
         return self
 
     def set_services(
-        self, inbound: list[Union[str, Inbound]], outbound: list[Union[str, Outbound]]
+        self,
+        inbound: list[Union[str, Inbound]],
+        outbound: list[Union[str, Outbound]],
     ) -> "NodeinfoBuilder":
         self.__services_inbound = inbound
         self.__services_outbound = outbound
@@ -98,14 +95,16 @@ class NodeinfoBuilder:
     def set_open_registrations(self, status: bool) -> "NodeinfoBuilder":
         self.__open_registrations = status
         return self
-        
+
     def set_metadata(self, metadata: dict) -> "NodeinfoBuilder":
         self.__metadata = metadata
         return self
 
     def build(self) -> Nodeinfo:
         if not self.__software_name or not self.__software_version:
-            raise ValueError("Software name and version are mandatory fields for Nodeinfo.")
+            raise ValueError(
+                "Software name and version are mandatory fields for Nodeinfo."
+            )
 
         if not self.__protocols:
             raise ValueError("Protocols list cannot be empty.")
@@ -121,30 +120,32 @@ class NodeinfoBuilder:
 
         if self.version == "2.0":
             if self.__software_homepage or self.__software_repository:
-                raise ValueError("Software homepage and repository fields are not defined in Nodeinfo version 2.0 by this implementation.")
+                raise ValueError(
+                    "Software homepage and repository fields are not defined in Nodeinfo version 2.0 by this implementation."
+                )
 
         return Nodeinfo(
             version=self.version,
             software=Software(
                 name=self.__software_name,
                 version=self.__software_version,
-                homepage=self.__software_homepage if self.__software_homepage else Undefined(),
-                repository=self.__software_repository if self.__software_repository else Undefined(),
+                homepage=self.__software_homepage,
+                repository=self.__software_repository,
             ),
             protocols=self.__protocols,
             services=Services(
                 inbound=self.__services_inbound,
-                outbound=self.__services_outbound
+                outbound=self.__services_outbound,
             ),
-            openRegistrations=self.__open_registrations,
+            open_registrations=self.__open_registrations,
             usage=Usage(
                 users=Users(
                     total=self.__usage_users_total,
-                    activeHalfyear=self.__usage_active_halfyear if self.__usage_active_halfyear is not None else Undefined(),
-                    activeMonth=self.__usage_active_month if self.__usage_active_month is not None else Undefined()
+                    activeHalfyear=self.__usage_active_halfyear,
+                    activeMonth=self.__usage_active_month,
                 ),
-                localComments=self.__usage_local_comments if self.__usage_local_comments is not None else Undefined(),
-                localPosts=self.__usage_local_posts if self.__usage_local_posts is not None else Undefined()
+                localComments=self.__usage_local_comments,
+                localPosts=self.__usage_local_posts,
             ),
-            metadata=self.__metadata
+            metadata=self.__metadata,
         )

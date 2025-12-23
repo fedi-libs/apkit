@@ -1,5 +1,5 @@
-from typing import Any, Awaitable, Callable, Union, TYPE_CHECKING
 import logging
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Union
 
 import apmodel
 from fastapi import Request, Response

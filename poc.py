@@ -20,7 +20,7 @@ from apkit.models import (
     Person,
     Object,
     CryptographicKey,
-    Multikey
+    Multikey,
 )
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from cryptography.hazmat.backends import default_backend
@@ -40,23 +40,21 @@ rsa_privatekey = rsa.generate_private_key(
     public_exponent=65537, key_size=2048, backend=default_backend()
 )
 
+
 async def get_actor_keys(identifier: str) -> List[ActorKey]:
     return [
         ActorKey(
             key_id=f"https://{HOST}/users/{USER_ID}#main-key",
-            private_key=rsa_privatekey
+            private_key=rsa_privatekey,
         ),
         ActorKey(
             key_id=f"https://{HOST}/users/{USER_ID}#ed25519-key",
-            private_key=ed_privatekey
-        )
+            private_key=ed_privatekey,
+        ),
     ]
 
-app = ActivityPubServer(
-    apkit_config=AppConfig(
-        actor_keys=get_actor_keys
-    )
-)
+
+app = ActivityPubServer(apkit_config=AppConfig(actor_keys=get_actor_keys))
 sub = SubRouter()
 actor = Person(
     id=f"https://{HOST}/users/{USER_ID}",
@@ -67,21 +65,22 @@ actor = Person(
     publicKey=CryptographicKey(
         id=f"https://{HOST}/users/{USER_ID}#main-key",
         owner=f"https://{HOST}/users/{USER_ID}",
-        publicKeyPem=rsa_privatekey.public_key()
+        publicKeyPem=rsa_privatekey.public_key(),
     ),
     assertionMethod=[
         Multikey(
             id=f"https://{HOST}/users/{USER_ID}#main-key",
             controller=f"https://{HOST}/users/{USER_ID}",
-            publicKeyMultibase=rsa_privatekey.public_key()
+            publicKeyMultibase=rsa_privatekey.public_key(),
         ),
         Multikey(
             id=f"https://{HOST}/users/{USER_ID}#ed25519-key",
             controller=f"https://{HOST}/users/{USER_ID}",
-            publicKeyMultibase=ed_privatekey.public_key()
-        )
-    ]
+            publicKeyMultibase=ed_privatekey.public_key(),
+        ),
+    ],
 )
+
 
 async def nodeinfo_20():
     return ActivityResponse(
@@ -105,19 +104,34 @@ app.inbox("/inbox", "/users/{identifier}/inbox")
 app.outbox("/{identifier}/outbox")
 sub.nodeinfo("/ni/2.0", "2.0", func=nodeinfo_20)
 
+
 @app.webfinger()
 async def webfinger(request: Request, acct: Resource) -> Response:
     if acct.username == "demo" and acct.host == "apsig.amase.cc":
-        return JSONResponse(WebfingerResult(acct,links=[WebfingerLink("self", "application/activity+json", f"https://apsig.amase.cc/users/{USER_ID}")]).to_json(), media_type="application/jrd+json")
+        return JSONResponse(
+            WebfingerResult(
+                acct,
+                links=[
+                    WebfingerLink(
+                        "self",
+                        "application/activity+json",
+                        f"https://apsig.amase.cc/users/{USER_ID}",
+                    )
+                ],
+            ).to_json(),
+            media_type="application/jrd+json",
+        )
     else:
         return JSONResponse({"message": "Not Found"}, status_code=404)
-    
+
+
 @app.get("/users/{identifier}")
 async def get_actor(request: Request, identifier: str) -> Response:
     if identifier == USER_ID:
         return ActivityResponse(actor)
     else:
         return JSONResponse({"message": "Not Found"}, status_code=404)
+
 
 @app.on(Follow)
 async def on_follow(ctx: Context) -> JSONResponse:
@@ -145,7 +159,7 @@ async def on_follow(ctx: Context) -> JSONResponse:
         print(f"targetId: {follow.actor.id}")
         print(f"ObjectId: {follow.object.id}")
         return JSONResponse({"message": "Not Acceptable"}, 406)
-    
+
     if follow.object.id != f"https://{HOST}/users/{USER_ID}":
         return JSONResponse({"message": "Not Found"}, status_code=404)
 
@@ -153,9 +167,10 @@ async def on_follow(ctx: Context) -> JSONResponse:
     await ctx.send(
         keys,
         follow.actor,
-        follow.accept(f"https://{HOST}/#accepts/{str(uuid.uuid4())}", follow.object.id) # pyright: ignore[reportArgumentType]
+        follow.accept(f"https://{HOST}/#accepts/{str(uuid.uuid4())}", follow.object.id),  # pyright: ignore[reportArgumentType]
     )
     return JSONResponse({"message": "Hi!"}, status_code=201)
+
 
 @app.nodeinfo("/nodeinfo/2.1", "2.1")
 async def nodeinfo_21():

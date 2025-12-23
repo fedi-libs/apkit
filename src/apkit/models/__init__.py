@@ -33,7 +33,6 @@ from apmodel.nodeinfo.nodeinfo import (
 # Base Types
 from apmodel.types import (
     ActivityPubModel,  # noqa: F401
-    Undefined,  # noqa: F401
 )
 from apmodel.vocab.activity.accept import Accept, TentativeAccept  # noqa: F401
 from apmodel.vocab.activity.add import Add  # noqa: F401
