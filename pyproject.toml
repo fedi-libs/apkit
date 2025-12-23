@@ -57,6 +57,7 @@ version-file = "src/apkit/_version.py"
 dev = [
     "coverage>=7.10.7",
     "pytest>=8.4.1",
+    "pytest-cov>=7.0.0",
 ]
 docs = [
     "mkdocs>=1.6.1",
