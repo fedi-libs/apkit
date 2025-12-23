@@ -1,4 +1,3 @@
-# This file will contain common logic shared between sync and asyncio clients.
 import datetime
 import json
 import warnings
@@ -45,7 +44,6 @@ def ensure_user_agent_and_reconstruct(headers: Any, user_agent: str) -> Dict[str
             processed_headers[key_lower] = v
             processed_headers[f"{key_lower}_original_key"] = key_str
 
-    # 3. User-Agent の追加
     if "user-agent" not in processed_headers:
         processed_headers["user-agent"] = user_agent
         processed_headers["user-agent_original_key"] = "User-Agent"
