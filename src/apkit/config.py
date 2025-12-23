@@ -8,6 +8,7 @@ from .kv.inmemory import InMemoryKV
 if TYPE_CHECKING:
     from .server.types import ActorKey
 
+
 @dataclass
 class AppConfig(Generic[KT, VT]):
     actor_keys: Optional[Callable[[str], Awaitable[List["ActorKey"]]]] = None
@@ -15,4 +16,4 @@ class AppConfig(Generic[KT, VT]):
     cache: Cache = field(default_factory=lambda: Cache(None))
 
     def __post_init__(self):
-        self.cache = Cache(self.kv) if self.cache._store is None else self.cache # pyright: ignore[reportAttributeAccessIssue]
+        self.cache = Cache(self.kv) if self.cache._store is None else self.cache  # pyright: ignore[reportAttributeAccessIssue]

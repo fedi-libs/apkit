@@ -31,6 +31,10 @@ tasks:
     cmds:
       - uv run mkdocs build
     silent: true
+  docs:serve:
+    cmds:
+      - uv run mkdocs serve
+    silent: true
   build:
     cmds:
       - cmd: rm --rf dist

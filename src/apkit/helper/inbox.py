@@ -2,22 +2,24 @@ import json
 import logging
 from typing import Any, Optional
 
-
-from apsig import ProofVerifier, LDSignature, KeyUtil
-from apsig.exceptions import MissingSignature, VerificationFailed, UnknownSignature
-from apsig.draft.verify import Verifier
-
 import apmodel
-from apmodel import Activity, Link
-from apmodel.extra.security import CryptographicKey
-from apmodel.extra.cid import Multikey
+from apmodel import Activity
+from apmodel.core.link import Link
 from apmodel.vocab.actor import Actor
-
+from apsig import KeyUtil, LDSignature, ProofVerifier
+from apsig.draft.verify import Verifier
+from apsig.exceptions import (
+    MissingSignature,
+    UnknownSignature,
+    VerificationFailed,
+)
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa, ed25519
+from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 
-from ..config import AppConfig
 from ..client.asyncio.client import ActivityPubClient
+from ..config import AppConfig
 
 
 class InboxVerifier:
@@ -25,32 +27,20 @@ class InboxVerifier:
         self.logger = logging.getLogger("activitypub.server.inbox.helper")
         self.config = config
 
-    async def __fetch_actor(self, activity: Activity):
+    async def __fetch_actor(self, activity: Activity) -> Optional[Actor]:
         async with ActivityPubClient() as client:
-            if isinstance(activity.actor, str):
-                actor = await client.actor.fetch(url=activity.actor)
-            elif isinstance(activity.actor, Link) and isinstance(
-                activity.actor.href, str
-            ):
-                actor = await client.actor.fetch(url=activity.actor.href)
-            elif isinstance(activity.actor, Actor):
-                actor = activity.actor
-            else:
-                raise Exception
+            match activity.actor:
+                case str() as url:
+                    actor = await client.actor.fetch(url=url)
+                case Link(href=str() as url):
+                    actor = await client.actor.fetch(url=url)
+                case Actor() as actor_obj:
+                    actor = actor_obj
+                case _:
+                    raise Exception("Invalid actor type")
             if actor and isinstance(actor, Actor):
-                keys = await self.__get_keys(actor)
-                return keys
-            return {}
-
-    async def __get_keys(self, actor: Actor):
-        keys = {}
-        if isinstance(actor.publicKey, CryptographicKey):
-            keys[actor.publicKey.id] = actor.publicKey.publicKeyPem
-        if actor.assertionMethod:
-            for method in actor.assertionMethod:
-                if isinstance(method, Multikey):
-                    keys[method.id] = method.publicKeyMultibase
-        return keys
+                return actor
+            return None
 
     def __get_draft_signature_parts(self, signature: str) -> dict[Any, Any]:
         signature_parts = {}
@@ -68,7 +58,12 @@ class InboxVerifier:
         return public_key, cache
 
     async def __verify_draft(
-        self, body: bytes, url, method, headers: dict, no_check_cache: bool = False
+        self,
+        body: bytes,
+        url,
+        method,
+        headers: dict,
+        no_check_cache: bool = False,
     ) -> bool:
         signature_header = headers.get("signature")
         body_json = json.loads(body)
@@ -85,9 +80,18 @@ class InboxVerifier:
             if isinstance(activity, Activity):
                 if not cache:
                     public_keys = await self.__fetch_actor(activity)
-                    public_key = public_keys.get(key_id)
-                if public_key:
-                    verifier = Verifier(public_key, method, url, headers, body)
+                    if public_keys:
+                        public_key = public_keys.get_key(key_id)
+                    else:
+                        public_key = None
+                if (
+                    public_key
+                    and not isinstance(public_key, str)
+                    and isinstance(public_key.public_key, RSAPublicKey)
+                ):
+                    verifier = Verifier(
+                        public_key.public_key, method, url, headers, body
+                    )
                     try:
                         verifier.verify(raise_on_fail=True)
                         if isinstance(public_key, rsa.RSAPublicKey):
@@ -130,8 +134,13 @@ class InboxVerifier:
                         )
                     if not cache:
                         public_keys = await self.__fetch_actor(activity)
-                        public_key = public_keys.get(verification_method)
-                    if public_key:
+                        if public_keys:
+                            public_key = public_keys.get_key(verification_method)
+                    if (
+                        public_key
+                        and not isinstance(public_key, str)
+                        and isinstance(public_key, Ed25519PublicKey)
+                    ):
                         proof = ProofVerifier(public_key)
                         try:
                             proof.verify(body_json)
@@ -177,21 +186,33 @@ class InboxVerifier:
         if isinstance(activity, Activity):
             if not cache:
                 public_keys = await self.__fetch_actor(activity)
-                public_key = public_keys.get(creator)
+                if public_keys and creator:
+                    public_key = public_keys.get_key(creator)
             if public_key:
                 try:
-                    ld.verify(body_json, public_key, raise_on_fail=True)
-                    if not cache:
-                        if isinstance(public_key, rsa.RSAPublicKey):
-                            await self.config.kv.async_set(
-                                f"signature:{creator}",
-                                public_key.public_bytes(
-                                    serialization.Encoding.PEM,
-                                    serialization.PublicFormat.SubjectPublicKeyInfo,
-                                ),
-                            )
-                    return True
-                except (UnknownSignature, MissingSignature, VerificationFailed) as e:
+                    public_key = (
+                        public_key.public_key
+                        if not isinstance(public_key, str)
+                        else public_key
+                    )
+                    if public_key and not isinstance(public_key, Ed25519PublicKey):
+                        ld.verify(body_json, public_key, raise_on_fail=True)
+                        if not cache:
+                            if isinstance(public_key, rsa.RSAPublicKey):
+                                await self.config.kv.async_set(
+                                    f"signature:{creator}",
+                                    public_key.public_bytes(
+                                        serialization.Encoding.PEM,
+                                        serialization.PublicFormat.SubjectPublicKeyInfo,
+                                    ),
+                                )
+                        return True
+                    raise VerificationFailed("publicKey does not exist.")
+                except (
+                    UnknownSignature,
+                    MissingSignature,
+                    VerificationFailed,
+                ) as e:
                     if not cache:
                         raise VerificationFailed(f"{str(e)}")
                     else:

@@ -1,17 +1,67 @@
-# This file will contain common logic shared between sync and asyncio clients.
 import datetime
 import json
 import warnings
-from typing import List, Optional, Union, Literal, Tuple
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    Union,
+)
 
+import apmodel
 import apsig
-from apsig import draft
 from apmodel.types import ActivityPubModel
+from apsig import draft
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 
+from ..types import ActorKey
 from .exceptions import NotImplementedWarning
 from .models import Resource, WebfingerResult
-from ..types import ActorKey
+
+
+def ensure_user_agent_and_reconstruct(headers: Any, user_agent: str) -> Dict[str, str]:
+    processed_headers: Dict[str, Any] = {}
+
+    match headers:
+        case Mapping() as m:
+            items = m.items()
+        case Iterable() as i:
+            items = i
+        case None:
+            items = []
+        case _:
+            raise TypeError(f"Unsupported header type: {type(headers)}")
+
+    for k, v in items:
+        key_str = str(k)
+        key_lower = key_str.lower()
+
+        if key_lower not in processed_headers:
+            processed_headers[key_lower] = v
+            processed_headers[f"{key_lower}_original_key"] = key_str
+
+    if "user-agent" not in processed_headers:
+        processed_headers["user-agent"] = user_agent
+        processed_headers["user-agent_original_key"] = "User-Agent"
+
+    final_headers: Dict[str, str] = {}
+    for key_lower, value in processed_headers.items():
+        if key_lower.endswith("_original_key"):
+            continue
+
+        original_key = processed_headers.get(f"{key_lower}_original_key")
+
+        if original_key:
+            final_headers[original_key] = str(value)
+        else:
+            standard_key = key_lower.replace("-", " ").title().replace(" ", "-")
+            final_headers[standard_key] = str(value)
+
+    return final_headers
 
 
 def sign_request(
@@ -19,15 +69,15 @@ def sign_request(
     headers: dict,
     signatures: List[ActorKey],
     body: Optional[Union[dict, ActivityPubModel, bytes]] = None,
-    sign_with: List[Literal["draft-cavage", "rsa2017", "fep8b32", "rfc9421"]] = [
+    sign_with: List[str] = [
         "draft-cavage",
-        "rsa2017",
-        "fep8b32",
+        #        "rsa2017",
+        #        "fep8b32",
     ],
     as_dict: bool = False,
 ) -> Tuple[Optional[Union[bytes, dict]], dict]:
     if isinstance(body, ActivityPubModel):
-        body = body.to_json()
+        body = apmodel.to_dict(body)
 
     signed_cavage = False
     signed_rsa2017 = False

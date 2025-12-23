@@ -50,7 +50,9 @@ class InMemoryKV(KeyValueStore[Any, Any]):
         """Gets a value from the in-memory store, checking for TTL."""
         return self.get(key)
 
-    async def async_set(self, key: Any, value: Any, ttl_seconds: int | None = 3600) -> None:
+    async def async_set(
+        self, key: Any, value: Any, ttl_seconds: int | None = 3600
+    ) -> None:
         """Sets a value in the in-memory store with an optional TTL."""
         self.set(key, value, ttl_seconds)
 

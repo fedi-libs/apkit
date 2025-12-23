@@ -3,13 +3,17 @@ from typing import Any, Generic, Optional
 
 from .kv import KT, VT, KeyValueStore
 
+
 class Cache(Generic[KT, VT]):
     """
     A generic cache wrapper that uses a KeyValueStore as a backend
     and adds Time-To-Live (TTL) support.
     """
 
-    class _CacheItem:
+    class _CacheItem(Generic[VT]):
+        value: VT
+        expiration: float
+
         def __init__(self, value: VT, expiration: float):
             self.value = value
             self.expiration = expiration
@@ -23,7 +27,7 @@ class Cache(Generic[KT, VT]):
         """
         if self._store:
             item = self._store.get(key)
-            if not isinstance(item, self._CacheItem):
+            if not (hasattr(item, "value") and hasattr(item, "expiration")):
                 return None
 
             if time.time() > item.expiration:
@@ -59,13 +63,12 @@ class Cache(Generic[KT, VT]):
         """
         if self._store:
             item = self._store.get(key)
-            if not isinstance(item, self._CacheItem):
+            if not (hasattr(item, "value") and hasattr(item, "expiration")):
                 return False
 
             if time.time() > item.expiration:
                 self._store.delete(key)
                 return False
-
             return True
         else:
             return False
@@ -76,7 +79,7 @@ class Cache(Generic[KT, VT]):
         """
         if self._store:
             item = self._store.get(key)
-            if not isinstance(item, self._CacheItem):
+            if not (hasattr(item, "value") and hasattr(item, "expiration")):
                 return None
 
             if time.time() > item.expiration:
@@ -112,7 +115,7 @@ class Cache(Generic[KT, VT]):
         """
         if self._store:
             item = self._store.get(key)
-            if not isinstance(item, self._CacheItem):
+            if not (hasattr(item, "value") and hasattr(item, "expiration")):
                 return False
 
             if time.time() > item.expiration:

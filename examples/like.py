@@ -77,7 +77,7 @@ actor = Person(
 )
 
 
-async def like( object_id: str) -> None:
+async def like(object_id: str) -> None:
     async with ActivityPubClient() as client:
         # Fetch a remote Object
         target_object = await client.actor.fetch(object_id)
@@ -94,7 +94,7 @@ async def like( object_id: str) -> None:
             raise Exception("Could not find actor's inbox URL")
 
         logger.info(f"Found actor's inbox: {inbox_url}")
-        
+
         # Like activity
         activity = Like(
             id=f"https://{HOST}/activities/{uuid.uuid4()}",

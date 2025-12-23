@@ -1,7 +1,7 @@
 import re
-from typing import Any, Dict, List, Union, Optional
-
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Union
+
 
 @dataclass(frozen=True)
 class Resource:
@@ -23,13 +23,14 @@ class Resource:
         match = re.match(r"^([^@]+)@([^@]+)$", resource_str)
         if not match:
             return cls(username="", host="", url=resource_str)
-            #raise ValueError(f"Invalid resource format: {resource_str}")
+            # raise ValueError(f"Invalid resource format: {resource_str}")
 
         username, host = match.groups()
         return cls(username=username, host=host, url=None)
 
     def export(self) -> str:
         return f"acct:{self.username}@{self.host}"
+
 
 @dataclass(frozen=True)
 class Link:
@@ -40,12 +41,7 @@ class Link:
     href: str | None
 
     def to_json(self) -> dict:
-        return {
-            "rel": self.rel,
-            "type": self.type,
-            "href": self.href
-        }
-
+        return {"rel": self.rel, "type": self.type, "href": self.href}
 
 
 @dataclass(frozen=True)
@@ -60,10 +56,7 @@ class WebfingerResult:
         for link in self.links:
             links.append(link.to_json())
 
-        return {
-            "subject": self.subject.export(),
-            "links": links
-        }
+        return {"subject": self.subject.export(), "links": links}
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "WebfingerResult":

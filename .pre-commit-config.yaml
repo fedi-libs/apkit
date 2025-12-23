@@ -1,0 +1,75 @@
+repos:
+  - hooks:
+      - additional_dependencies:
+          - aiohttp>=3.12.15
+          - apmodel>=0.5.0
+          - apsig>=0.5.4
+          - charset-normalizer>=3.4.3
+          - coverage>=7.10.7
+          - fastapi>=0.116.1
+          - httpcore[http2,socks]>=1.0.9
+          - httpx>=0.28.1
+          - pytest>=8.4.1
+          - redis>=5.0.4
+          - requests>=2.32.5
+          - types-requests>=2.32.4.20250913
+          - uvicorn>=0.35.0
+        args:
+          - --fix
+        description: Run 'ruff' for extremely fast Python linting
+        entry: ruff check --force-exclude
+        id: ruff
+        language: python
+        minimum_pre_commit_version: 2.9.2
+        name: ruff
+        require_serial: true
+        types_or:
+          - python
+          - pyi
+      - additional_dependencies:
+          - aiohttp>=3.12.15
+          - apmodel>=0.5.0
+          - apsig>=0.5.4
+          - charset-normalizer>=3.4.3
+          - coverage>=7.10.7
+          - fastapi>=0.116.1
+          - httpcore[http2,socks]>=1.0.9
+          - httpx>=0.28.1
+          - pytest>=8.4.1
+          - redis>=5.0.4
+          - requests>=2.32.5
+          - types-requests>=2.32.4.20250913
+          - uvicorn>=0.35.0
+        args: []
+        description: Run 'ruff format' for extremely fast Python formatting
+        entry: ruff format --force-exclude
+        id: ruff-format
+        language: python
+        minimum_pre_commit_version: 2.9.2
+        name: ruff-format
+        require_serial: true
+        types_or:
+          - python
+          - pyi
+    repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+  - hooks:
+      - additional_dependencies:
+          - aiohttp>=3.12.15
+          - apmodel>=0.5.0
+          - apsig>=0.5.4
+          - charset-normalizer>=3.4.3
+          - coverage>=7.10.7
+          - fastapi>=0.116.1
+          - httpcore[http2,socks]>=1.0.9
+          - httpx>=0.28.1
+          - pytest>=8.4.1
+          - redis>=5.0.4
+          - requests>=2.32.5
+          - types-requests>=2.32.4.20250913
+          - uvicorn>=0.35.0
+        id: pyrefly-check
+        name: Pyrefly (type checking)
+        pass_filenames: false
+    repo: https://github.com/facebook/pyrefly-pre-commit
+    rev: 0.46.0

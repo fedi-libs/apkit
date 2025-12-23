@@ -2,17 +2,18 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Optional
 
 from apmodel import Activity
-from apmodel.vocab.activity import Accept, Reject
 from apmodel.types import ActivityPubModel
+from apmodel.vocab.activity import Accept, Reject
 from apmodel.vocab.actor import Actor, ActorEndpoints
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import Request
 
-from ..types import ActorKey
 from ..client.asyncio.client import ActivityPubClient
+from ..types import ActorKey, Outbox  # noqa: F401
 
 if TYPE_CHECKING:
     from .app import ActivityPubServer
+
 
 @dataclass
 class Context:
@@ -21,21 +22,26 @@ class Context:
     activity: Activity
     request: Request
 
-    async def send(self, keys: List[ActorKey], target: Actor, activity: ActivityPubModel):
+    async def send(
+        self, keys: List[ActorKey], target: Actor, activity: ActivityPubModel
+    ):
         async with ActivityPubClient() as client:
-
             inbox = None
             priv_key = None
             key_id = None
 
-            if target.endpoints is ActorEndpoints and target.endpoints.sharedInbox:
-                if not isinstance(activity, Accept) and not isinstance(activity, Reject):
-                    inbox = target.endpoints.sharedInbox
+            if (
+                isinstance(target.endpoints, ActorEndpoints)
+                and target.endpoints.shared_inbox
+            ):
+                if not isinstance(activity, Accept) and not isinstance(
+                    activity, Reject
+                ):
+                    inbox = target.endpoints.shared_inbox
             else:
                 inbox = target.inbox
             if not isinstance(inbox, str):
                 raise ValueError("Unsupported Inbox Type")
-
 
             for key in keys:
                 if isinstance(key.private_key, rsa.RSAPrivateKey):
@@ -43,7 +49,9 @@ class Context:
                     key_id = key.key_id
                     break
             if priv_key and key_id and inbox:
-                async with client.post(inbox, key_id=key_id, signature=priv_key, json=activity) as resp:
+                async with client.post(
+                    inbox, key_id=key_id, signature=priv_key, json=activity
+                ) as _:
                     return None
             else:
                 pass

@@ -1,3 +1,21 @@
+# Standalone Server vs. Framework Integration
+
+A common question is when to use the built-in `apkit.server` versus integrating `apkit` directly with a web framework.
+
+The built-in `apkit.server` is a lightweight wrapper around **FastAPI**, designed for rapid development and ease of use. It's an excellent starting point for new, standalone ActivityPub services.
+
+- **Use `apkit.server` if:**
+    - You want the quickest way to get a server running with sensible defaults.
+    - You are building a new service and prefer an all-in-one solution.
+
+- **Use Direct Framework Integration if:**
+    - You want to add ActivityPub capabilities to an **existing** application (e.g., built with FastAPI, Flask, or Django).
+    - You need full control over the application, including custom middleware, advanced routing, and other framework-specific features.
+
+Both approaches can be used to build a fully-featured ActivityPub service. The choice depends on your project's specific needs and existing architecture.
+
+> **Note:** While `apkit.server` provides a convenient wrapper, direct integration allows for the same level of functionality within your framework of choice. Guides for direct integration are under development.
+
 # Advanced Server Features
 
 ### Handling Various Activities

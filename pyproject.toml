@@ -9,7 +9,7 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "aiohttp>=3.12.15",
-    "apmodel>=0.4.1",
+    "apmodel>=0.5.1",
     "apsig>=0.5.4",
     "charset-normalizer>=3.4.3",
     "httpcore[http2,socks]>=1.0.9",
@@ -32,8 +32,11 @@ server = [
     "uvicorn>=0.35.0",
 ]
 
+[tool.uv]
+default-groups = "all"
+
 [tool.uv.sources]
-apmodel = { git = "https://github.com/fedi-libs/apmodel.git" }
+apmodel = { git = "https://github.com/fedi-libs/apmodel.git", branch = "develop" }
 apsig = { git = "https://github.com/fedi-libs/apsig.git" }
 
 [build-system]
@@ -44,22 +47,85 @@ build-backend = "hatchling.build"
 source = "vcs"
 fallback-version = "0.0.0"
 
-[tool.hatch.version.raw-options] 
-version_scheme = "no-guess-dev"  
+[tool.hatch.version.raw-options]
+version_scheme = "no-guess-dev"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/apkit/_version.py"
-
-[tool.ruff]
-# In addition to the standard set of exclusions, omit all tests, plus a specific file.
-extend-exclude = ["tests", "src/apkit/_version.py"]
 
 [dependency-groups]
 dev = [
     "coverage>=7.10.7",
     "pytest>=8.4.1",
+    "pytest-cov>=7.0.0",
 ]
 docs = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.19",
 ]
+lint = [
+    "pyrefly>=0.46.0",
+    "ruff>=0.14.10",
+]
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "src/apmodel/_core/_initial/_rebuild.py"
+]
+extend-exclude = ["tests", "src/apkit/_version.py", "src/apkit/nodeinfo/__init__.py"]
+
+
+line-length = 88
+indent-width = 4
+
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "N"]
+ignore = ["E501", "W292"]
+
+fixable = ["ALL"]
+unfixable = []
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.pyrefly]
+project-includes = [
+    "src/**/*.py*",
+    "tests/**/*.py*",
+]
+project-excludes = [
+    "scripts/**/*.py"
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

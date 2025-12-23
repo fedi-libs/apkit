@@ -1,8 +1,11 @@
 from dataclasses import dataclass
-from cryptography.hazmat.primitives.asymmetric import rsa, ed25519
+
+from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
+
 
 class Outbox:
     pass
+
 
 @dataclass
 class ActorKey:

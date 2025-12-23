@@ -6,19 +6,19 @@ from typing import (
     Callable,
     Coroutine,
     Dict,
+    List,
     Literal,
     Mapping,
     Optional,
     Sequence,
     TypeVar,
-    List,
     Union,
 )
 
 from apmodel import Activity
 from fastapi import APIRouter, FastAPI, Request, Response
-from fastapi.params import Depends
 from fastapi.middleware import Middleware
+from fastapi.params import Depends
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
@@ -28,13 +28,12 @@ from apkit.server.routes.outbox import create_outbox_route
 
 from ..abc.server import AbstractApkitIntegration
 from ..client.models import Resource as WebfingerResource
+from ..config import AppConfig
 from ..types import Outbox
+from .routes.inbox import create_inbox_route
+from .routes.nodeinfo import nodeinfo_links_route
 from .subrouter import SubRouter
 from .types import ActorKey, Context
-
-from ..config import AppConfig
-from .routes.nodeinfo import nodeinfo_links_route
-from .routes.inbox import create_inbox_route
 
 AppType = TypeVar("AppType", bound="ActivityPubServer")
 
@@ -70,7 +69,8 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
         on_shutdown: Sequence[Callable[[], Any]] | None = None,
         lifespan: Callable[[AppType], AbstractAsyncContextManager[None, bool | None]]
         | Callable[
-            [AppType], AbstractAsyncContextManager[Mapping[str, Any], bool | None]
+            [AppType],
+            AbstractAsyncContextManager[Mapping[str, Any], bool | None],
         ]
         | None = None,
         terms_of_service: str | None = None,
@@ -91,11 +91,13 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
     ) -> None:
         self.__ap_events = {}
         self.__ap_outbox: Optional[Callable[[Context], Awaitable[Any]]] = None
-        self.__ap_webfinger_route: Optional[Callable[[Request,WebfingerResource], Awaitable[Any]]] = None
+        self.__ap_webfinger_route: Optional[
+            Callable[[Request, WebfingerResource], Awaitable[Any]]
+        ] = None
         self.__ap_config = apkit_config
-        self._get_actor_keys: Optional[Callable[[str], Awaitable[List["ActorKey"]]]] = (
-            apkit_config.actor_keys
-        )
+        self._get_actor_keys: Optional[
+            Callable[[str], Awaitable[List["ActorKey"]]]
+        ] = apkit_config.actor_keys
         self.__ap_config = apkit_config
 
         super().__init__(
@@ -119,7 +121,7 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
             exception_handlers=exception_handlers,
             on_startup=on_startup,
             on_shutdown=on_shutdown,
-            lifespan=lifespan,
+            lifespan=lifespan,  # pyrefly: ignore
             terms_of_service=terms_of_service,
             contact=contact,
             license_info=license_info,
@@ -146,8 +148,7 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
     async def __outbox_route(self, request: Request):
         if self.__ap_outbox:
             r = create_outbox_route(self, self.__ap_outbox)
-            if r:
-                return await r(request=request)
+            return await r(request=request)
         return Response("Not Found", status_code=404)
 
     async def __webfinger_route(self, request: Request):
@@ -156,8 +157,8 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
             resource = request.query_params.get("resource")
             if resource:
                 acct = WebfingerResource.parse(resource)
-                return await func(request,acct)
-        
+                return await func(request, acct)
+
     def setup(self) -> None:
         self.add_api_route(
             path="/.well-known/nodeinfo",
@@ -174,14 +175,18 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
         )
         return super().setup()
 
-    def on(self, type: Union[type[Activity], type[Outbox]], func: Optional[Callable] = None):
+    def on(
+        self,
+        type: Union[type[Activity], type[Outbox]],
+        func: Optional[Callable] = None,
+    ):
         def decorator(func: Callable) -> Callable:
-            if  issubclass(type, Activity):
+            if issubclass(type, Activity):
                 self.__ap_events[type] = func
             elif issubclass(type, Outbox):
                 self.__ap_outbox = func
             return func
-        
+
         if func is not None:
             return decorator(func)
 
@@ -191,12 +196,12 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
         def decorator(func: Callable) -> Callable:
             self.__ap_webfinger_route = func
             return func
-        
+
         if func is not None:
             return decorator(func)
 
         return decorator
-        
+
     def outbox(self, *args) -> None:
         for path in args:
             self.add_api_route(
@@ -286,5 +291,11 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
         )
         if isinstance(router, SubRouter):
             self.__ap_events = {**router._ap_events, **self.__ap_events}
-            self.__ap_outbox = self.__ap_outbox if not router._ap_outbox else router._ap_outbox
-            self.__ap_webfinger_route = self.__ap_webfinger_route if not router._ap_webfinger_route else router._ap_webfinger_route
+            self.__ap_outbox = (
+                self.__ap_outbox if not router._ap_outbox else router._ap_outbox
+            )
+            self.__ap_webfinger_route = (
+                self.__ap_webfinger_route
+                if not router._ap_webfinger_route
+                else router._ap_webfinger_route
+            )

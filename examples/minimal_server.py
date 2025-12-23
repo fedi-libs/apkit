@@ -1,30 +1,34 @@
+import json
 import logging
-from fastapi import Request, Response
-from fastapi.responses import JSONResponse
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization as crypto_serialization
 import os
 import sys
 
-from apkit.server import ActivityPubServer
-from apkit.server.types import Context, ActorKey, Outbox
-from apkit.server.responses import ActivityResponse
+from cryptography.hazmat.primitives import serialization as crypto_serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from fastapi import Request, Response
+from fastapi.responses import JSONResponse
+
+from apkit.client import WebfingerLink, WebfingerResource, WebfingerResult
+from apkit.client.asyncio.client import ActivityPubClient
 from apkit.models import (
-    Person,
+    Actor as APKitActor,
+)
+from apkit.models import (
     CryptographicKey,
     Follow,
-    Actor as APKitActor,
     Nodeinfo,
-    NodeinfoSoftware,
     NodeinfoProtocol,
     NodeinfoServices,
+    NodeinfoSoftware,
     NodeinfoUsage,
     NodeinfoUsageUsers,
     OrderedCollection,
     OrderedCollectionPage,
+    Person,
 )
-from apkit.client import WebfingerResource, WebfingerResult, WebfingerLink
-from apkit.client.asyncio.client import ActivityPubClient
+from apkit.server import ActivityPubServer
+from apkit.server.responses import ActivityResponse
+from apkit.server.types import ActorKey, Context, Outbox
 
 # --- Logging Setup ---
 logging.basicConfig(level=logging.INFO)
@@ -115,6 +119,28 @@ async def get_actor_endpoint(identifier: str):
     return JSONResponse({"error": "Not Found"}, status_code=404)
 
 
+@app.get("/notes/{identifier}")
+async def notes(identifier: str):
+    if os.path.exists(f"./data/notes/{identifier}"):
+        with open(f"./data/notes/{identifier}", "r") as f:
+            return JSONResponse(
+                json.load(f),
+                media_type="application/activity+json; charset=utf-8",
+            )
+    return JSONResponse({"error": "Not Found"}, status_code=404)
+
+
+@app.get("/creates/{identifier}")
+async def creates(identifier: str):
+    if os.path.exists(f"./data/creates/{identifier}"):
+        with open(f"./data/creates/{identifier}", "r") as f:
+            return JSONResponse(
+                json.load(f),
+                media_type="application/activity+json; charset=utf-8",
+            )
+    return JSONResponse({"error": "Not Found"}, status_code=404)
+
+
 @app.webfinger()
 async def webfinger_endpoint(request: Request, acct: WebfingerResource) -> Response:
     if acct.username == USER_ID and acct.host == HOST:
@@ -142,6 +168,7 @@ async def nodeinfo_endpoint():
         )
     )
 
+
 @app.on(Outbox)
 async def outbox(ctx: Context):
     identifier = ctx.request.path_params.get("identifier")
@@ -159,6 +186,7 @@ async def outbox(ctx: Context):
         outbox = OrderedCollectionPage()
 
     return ActivityResponse(outbox)
+
 
 # --- Activity Handlers ---
 @app.on(Follow)

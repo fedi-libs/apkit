@@ -13,8 +13,8 @@
   <a href="https://pypi.org/project/apkit" target="_blank">
       <img src="https://img.shields.io/pypi/v/apkit.svg" alt="Package version">
   </a>
-  <a href="https://pypi.org/project/apkit" target="_blank">
-      <img src="https://img.shields.io/pypi/pyversions/apkit.svg" alt="Supported Python versions">
+  <a href="https://results.pre-commit.ci/latest/github/fedi-libs/apkit/main" target="_blank">
+      <img src="https://results.pre-commit.ci/badge/github/fedi-libs/apkit/main.svg" alt="pre-commit.ci status">
   </a>
   <a href="https://deepwiki.com/fedi-libs/apkit" target="_blank">
       <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki">
@@ -36,17 +36,17 @@
 
 The key features are:
 
-* **FastAPI-based Server**: Build high-performance, production-ready ActivityPub servers with the power and simplicity of FastAPI.
-* **Async Client**: Interact with other Fediverse servers using a modern `async` HTTP client.
-* **Built-in Helpers**: Simplified setup for Webfinger, NodeInfo, HTTP Signatures, and other Fediverse protocols.
-* **Extensible**: Designed to be flexible and easy to extend for your own custom ActivityPub logic.
+- **FastAPI-based Server**: Build high-performance, production-ready ActivityPub servers with the power and simplicity of FastAPI.
+- **Async Client**: Interact with other Fediverse servers using a modern `async` HTTP client.
+- **Built-in Helpers**: Simplified setup for Webfinger, NodeInfo, HTTP Signatures, and other Fediverse protocols.
+- **Extensible**: Designed to be flexible and easy to extend for your own custom ActivityPub logic.
 
 ## Requirements
 
-* Python 3.12+
-* [FastAPI](https://fastapi.tiangolo.com/) for the server part.
-* [apmodel](https://github.com/fedi-libs/apmodel) for ActivityPub models.
-* [apsig](https://github.com/fedi-libs/apsig) for HTTP Signatures.
+- Python 3.12+
+- [FastAPI](https://fastapi.tiangolo.com/) for the server part.
+- [apmodel](https://github.com/fedi-libs/apmodel) for ActivityPub models.
+- [apsig](https://github.com/fedi-libs/apsig) for HTTP Signatures.
 
 ## Installation
 
@@ -91,4 +91,3 @@ Run the server with `uvicorn`:
 ```bash
 $ uvicorn main:app
 ```
-

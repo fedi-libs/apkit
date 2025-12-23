@@ -1,5 +1,5 @@
 import pickle
-from typing import Any
+from typing import Any, cast
 
 from redis.asyncio import Redis as AsyncRedis
 from redis.client import Redis as SyncRedis
@@ -21,7 +21,9 @@ class RedisKV(KeyValueStore[Any, Any]):
         **kwargs,
     ):
         self.redis = SyncRedis(host=host, port=port, db=db, password=password, **kwargs)
-        self.async_redis = AsyncRedis(host=host, port=port, db=db, password=password, **kwargs)
+        self.async_redis = AsyncRedis(
+            host=host, port=port, db=db, password=password, **kwargs
+        )
 
     def get(self, key: str) -> Any | None:
         """Gets a value from the Redis store."""
@@ -40,7 +42,7 @@ class RedisKV(KeyValueStore[Any, Any]):
 
     def exists(self, key: Any) -> bool:
         """Checks if a key exists in the Redis store."""
-        return int(self.redis.exists(key)) > 0 # pyright: ignore[reportArgumentType]
+        return int(cast(int, self.redis.exists(key))) > 0
 
     async def async_get(self, key: Any) -> Any | None:
         """Gets a value from the Redis store asynchronously."""
@@ -49,7 +51,9 @@ class RedisKV(KeyValueStore[Any, Any]):
             return None
         return pickle.loads(value)
 
-    async def async_set(self, key: Any, value: Any, ttl_seconds: int | None = 3600) -> None:
+    async def async_set(
+        self, key: Any, value: Any, ttl_seconds: int | None = 3600
+    ) -> None:
         """Sets a value in the Redis store asynchronously with an optional TTL."""
         await self.async_redis.set(key, pickle.dumps(value), ex=ttl_seconds)
 

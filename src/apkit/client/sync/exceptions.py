@@ -3,9 +3,11 @@ class ContentTypeError(Exception):
         super().__init__(message)
         self.status = status
         self.headers = headers
-        
-class TooManyRedirects(Exception):
+
+
+class TooManyRedirectsError(Exception):
     pass
-    
+
+
 class NotImplementedWarning(Warning):
     pass
