@@ -51,9 +51,7 @@ class InboxVerifier:
             signature_parts[key.strip()] = value.strip().strip('"')
         return signature_parts
 
-    async def __get_signature_from_kv(
-        self, key_id: str
-    ) -> tuple[Optional[str], bool]:
+    async def __get_signature_from_kv(self, key_id: str) -> tuple[Optional[str], bool]:
         cache = False
         public_key = await self.config.kv.async_get(f"signature:{key_id}")
         if public_key:
@@ -149,21 +147,15 @@ class InboxVerifier:
                                 public_key_pem.encode("utf-8")
                             )
                         except ValueError:
-                            self.logger.warning(
-                                f"Failed to load cached key {key_id}"
-                            )
-            if public_key_obj and await _verify_with_key(
-                key_id, public_key_obj, True
-            ):
+                            self.logger.warning(f"Failed to load cached key {key_id}")
+            if public_key_obj and await _verify_with_key(key_id, public_key_obj, True):
                 return True
 
             actor = await self.__fetch_actor(activity)
             if actor:
                 key_from_actor = actor.get_key(key_id)
                 if key_from_actor and key_from_actor.public_key:
-                    if await _verify_with_key(
-                        key_id, key_from_actor.public_key, False
-                    ):
+                    if await _verify_with_key(key_id, key_from_actor.public_key, False):
                         return True
 
         return False
@@ -232,9 +224,7 @@ class InboxVerifier:
         else:
             raise MissingSignature("this is not http signed activity.")
 
-    async def __verify_proof(
-        self, body: bytes, no_check_cache: bool = False
-    ) -> bool:
+    async def __verify_proof(self, body: bytes, no_check_cache: bool = False) -> bool:
         body_json = json.loads(body)
         proof_key = body_json.get("proof")
 
@@ -252,9 +242,7 @@ class InboxVerifier:
                     if not cache:
                         public_keys = await self.__fetch_actor(activity)
                         if public_keys:
-                            public_key = public_keys.get_key(
-                                verification_method
-                            )
+                            public_key = public_keys.get_key(verification_method)
                     if (
                         public_key
                         and not isinstance(public_key, str)
@@ -264,9 +252,7 @@ class InboxVerifier:
                         try:
                             proof.verify(body_json)
                             if not cache:
-                                if isinstance(
-                                    public_key, ed25519.Ed25519PublicKey
-                                ):
+                                if isinstance(public_key, ed25519.Ed25519PublicKey):
                                     ku = KeyUtil(public_key)
                                     await self.config.kv.async_set(
                                         f"signature:{verification_method}",
@@ -289,9 +275,7 @@ class InboxVerifier:
         else:
             raise MissingSignature("this is not signed activity.")
 
-    async def __verify_ld(
-        self, body: bytes, no_check_cache: bool = False
-    ) -> bool:
+    async def __verify_ld(self, body: bytes, no_check_cache: bool = False) -> bool:
         ld = LDSignature()
         body_json = json.loads(body)
         signature = body_json.get("signature")
@@ -318,9 +302,7 @@ class InboxVerifier:
                         if not isinstance(public_key, str)
                         else public_key
                     )
-                    if public_key and not isinstance(
-                        public_key, Ed25519PublicKey
-                    ):
+                    if public_key and not isinstance(public_key, Ed25519PublicKey):
                         ld.verify(body_json, public_key, raise_on_fail=True)
                         if not cache:
                             if isinstance(public_key, rsa.RSAPublicKey):
@@ -360,9 +342,7 @@ class InboxVerifier:
             if proof:
                 return True
         except Exception as e:
-            self.logger.debug(
-                f"Object Integrity Proofs verification failed; {str(e)}"
-            )
+            self.logger.debug(f"Object Integrity Proofs verification failed; {str(e)}")
         try:
             ld = await self.__verify_ld(body)
             if ld:
@@ -374,7 +354,5 @@ class InboxVerifier:
             if draft:
                 return True
         except Exception as e:
-            self.logger.debug(
-                f"Draft HTTP signature verification failed; {str(e)}"
-            )
+            self.logger.debug(f"Draft HTTP signature verification failed; {str(e)}")
         return False

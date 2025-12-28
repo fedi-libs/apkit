@@ -164,10 +164,7 @@ class ActivityPubClient(aiohttp.ClientSession):
             "fep8b32",
         ],
     ) -> ActivityPubClientResponse:
-        headers = reconstruct_headers(
-            headers if headers else {}, self.user_agent,
-            json
-        )
+        headers = reconstruct_headers(headers if headers else {}, self.user_agent, json)
         if signatures != [] and sign_with:
             j, headers = await asyncio.to_thread(
                 sign_request,

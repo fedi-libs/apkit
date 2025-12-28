@@ -150,11 +150,7 @@ def sign_request(
             if "rsa2017" in sign_with and body and not signed_rsa2017:
                 ld_signer = apsig.LDSignature()
                 body = ld_signer.sign(
-                    doc=(
-                        body
-                        if not isinstance(body, bytes)
-                        else json.loads(body)
-                    ),
+                    doc=(body if not isinstance(body, bytes) else json.loads(body)),
                     creator=signature.key_id,
                     private_key=signature.private_key,
                 )
@@ -162,19 +158,12 @@ def sign_request(
         elif isinstance(signature.private_key, ed25519.Ed25519PrivateKey):
             if "fep8b32" in sign_with and body and not signed_fep8b32:
                 now = (
-                    datetime.datetime.now().isoformat(
-                        sep="T", timespec="seconds"
-                    )
-                    + "Z"
+                    datetime.datetime.now().isoformat(sep="T", timespec="seconds") + "Z"
                 )
-                fep_8b32_signer = apsig.ProofSigner(
-                    private_key=signature.private_key
-                )
+                fep_8b32_signer = apsig.ProofSigner(private_key=signature.private_key)
                 body = fep_8b32_signer.sign(
                     unsecured_document=(
-                        body
-                        if not isinstance(body, bytes)
-                        else json.loads(body)
+                        body if not isinstance(body, bytes) else json.loads(body)
                     ),
                     options={
                         "type": "DataIntegrityProof",
@@ -206,9 +195,7 @@ def validate_webfinger_result(
         )
 
 
-def _is_expected_content_type(
-    actual_ctype: str, expected_ctype_prefix: str
-) -> bool:
+def _is_expected_content_type(actual_ctype: str, expected_ctype_prefix: str) -> bool:
     mime_type = actual_ctype.split(";")[0].strip().lower()
 
     if mime_type == "application/json":
