@@ -8,7 +8,7 @@ from typing_extensions import Optional
 
 from ..._version import __version__
 from ...types import ActorKey
-from .._common import ensure_user_agent_and_reconstruct, sign_request
+from .._common import reconstruct_headers, sign_request
 from .actor import ActorFetcher
 from .exceptions import TooManyRedirectsError
 from .types import Response
@@ -59,7 +59,7 @@ class ActivityPubClient:
     ) -> Response:
         if not self.__http:
             raise NotImplementedError
-        headers = ensure_user_agent_and_reconstruct(headers, self.user_agent)
+        headers = reconstruct_headers(headers, self.user_agent, content)
         if content is not None:
             content = self.__transform_to_bytes(content)
         if signatures != []:
