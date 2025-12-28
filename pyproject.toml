@@ -35,10 +35,6 @@ server = [
 [tool.uv]
 default-groups = "all"
 
-[tool.uv.sources]
-apmodel = { git = "https://github.com/fedi-libs/apmodel.git", branch = "develop" }
-apsig = { git = "https://github.com/fedi-libs/apsig.git" }
-
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
