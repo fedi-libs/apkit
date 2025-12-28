@@ -1,7 +1,7 @@
-import warnings
 import datetime
 import json
 import urllib.parse
+import warnings
 from collections.abc import Mapping
 from typing import (
     Any,
@@ -25,7 +25,9 @@ from .models import Resource, WebfingerResult
 
 
 def reconstruct_headers(
-    headers: Any, user_agent: str, json: Optional[dict | ActivityPubModel | Any] = None
+    headers: Any,
+    user_agent: str,
+    json: Optional[dict | ActivityPubModel | Any] = None,
 ) -> Dict[str, str]:
     processed_headers: Dict[str, Any] = {}
 
@@ -54,7 +56,9 @@ def reconstruct_headers(
     if json:
         if isinstance(json, ActivityPubModel):
             if "content-type" not in processed_headers:
-                processed_headers["content-type"] = "application/activity+json; charset=UTF-8"
+                processed_headers["content-type"] = (
+                    "application/activity+json; charset=UTF-8"
+                )
                 processed_headers["content-type_original_key"] = "Content-Type"
         elif isinstance(json, dict):
             if "content-type" not in processed_headers:
@@ -102,20 +106,15 @@ def sign_request(
             if "rfc9421" in sign_with and not signed_rfc9421:
                 if "draft-cavage" in sign_with:
                     warnings.warn(
-                        'Draft and RFC9421 Signing is exclusive. '
-                        'Legacy Draft mode is enabled to maintain compatibility. '
-                        'The RFC 9421 (Structured Fields) signing logic will not be applied to this message.',
-                        UserWarning
+                        "Draft and RFC9421 Signing is exclusive. "
+                        "Legacy Draft mode is enabled to maintain compatibility. "
+                        "The RFC 9421 (Structured Fields) signing logic will not be applied to this message.",
+                        UserWarning,
                     )
                     signed_rfc9421 = True
                 else:
                     parsed_url = urllib.parse.urlparse(url)
                     if parsed_url.hostname:
-                        #                    warnings.warn(
-                        #                        'This signature spec "rfc9421" is not implemented yet.',
-                        #                        category=NotImplementedWarning,
-                        #                        stacklevel=2,
-                        #                    )
                         rfc_signer = RFC9421Signer(
                             signature.private_key, signature.key_id
                         )
@@ -131,10 +130,10 @@ def sign_request(
             if "draft-cavage" in sign_with and not signed_cavage:
                 if "rfc9421" in sign_with:
                     warnings.warn(
-                        'Draft and RFC9421 Signing is exclusive. '
-                        'Legacy Draft mode is enabled to maintain compatibility. '
-                        'The RFC 9421 (Structured Fields) signing logic will not be applied to this message.',
-                        UserWarning
+                        "Draft and RFC9421 Signing is exclusive. "
+                        "Legacy Draft mode is enabled to maintain compatibility. "
+                        "The RFC 9421 (Structured Fields) signing logic will not be applied to this message.",
+                        UserWarning,
                     )
                     signed_rfc9421 = True
                 signer = draft.Signer(
@@ -161,7 +160,6 @@ def sign_request(
                 )
                 signed_rsa2017 = True
         elif isinstance(signature.private_key, ed25519.Ed25519PrivateKey):
-
             if "fep8b32" in sign_with and body and not signed_fep8b32:
                 now = (
                     datetime.datetime.now().isoformat(
