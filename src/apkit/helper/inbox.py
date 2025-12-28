@@ -10,9 +10,9 @@ from apmodel.vocab.actor import Actor
 from apsig import KeyUtil, LDSignature, ProofVerifier
 from apsig.draft.verify import Verifier
 from apsig.exceptions import (
-    MissingSignature,
-    UnknownSignature,
-    VerificationFailed,
+    MissingSignatureError,
+    UnknownSignatureError,
+    VerificationFailedError,
 )
 from apsig.rfc9421 import RFC9421Verifier
 from cryptography.hazmat.primitives import serialization
@@ -74,13 +74,13 @@ class InboxVerifier:
 
         signature_input_header = headers.get("signature-input")
         if not signature_input_header:
-            raise MissingSignature("signature-input header is missing")
+            raise MissingSignatureError("signature-input header is missing")
 
         signature_input_parsed = http_sf.parse(
             signature_input_header.encode("utf-8"), tltype="dictionary"
         )
         if not isinstance(signature_input_parsed, dict):
-            raise VerificationFailed(
+            raise VerificationFailedError(
                 f"Unsupported Signature-Input type: {type(signature_input_parsed)}"
             )
 
@@ -117,7 +117,7 @@ class InboxVerifier:
                                 f"signature:{key_id}", ku.encode_multibase()
                             )
                     return True
-            except VerificationFailed as e:
+            except VerificationFailedError as e:
                 if is_cache:
                     return False  # Will be retried with fresh key
                 raise e
@@ -174,7 +174,7 @@ class InboxVerifier:
             signature_parts = self.__get_draft_signature_parts(signature_header)
             key_id = signature_parts.get("keyId")
             if not key_id:
-                raise MissingSignature("keyId does not exist.")
+                raise MissingSignatureError("keyId does not exist.")
             cache = False
             public_key = None
             if not no_check_cache:
@@ -212,17 +212,17 @@ class InboxVerifier:
                         return True
                     except Exception as e:
                         if not cache:
-                            raise VerificationFailed(f"{str(e)}")
+                            raise VerificationFailedError(f"{str(e)}")
                         else:
                             return await self.__verify_draft(
                                 body, url, method, headers, no_check_cache=True
                             )
                 else:
-                    raise VerificationFailed("publicKey does not exist.")
+                    raise VerificationFailedError("publicKey does not exist.")
             else:
                 raise ValueError("unsupported model type")
         else:
-            raise MissingSignature("this is not http signed activity.")
+            raise MissingSignatureError("this is not http signed activity.")
 
     async def __verify_proof(self, body: bytes, no_check_cache: bool = False) -> bool:
         body_json = json.loads(body)
@@ -261,19 +261,19 @@ class InboxVerifier:
                             return True
                         except Exception as e:
                             if not cache:
-                                raise VerificationFailed(f"{str(e)}")
+                                raise VerificationFailedError(f"{str(e)}")
                             else:
                                 return await self.__verify_proof(
                                     body, no_check_cache=True
                                 )
                     else:
-                        raise VerificationFailed("publicKey does not exist.")
+                        raise VerificationFailedError("publicKey does not exist.")
                 else:
                     raise ValueError("unsupported model type")
             else:
-                raise MissingSignature("verificationMethod does not exist.")
+                raise MissingSignatureError("verificationMethod does not exist.")
         else:
-            raise MissingSignature("this is not signed activity.")
+            raise MissingSignatureError("this is not signed activity.")
 
     async def __verify_ld(self, body: bytes, no_check_cache: bool = False) -> bool:
         ld = LDSignature()
@@ -283,7 +283,7 @@ class InboxVerifier:
         if isinstance(signature, dict):
             creator: Optional[str] = signature.get("creator")
             if creator is None:
-                raise MissingSignature("creator does not exist.")
+                raise MissingSignatureError("creator does not exist.")
         cache = False
         public_key = None
         if not no_check_cache:
@@ -314,18 +314,18 @@ class InboxVerifier:
                                     ),
                                 )
                         return True
-                    raise VerificationFailed("publicKey does not exist.")
+                    raise VerificationFailedError("publicKey does not exist.")
                 except (
-                    UnknownSignature,
-                    MissingSignature,
-                    VerificationFailed,
+                    UnknownSignatureError,
+                    MissingSignatureError,
+                    VerificationFailedError,
                 ) as e:
                     if not cache:
-                        raise VerificationFailed(f"{str(e)}")
+                        raise VerificationFailedError(f"{str(e)}")
                     else:
                         return await self.__verify_ld(body, no_check_cache=True)
             else:
-                raise VerificationFailed("publicKey does not exist.")
+                raise VerificationFailedError("publicKey does not exist.")
         else:
             raise ValueError("unsupported model type")
 
