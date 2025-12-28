@@ -19,7 +19,7 @@ class ActorFetcher:
         headers: dict = {"Accept": "application/jrd+json"},
     ) -> models.WebfingerResult:
         """Resolves an actor's profile from a remote server."""
-        headers = _common.ensure_user_agent_and_reconstruct(
+        headers = _common.reconstruct_headers(
             headers, self.__client.user_agent
         )
         resource = models.Resource(username=username, host=host)
@@ -37,7 +37,7 @@ class ActorFetcher:
     def fetch(
         self, url: str, headers: dict = {"Accept": "application/activity+json"}
     ) -> ActivityPubModel | dict | list | str | None:
-        headers = _common.ensure_user_agent_and_reconstruct(
+        headers = _common.reconstruct_headers(
             headers, self.__client.user_agent
         )
         resp = self.__client.get(
