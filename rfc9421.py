@@ -60,9 +60,7 @@ class RFC9421Signer:
                     headers_new.append(f'"{h}": {v}')
                 else:
                     raise ValueError(f"Missing Header Value: {h}")
-        headers_new.append(
-            f'"@signature-params": {self.__generate_sig_input()}'
-        )
+        headers_new.append(f'"@signature-params": {self.__generate_sig_input()}')
         return ("\n".join(headers_new)).encode("utf-8")
 
     def generate_signature_header(self, signature: bytes) -> str:
@@ -106,13 +104,9 @@ class RFC9421Signer:
         }
 
         base = self.__build_signature_base(special_keys, headers)
-        signed = self.private_key.sign(
-            base, padding.PKCS1v15(), hashes.SHA256()
-        )
+        signed = self.private_key.sign(base, padding.PKCS1v15(), hashes.SHA256())
         headers_req = headers.copy()
-        headers_req["Signature"] = (
-            f"sig1=:{self.generate_signature_header(signed)}:"
-        )
+        headers_req["Signature"] = f"sig1=:{self.generate_signature_header(signed)}:"
         headers_req["content-digest"] = f"sha-256=:{calculate_digest(body)}:"
         headers_req["Signature-Input"] = f"sig1={self.__generate_sig_input()}"
         return headers_req
@@ -133,9 +127,7 @@ class RFC9421Verifier:
         clock_skew: int = 300,
     ):
         self.public_key: (
-            ed25519.Ed25519PublicKey
-            | rsa.RSAPublicKey
-            | ec.EllipticCurvePublicKey
+            ed25519.Ed25519PublicKey | rsa.RSAPublicKey | ec.EllipticCurvePublicKey
         )
 
         if isinstance(public_key, str):
@@ -148,32 +140,22 @@ class RFC9421Verifier:
                 case "rsa-pub":
                     pubkey = serialization.load_pem_public_key(data)
                     if not isinstance(pubkey, rsa.RSAPublicKey):
-                        raise TypeError(
-                            "PublicKey must be ed25519 or RSA or ECDSA."
-                        )
+                        raise TypeError("PublicKey must be ed25519 or RSA or ECDSA.")
                     self.public_key = pubkey
                 case "p256-pub":
                     pubkey = serialization.load_pem_public_key(data)
                     if not isinstance(pubkey, ec.EllipticCurvePublicKey):
-                        raise TypeError(
-                            "PublicKey must be ed25519 or RSA or ECDSA."
-                        )
+                        raise TypeError("PublicKey must be ed25519 or RSA or ECDSA.")
                     self.public_key = pubkey
                 case "p384-pub":
                     pubkey = serialization.load_pem_public_key(data)
                     if not isinstance(pubkey, ec.EllipticCurvePublicKey):
-                        raise TypeError(
-                            "PublicKey must be ed25519 or RSA or ECDSA."
-                        )
+                        raise TypeError("PublicKey must be ed25519 or RSA or ECDSA.")
                     self.public_key = pubkey
                 case _:
-                    raise TypeError(
-                        "PublicKey must be ed25519 or RSA or ECDSA."
-                    )
+                    raise TypeError("PublicKey must be ed25519 or RSA or ECDSA.")
         else:
-            self.public_key: ed25519.Ed25519PublicKey | rsa.RSAPublicKey = (
-                public_key
-            )
+            self.public_key: ed25519.Ed25519PublicKey | rsa.RSAPublicKey = public_key
         self.clock_skew = clock_skew
         self.method = method.upper()
         self.path = path
@@ -189,9 +171,7 @@ class RFC9421Verifier:
         value, params = member
         if not isinstance(params, dict):
             raise ValueError("expected params to be a dict")
-        return cast(
-            Tuple[ItemType | InnerListType, ParamsType], (value, params)
-        )
+        return cast(Tuple[ItemType | InnerListType, ParamsType], (value, params))
 
     def __generate_sig_input(
         self, headers: List[BareItemType], params: ParamsType
@@ -284,8 +264,7 @@ class RFC9421Verifier:
                 value, params = self.__expect_value_and_params_member(v)
                 if isinstance(value, list):
                     headers: List[BareItemType] = [
-                        itm[0] if isinstance(itm, tuple) else itm
-                        for itm in value
+                        itm[0] if isinstance(itm, tuple) else itm for itm in value
                     ]
                 else:
                     raise ValueError(
@@ -333,9 +312,7 @@ class RFC9421Verifier:
                                 raise VerificationFailed("Algorithm missmatch.")
                             self.public_key.verify(sig_val, sigi)
                         case "rsa-v1_5-sha256":
-                            if not isinstance(
-                                self.public_key, rsa.RSAPublicKey
-                            ):
+                            if not isinstance(self.public_key, rsa.RSAPublicKey):
                                 raise VerificationFailed("Algorithm missmatch.")
                             self.public_key.verify(
                                 sig_val,
@@ -344,9 +321,7 @@ class RFC9421Verifier:
                                 hashes.SHA256(),
                             )
                         case "rsa-v1_5-sha512":
-                            if not isinstance(
-                                self.public_key, rsa.RSAPublicKey
-                            ):
+                            if not isinstance(self.public_key, rsa.RSAPublicKey):
                                 raise VerificationFailed("Algorithm missmatch.")
                             self.public_key.verify(
                                 sig_val,
@@ -355,9 +330,7 @@ class RFC9421Verifier:
                                 hashes.SHA512(),
                             )
                         case "rsa-pss-sha512":
-                            if not isinstance(
-                                self.public_key, rsa.RSAPublicKey
-                            ):
+                            if not isinstance(self.public_key, rsa.RSAPublicKey):
                                 raise VerificationFailed("Algorithm missmatch.")
                             self.public_key.verify(
                                 sig_val,

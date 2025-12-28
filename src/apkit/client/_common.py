@@ -54,7 +54,9 @@ def reconstruct_headers(
     if json:
         if isinstance(json, ActivityPubModel):
             if "content-type" not in processed_headers:
-                processed_headers["content-type"] = "application/activity+json; charset=UTF-8"
+                processed_headers[
+                    "content-type"
+                ] = "application/activity+json; charset=UTF-8"
                 processed_headers["content-type_original_key"] = "Content-Type"
         elif isinstance(json, dict):
             if "content-type" not in processed_headers:
@@ -102,10 +104,10 @@ def sign_request(
             if "rfc9421" in sign_with and not signed_rfc9421:
                 if "draft-cavage" in sign_with:
                     warnings.warn(
-                        'Draft and RFC9421 Signing is exclusive. '
-                        'Legacy Draft mode is enabled to maintain compatibility. '
-                        'The RFC 9421 (Structured Fields) signing logic will not be applied to this message.',
-                        UserWarning
+                        "Draft and RFC9421 Signing is exclusive. "
+                        "Legacy Draft mode is enabled to maintain compatibility. "
+                        "The RFC 9421 (Structured Fields) signing logic will not be applied to this message.",
+                        UserWarning,
                     )
                     signed_rfc9421 = True
                 else:
@@ -131,10 +133,10 @@ def sign_request(
             if "draft-cavage" in sign_with and not signed_cavage:
                 if "rfc9421" in sign_with:
                     warnings.warn(
-                        'Draft and RFC9421 Signing is exclusive. '
-                        'Legacy Draft mode is enabled to maintain compatibility. '
-                        'The RFC 9421 (Structured Fields) signing logic will not be applied to this message.',
-                        UserWarning
+                        "Draft and RFC9421 Signing is exclusive. "
+                        "Legacy Draft mode is enabled to maintain compatibility. "
+                        "The RFC 9421 (Structured Fields) signing logic will not be applied to this message.",
+                        UserWarning,
                     )
                     signed_rfc9421 = True
                 signer = draft.Signer(
@@ -151,32 +153,20 @@ def sign_request(
             if "rsa2017" in sign_with and body and not signed_rsa2017:
                 ld_signer = apsig.LDSignature()
                 body = ld_signer.sign(
-                    doc=(
-                        body
-                        if not isinstance(body, bytes)
-                        else json.loads(body)
-                    ),
+                    doc=(body if not isinstance(body, bytes) else json.loads(body)),
                     creator=signature.key_id,
                     private_key=signature.private_key,
                 )
                 signed_rsa2017 = True
         elif isinstance(signature.private_key, ed25519.Ed25519PrivateKey):
-
             if "fep8b32" in sign_with and body and not signed_fep8b32:
                 now = (
-                    datetime.datetime.now().isoformat(
-                        sep="T", timespec="seconds"
-                    )
-                    + "Z"
+                    datetime.datetime.now().isoformat(sep="T", timespec="seconds") + "Z"
                 )
-                fep_8b32_signer = apsig.ProofSigner(
-                    private_key=signature.private_key
-                )
+                fep_8b32_signer = apsig.ProofSigner(private_key=signature.private_key)
                 body = fep_8b32_signer.sign(
                     unsecured_document=(
-                        body
-                        if not isinstance(body, bytes)
-                        else json.loads(body)
+                        body if not isinstance(body, bytes) else json.loads(body)
                     ),
                     options={
                         "type": "DataIntegrityProof",
@@ -208,9 +198,7 @@ def validate_webfinger_result(
         )
 
 
-def _is_expected_content_type(
-    actual_ctype: str, expected_ctype_prefix: str
-) -> bool:
+def _is_expected_content_type(actual_ctype: str, expected_ctype_prefix: str) -> bool:
     mime_type = actual_ctype.split(";")[0].strip().lower()
 
     if mime_type == "application/json":

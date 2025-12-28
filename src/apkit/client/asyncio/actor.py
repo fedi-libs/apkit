@@ -19,9 +19,7 @@ class ActorFetcher:
         headers: dict = {"Accept": "application/jrd+json"},
     ) -> models.WebfingerResult:
         """Resolves an actor's profile from a remote server asynchronously."""
-        headers = _common.reconstruct_headers(
-            headers, self.__client.user_agent
-        )
+        headers = _common.reconstruct_headers(headers, self.__client.user_agent)
         resource = models.Resource(username=username, host=host)
         url = _common.build_webfinger_url(host=host, resource=resource)
 
