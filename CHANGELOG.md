@@ -38,6 +38,23 @@
 * **server:** Error message clarified when no handler is registered ([e409ead](https://github.com/fedi-libs/apkit/commit/e409eadc688dc4cfaa0c14756e1605f8a05bac0e))
 * typo in help text ([4f8f8a2](https://github.com/fedi-libs/apkit/commit/4f8f8a26fb4a2882d0f2646938b64d323af80731))
 
+## [0.3.7](https://github.com/fedi-libs/apkit/compare/v0.3.6...v0.3.7) (2025-12-31)
+
+
+### Features
+
+* add apsig's rfc9421 support ([1445a49](https://github.com/fedi-libs/apkit/commit/1445a49366be9146c602cf502ac51ddf315fbf1b))
+* add apsig's rfc9421 support ([38ea682](https://github.com/fedi-libs/apkit/commit/38ea6823d59d937e99cb33f2eca9f10409b98e62))
+
+
+### Bug Fixes
+
+* fix imports ([39d8415](https://github.com/fedi-libs/apkit/commit/39d841537d1e3a42a225269515cbe4a109e91bf9))
+* remove copied code from apsig ([782a01a](https://github.com/fedi-libs/apkit/commit/782a01a929fbcd18baa31f2c4241c19a6fd1dd51))
+* remove tool.uv.sources ([c65fc94](https://github.com/fedi-libs/apkit/commit/c65fc9498a24e26eb8d445f2e585566213d59a38))
+* remove warning ([c5131b5](https://github.com/fedi-libs/apkit/commit/c5131b5a1637097f53b15e189ce424ad311f3a58))
+* update deps ([0fb21a6](https://github.com/fedi-libs/apkit/commit/0fb21a6177f426dd6fea068736c59dfab86cb580))
+
 ## [0.3.6](https://github.com/fedi-libs/apkit/compare/v0.3.5...v0.3.6) (2025-12-23)
 
 
