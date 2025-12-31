@@ -38,7 +38,7 @@ from yarl import URL, Query
 
 from ..._version import __version__
 from ...types import ActorKey
-from .._common import ensure_user_agent_and_reconstruct, sign_request
+from .._common import reconstruct_headers, sign_request
 from .actor import ActorFetcher
 from .types import ActivityPubClientResponse, _RequestContextManager
 
@@ -164,9 +164,7 @@ class ActivityPubClient(aiohttp.ClientSession):
             "fep8b32",
         ],
     ) -> ActivityPubClientResponse:
-        headers = ensure_user_agent_and_reconstruct(
-            headers if headers else {}, self.user_agent
-        )
+        headers = reconstruct_headers(headers if headers else {}, self.user_agent, json)
         if signatures != [] and sign_with:
             j, headers = await asyncio.to_thread(
                 sign_request,

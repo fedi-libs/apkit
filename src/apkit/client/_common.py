@@ -1,12 +1,13 @@
 import datetime
 import json
+import urllib.parse
 import warnings
+from collections.abc import Mapping
 from typing import (
     Any,
     Dict,
     Iterable,
     List,
-    Mapping,
     Optional,
     Tuple,
     Union,
@@ -16,14 +17,18 @@ import apmodel
 import apsig
 from apmodel.types import ActivityPubModel
 from apsig import draft
+from apsig.rfc9421 import RFC9421Signer
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 
 from ..types import ActorKey
-from .exceptions import NotImplementedWarning
 from .models import Resource, WebfingerResult
 
 
-def ensure_user_agent_and_reconstruct(headers: Any, user_agent: str) -> Dict[str, str]:
+def reconstruct_headers(
+    headers: Any,
+    user_agent: str,
+    json: Optional[dict | ActivityPubModel | Any] = None,
+) -> Dict[str, str]:
     processed_headers: Dict[str, Any] = {}
 
     match headers:
@@ -47,6 +52,18 @@ def ensure_user_agent_and_reconstruct(headers: Any, user_agent: str) -> Dict[str
     if "user-agent" not in processed_headers:
         processed_headers["user-agent"] = user_agent
         processed_headers["user-agent_original_key"] = "User-Agent"
+
+    if json:
+        if isinstance(json, ActivityPubModel):
+            if "content-type" not in processed_headers:
+                processed_headers[
+                    "content-type"
+                ] = "application/activity+json; charset=UTF-8"
+                processed_headers["content-type_original_key"] = "Content-Type"
+        elif isinstance(json, dict):
+            if "content-type" not in processed_headers:
+                processed_headers["content-type"] = "application/json"
+                processed_headers["content-type_original_key"] = "Content-Type"
 
     final_headers: Dict[str, str] = {}
     for key_lower, value in processed_headers.items():
@@ -87,14 +104,38 @@ def sign_request(
     for signature in signatures:
         if isinstance(signature.private_key, rsa.RSAPrivateKey):
             if "rfc9421" in sign_with and not signed_rfc9421:
-                warnings.warn(
-                    'This signature spec "rfc9421" is not implemented yet.',
-                    category=NotImplementedWarning,
-                    stacklevel=2,
-                )
-                signed_rfc9421 = True
+                if "draft-cavage" in sign_with:
+                    warnings.warn(
+                        "Draft and RFC9421 Signing is exclusive. "
+                        "Legacy Draft mode is enabled to maintain compatibility. "
+                        "The RFC 9421 (Structured Fields) signing logic will not be applied to this message.",
+                        UserWarning,
+                    )
+                    signed_rfc9421 = True
+                else:
+                    parsed_url = urllib.parse.urlparse(url)
+                    if parsed_url.hostname:
+                        rfc_signer = RFC9421Signer(
+                            signature.private_key, signature.key_id
+                        )
+                        headers = rfc_signer.sign(
+                            headers=dict(headers) if headers else {},
+                            method="POST",
+                            host=parsed_url.hostname,
+                            path=parsed_url.path,
+                            body=body if body else b"",
+                        )
+                    signed_rfc9421 = True
 
             if "draft-cavage" in sign_with and not signed_cavage:
+                if "rfc9421" in sign_with:
+                    warnings.warn(
+                        "Draft and RFC9421 Signing is exclusive. "
+                        "Legacy Draft mode is enabled to maintain compatibility. "
+                        "The RFC 9421 (Structured Fields) signing logic will not be applied to this message.",
+                        UserWarning,
+                    )
+                    signed_rfc9421 = True
                 signer = draft.Signer(
                     headers=dict(headers) if headers else {},
                     method="POST",
