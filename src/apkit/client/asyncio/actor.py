@@ -19,9 +19,7 @@ class ActorFetcher:
         headers: dict = {"Accept": "application/jrd+json"},
     ) -> models.WebfingerResult:
         """Resolves an actor's profile from a remote server asynchronously."""
-        headers = _common.ensure_user_agent_and_reconstruct(
-            headers, self.__client.user_agent
-        )
+        headers = _common.reconstruct_headers(headers, self.__client.user_agent)
         resource = models.Resource(username=username, host=host)
         url = _common.build_webfinger_url(host=host, resource=resource)
 
@@ -37,7 +35,7 @@ class ActorFetcher:
     async def fetch(
         self, url: str, headers: dict = {"Accept": "application/activity+json"}
     ) -> ActivityPubModel | dict | list | str | None:
-        headers = _common.ensure_user_agent_and_reconstruct(
+        headers = _common.reconstruct_headers(
             headers if headers else {}, self.__client.user_agent
         )
         async with self.__client.get(url, headers=headers) as resp:
