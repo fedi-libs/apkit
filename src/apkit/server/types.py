@@ -26,7 +26,7 @@ class Context:
         self, keys: List[ActorKey], target: Actor, activity: ActivityPubModel
     ):
         async with ActivityPubClient() as client:
-            inbox = None
+            inbox = target.inbox
             priv_key = None
             key_id = None
 
@@ -34,14 +34,10 @@ class Context:
                 isinstance(target.endpoints, ActorEndpoints)
                 and target.endpoints.shared_inbox
             ):
-                if not isinstance(activity, Accept) and not isinstance(
-                    activity, Reject
-                ):
+                if not isinstance(activity, (Accept, Reject)):
                     inbox = target.endpoints.shared_inbox
-            else:
-                inbox = target.inbox
             if not isinstance(inbox, str):
-                raise ValueError("Unsupported Inbox Type")
+                raise ValueError(f"Unsupported Inbox Type: {inbox}")
 
             for key in keys:
                 if isinstance(key.private_key, rsa.RSAPrivateKey):
