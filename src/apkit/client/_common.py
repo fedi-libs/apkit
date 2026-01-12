@@ -56,9 +56,9 @@ def reconstruct_headers(
     if json:
         if isinstance(json, ActivityPubModel):
             if "content-type" not in processed_headers:
-                processed_headers[
-                    "content-type"
-                ] = "application/activity+json; charset=UTF-8"
+                processed_headers["content-type"] = (
+                    "application/activity+json; charset=UTF-8"
+                )
                 processed_headers["content-type_original_key"] = "Content-Type"
         elif isinstance(json, dict):
             if "content-type" not in processed_headers:
