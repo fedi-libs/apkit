@@ -95,9 +95,9 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
             Callable[[Request, WebfingerResource], Awaitable[Any]]
         ] = None
         self.__ap_config = apkit_config
-        self._get_actor_keys: Optional[
-            Callable[[str], Awaitable[List["ActorKey"]]]
-        ] = apkit_config.actor_keys
+        self._get_actor_keys: Optional[Callable[[str], Awaitable[List["ActorKey"]]]] = (
+            apkit_config.actor_keys
+        )
         self.__ap_config = apkit_config
 
         super().__init__(
