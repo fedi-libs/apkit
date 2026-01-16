@@ -1,0 +1,5 @@
+#blank_issues_enabled: false
+contact_links:
+  - name: "Current Project Status (Important)"
+    url: "https://github.com/fedi-libs/apkit/discussions/51"
+    about: "Please read this before contributing or asking questions."

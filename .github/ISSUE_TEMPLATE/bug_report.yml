@@ -1,0 +1,103 @@
+---  
+name: 🐛 Bug Report  
+description: File a bug report to help us improve  
+title: "[BUG] "  
+labels: ["bug"]  
+assignees: []  
+body:  
+  - type: markdown  
+    attributes:  
+      value: |  
+        Thanks for taking the time to fill out this bug report!  
+  
+  - type: checkboxes  
+    id: repository-check  
+    attributes:  
+      label: Repository Check  
+      description: Please verify you're in the right repository  
+      options:  
+        - label: I have verified this is the correct repository for this issue  
+          required: true  
+        - label: This is NOT about HTTP signatures (should be in `apsig` repo)  
+          required: true  
+        - label: This is NOT about ActivityStreams models (should be in `apmodel` repo)  
+          required: true  
+  
+  - type: input  
+    id: apkit-version  
+    attributes:  
+      label: apkit version  
+      description: What version of apkit are you using?  
+      placeholder: e.g. 0.3.3  
+    validations:  
+      required: true  
+  
+  - type: input  
+    id: python-version  
+    attributes:  
+      label: Python version  
+      description: What version of Python are you using?  
+      placeholder: e.g. 3.11.0  
+    validations:  
+      required: true  
+  
+  - type: dropdown  
+    id: os  
+    attributes:  
+      label: Operating System  
+      description: What operating system are you using?  
+      options:  
+        - Linux  
+        - macOS  
+        - Windows  
+        - Other  
+    validations:  
+      required: true  
+  
+  - type: textarea  
+    id: bug-description  
+    attributes:  
+      label: Bug Description  
+      description: A clear and concise description of what the bug is  
+      placeholder: Describe the bug...  
+    validations:  
+      required: true  
+  
+  - type: textarea  
+    id: steps-to-reproduce  
+    attributes:  
+      label: Steps to Reproduce  
+      description: Steps to reproduce the behavior  
+      placeholder: |  
+        1. Go to '...'  
+        2. Click on '....'  
+        3. Scroll down to '....'  
+        4. See error  
+    validations:  
+      required: true  
+  
+  - type: textarea  
+    id: expected-behavior  
+    attributes:  
+      label: Expected Behavior  
+      description: A clear and concise description of what you expected to happen  
+      placeholder: What should happen...  
+    validations:  
+      required: true  
+  
+  - type: textarea  
+    id: actual-behavior  
+    attributes:  
+      label: Actual Behavior  
+      description: A clear and concise description of what actually happened  
+      placeholder: What actually happened...  
+    validations:  
+      required: true  
+  
+  - type: textarea  
+    id: code-sample  
+    attributes:  
+      label: Code Sample  
+      description: If applicable, please provide a minimal code sample that reproduces the issue  
+      render: python
+---
