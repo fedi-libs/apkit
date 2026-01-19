@@ -54,7 +54,7 @@ repos:
     - python
     - pyi
   repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.14.11
+  rev: v0.14.13
 - hooks:
   - additional_dependencies:
     - aiohttp>=3.12.15
@@ -75,4 +75,4 @@ repos:
     name: Pyrefly (type checking)
     pass_filenames: false
   repo: https://github.com/facebook/pyrefly-pre-commit
-  rev: 0.47.0
+  rev: 0.48.2
