@@ -189,15 +189,16 @@ class InboxVerifier:
                         public_key = public_keys.get_key(key_id)
                     else:
                         public_key = None
-                if (
-                    public_key
-                ):
+                if public_key:
                     if isinstance(public_key, str):
-                        public_key = serialization.load_pem_public_key(public_key.encode("utf-8"))
+                        public_key = serialization.load_pem_public_key(
+                            public_key.encode("utf-8")
+                        )
                         if not isinstance(public_key, RSAPublicKey):
                             raise TypeError(f"Unsupported key type: {type(public_key)}")
-                    elif (isinstance(public_key, (CryptographicKey, Multikey)) and 
-                        isinstance(public_key.public_key, RSAPublicKey)):
+                    elif isinstance(
+                        public_key, (CryptographicKey, Multikey)
+                    ) and isinstance(public_key.public_key, RSAPublicKey):
                         public_key = public_key.public_key
                     else:
                         raise TypeError(f"Unsupported key type: {type(public_key)}")
