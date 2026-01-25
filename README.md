@@ -66,7 +66,7 @@ Create a simple ActivityPub actor and serve it:
 
 ```python
 from apkit.models import Person
-from apkit.server import ActivityPubServer
+from apkit.server.app import ActivityPubServer
 from apkit.server.responses import ActivityResponse
 
 app = ActivityPubServer()

@@ -28,7 +28,8 @@ from fastapi.responses import JSONResponse
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 
-from apkit.server import ActivityPubServer, SubRouter
+from apkit.server.app import ActivityPubServer
+from apkit.server.subrouter import SubRouter
 from apkit.server.types import Context, ActorKey
 from apkit.server.responses import ActivityResponse
 from apkit.models import (
@@ -211,7 +212,8 @@ from fastapi.responses import JSONResponse
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 
-from apkit.server import ActivityPubServer, SubRouter
+from apkit.server.app import ActivityPubServer
+from apkit.server.subrouter import SubRouter
 from apkit.server.types import Context, ActorKey
 from apkit.server.responses import ActivityResponse
 from apkit.models import (

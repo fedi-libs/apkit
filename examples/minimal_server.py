@@ -25,7 +25,7 @@ from apkit.models import (
     OrderedCollectionPage,
     Person,
 )
-from apkit.server import ActivityPubServer
+from apkit.server.app import ActivityPubServer
 from apkit.server.responses import ActivityResponse
 from apkit.server.types import ActorKey, Context, Outbox
 
