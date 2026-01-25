@@ -5,6 +5,8 @@ from typing import Any, Optional
 import apmodel
 import http_sf
 from apmodel import Activity
+from apmodel.extra.security import CryptographicKey
+from apmodel.extra.cid import Multikey
 from apmodel.core.link import Link
 from apmodel.vocab.actor import Actor
 from apsig import KeyUtil, LDSignature, ProofVerifier
@@ -189,11 +191,19 @@ class InboxVerifier:
                         public_key = None
                 if (
                     public_key
-                    and not isinstance(public_key, str)
-                    and isinstance(public_key.public_key, RSAPublicKey)
                 ):
+                    if isinstance(public_key, str):
+                        public_key = serialization.load_pem_public_key(public_key.encode("utf-8"))
+                        if not isinstance(public_key, RSAPublicKey):
+                            raise TypeError(f"Unsupported key type: {type(public_key)}")
+                    elif (isinstance(public_key, (CryptographicKey, Multikey)) and 
+                        isinstance(public_key.public_key, RSAPublicKey)):
+                        public_key = public_key.public_key
+                    else:
+                        raise TypeError(f"Unsupported key type: {type(public_key)}")
+
                     verifier = Verifier(
-                        public_key.public_key,
+                        public_key,
                         method,
                         str(url),
                         headers,
@@ -201,10 +211,10 @@ class InboxVerifier:
                     )
                     try:
                         verifier.verify(raise_on_fail=True)
-                        if isinstance(public_key.public_key, rsa.RSAPublicKey):
+                        if isinstance(public_key, rsa.RSAPublicKey):
                             await self.config.kv.async_set(
                                 f"signature:{key_id}",
-                                public_key.public_key.public_bytes(
+                                public_key.public_bytes(
                                     serialization.Encoding.PEM,
                                     serialization.PublicFormat.SubjectPublicKeyInfo,
                                 ).decode("utf-8"),
