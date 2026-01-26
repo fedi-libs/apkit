@@ -1,12 +1,11 @@
-from cryptography.hazmat.primitives.asymmetric import rsa
+import json
+
+import pytest
 from apkit.config import AppConfig
 from apkit.helper.inbox import InboxVerifier
-from apsig import draft, ld_signature
-from apkit.models import CryptographicKey, Person
+from apsig import draft
 from cryptography.hazmat.primitives import serialization as crypto_serialization
-
-import json
-import pytest
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 
 def _prepare_signed_request():
