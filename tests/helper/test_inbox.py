@@ -68,4 +68,4 @@ async def test_verify_draft_http_signature():
     inbox_verifier = InboxVerifier(config)
 
     result = await inbox_verifier.verify(body, url, method, headers)
-    assert result == True
+    assert result
