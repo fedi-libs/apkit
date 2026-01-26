@@ -15,7 +15,7 @@ class FakeKeyValueStore(KeyValueStore[Any, Any]):
     def get(self, key):
         return self._data.get(key)
 
-    def set(self, key, value):
+    def set(self, key, value, ttl_seconds = None):
         self._data[key] = value
 
     def delete(self, key):
