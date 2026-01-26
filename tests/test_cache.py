@@ -1,10 +1,12 @@
 import time
+from typing import Any
 import pytest
 
+from apkit.kv import KeyValueStore
 from apkit.cache import Cache
 
 
-class FakeKeyValueStore:
+class FakeKeyValueStore(KeyValueStore[Any, Any]):
     """Minimal in-memory KeyValueStore for tests."""
 
     def __init__(self):
@@ -19,6 +21,20 @@ class FakeKeyValueStore:
     def delete(self, key):
         self._data.pop(key, None)
 
+    def exists(self, key):
+        return key in self._data
+
+    async def async_get(self, key):
+        return self.get(key)
+
+    async def async_set(self, key, value):
+        self.set(key, value)
+
+    async def async_delete(self, key):
+        self.delete(key)
+
+    async def async_exists(self, key):
+        return self.exists(key)
 
 @pytest.fixture
 def store():
