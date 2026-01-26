@@ -5,11 +5,11 @@ from typing import Any, Optional
 import apmodel
 import http_sf
 from apmodel import Activity
-from apmodel.extra.security import CryptographicKey
-from apmodel.extra.cid import Multikey
 from apmodel.core.link import Link
+from apmodel.extra.cid import Multikey
+from apmodel.extra.security import CryptographicKey
 from apmodel.vocab.actor import Actor
-from apsig import KeyUtil, LDSignature, ProofVerifier
+from apsig import LDSignature, ProofVerifier
 from apsig.draft.verify import Verifier
 from apsig.exceptions import (
     MissingSignatureError,
@@ -53,13 +53,53 @@ class InboxVerifier:
             signature_parts[key.strip()] = value.strip().strip('"')
         return signature_parts
 
-    async def __get_signature_from_kv(self, key_id: str) -> tuple[Optional[str], bool]:
+    async def __get_signature_from_kv(
+        self, key_id: str
+    ) -> tuple[
+        Optional[
+            RSAPublicKey | Ed25519PublicKey | ec.EllipticCurvePublicKey
+        ],
+        bool,
+    ]:
         cache = False
-        public_key = await self.config.kv.async_get(f"signature:{key_id}")
+        public_key = await self.config.cache.async_get(f"signature:{key_id}")
         if public_key:
             self.logger.debug("Use existing cached keys")
             cache = True
-        return public_key, cache
+        if isinstance(public_key, bytes):
+            try:
+                key = serialization.load_der_public_key(public_key)
+                if isinstance(
+                    key,
+                    (
+                        RSAPublicKey,
+                        Ed25519PublicKey,
+                        ec.EllipticCurvePublicKey,
+                    ),
+                ):
+                    return key, cache
+            except Exception:
+                self.logger.warning(
+                    f"Failed to load cached key {key_id}", exc_info=True
+                )
+        return None, False
+
+    async def __save_signature_to_kv(
+        self, key_id: str, public_key: Any
+    ) -> None:
+        if isinstance(
+            public_key,
+            (
+                rsa.RSAPublicKey,
+                ec.EllipticCurvePublicKey,
+                ed25519.Ed25519PublicKey,
+            ),
+        ):
+            der = public_key.public_bytes(
+                encoding=serialization.Encoding.DER,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
+            )
+            await self.config.kv.async_set(f"signature:{key_id}", der)
 
     async def __verify_rfc9421(
         self,
@@ -102,22 +142,9 @@ class InboxVerifier:
                 verified_key_id = verifier.verify(raise_on_fail=True)
                 if verified_key_id:
                     if not is_cache:
-                        if isinstance(
-                            public_key_obj,
-                            (rsa.RSAPublicKey, ec.EllipticCurvePublicKey),
-                        ):
-                            pem = public_key_obj.public_bytes(
-                                encoding=serialization.Encoding.PEM,
-                                format=serialization.PublicFormat.SubjectPublicKeyInfo,
-                            )
-                            await self.config.kv.async_set(
-                                f"signature:{key_id}", pem.decode("utf-8")
-                            )
-                        elif isinstance(public_key_obj, ed25519.Ed25519PublicKey):
-                            ku = KeyUtil(public_key_obj)
-                            await self.config.kv.async_set(
-                                f"signature:{key_id}", ku.encode_multibase()
-                            )
+                        await self.__save_signature_to_kv(
+                            key_id, public_key_obj
+                        )
                     return True
             except VerificationFailedError as e:
                 if is_cache:
@@ -136,28 +163,21 @@ class InboxVerifier:
 
             # Try with cached key first
             public_key_obj = None
-            cache = False
             if not no_check_cache:
-                public_key_pem, cache = await self.__get_signature_from_kv(key_id)
-                if public_key_pem:
-                    try:
-                        ku = KeyUtil()
-                        public_key_obj = ku.decode_multibase(public_key_pem)
-                    except Exception:
-                        try:
-                            public_key_obj = serialization.load_pem_public_key(
-                                public_key_pem.encode("utf-8")
-                            )
-                        except ValueError:
-                            self.logger.warning(f"Failed to load cached key {key_id}")
-            if public_key_obj and await _verify_with_key(key_id, public_key_obj, True):
+                public_key_obj, _ = await self.__get_signature_from_kv(key_id)
+
+            if public_key_obj and await _verify_with_key(
+                key_id, public_key_obj, True
+            ):
                 return True
 
             actor = await self.__fetch_actor(activity)
             if actor:
                 key_from_actor = actor.get_key(key_id)
                 if key_from_actor and key_from_actor.public_key:
-                    if await _verify_with_key(key_id, key_from_actor.public_key, False):
+                    if await _verify_with_key(
+                        key_id, key_from_actor.public_key, False
+                    ):
                         return True
 
         return False
@@ -192,14 +212,15 @@ class InboxVerifier:
                 if public_key:
                     if isinstance(public_key, str):
                         public_key = serialization.load_pem_public_key(
-                    if isinstance(public_key, str):
-                        public_key = serialization.load_pem_public_key(public_key.encode("utf-8"))
+                            public_key.encode("utf-8")
+                        )
                     elif isinstance(public_key, (CryptographicKey, Multikey)):
                         public_key = public_key.public_key
 
                     if not isinstance(public_key, RSAPublicKey):
-                        raise TypeError(f"Unsupported key type: {type(public_key)}")
-                        raise TypeError(f"Unsupported key type: {type(public_key)}")
+                        raise TypeError(
+                            f"Unsupported key type: {type(public_key)}"
+                        )
 
                     verifier = Verifier(
                         public_key,
@@ -210,13 +231,9 @@ class InboxVerifier:
                     )
                     try:
                         verifier.verify(raise_on_fail=True)
-                        if isinstance(public_key, rsa.RSAPublicKey):
-                            await self.config.kv.async_set(
-                                f"signature:{key_id}",
-                                public_key.public_bytes(
-                                    serialization.Encoding.PEM,
-                                    serialization.PublicFormat.SubjectPublicKeyInfo,
-                                ).decode("utf-8"),
+                        if not cache:
+                            await self.__save_signature_to_kv(
+                                key_id, public_key
                             )
                         return True
                     except Exception as e:
@@ -233,7 +250,9 @@ class InboxVerifier:
         else:
             raise MissingSignatureError("this is not http signed activity.")
 
-    async def __verify_proof(self, body: bytes, no_check_cache: bool = False) -> bool:
+    async def __verify_proof(
+        self, body: bytes, no_check_cache: bool = False
+    ) -> bool:
         body_json = json.loads(body)
         proof_key = body_json.get("proof")
 
@@ -251,7 +270,9 @@ class InboxVerifier:
                     if not cache:
                         public_keys = await self.__fetch_actor(activity)
                         if public_keys:
-                            public_key = public_keys.get_key(verification_method)
+                            public_key = public_keys.get_key(
+                                verification_method
+                            )
                     if (
                         public_key
                         and not isinstance(public_key, str)
@@ -261,12 +282,9 @@ class InboxVerifier:
                         try:
                             proof.verify(body_json)
                             if not cache:
-                                if isinstance(public_key, ed25519.Ed25519PublicKey):
-                                    ku = KeyUtil(public_key)
-                                    await self.config.kv.async_set(
-                                        f"signature:{verification_method}",
-                                        ku.encode_multibase(),
-                                    )
+                                await self.__save_signature_to_kv(
+                                    verification_method, public_key
+                                )
                             return True
                         except Exception as e:
                             if not cache:
@@ -276,15 +294,21 @@ class InboxVerifier:
                                     body, no_check_cache=True
                                 )
                     else:
-                        raise VerificationFailedError("publicKey does not exist.")
+                        raise VerificationFailedError(
+                            "publicKey does not exist."
+                        )
                 else:
                     raise ValueError("unsupported model type")
             else:
-                raise MissingSignatureError("verificationMethod does not exist.")
+                raise MissingSignatureError(
+                    "verificationMethod does not exist."
+                )
         else:
             raise MissingSignatureError("this is not signed activity.")
 
-    async def __verify_ld(self, body: bytes, no_check_cache: bool = False) -> bool:
+    async def __verify_ld(
+        self, body: bytes, no_check_cache: bool = False
+    ) -> bool:
         ld = LDSignature()
         body_json = json.loads(body)
         signature = body_json.get("signature")
@@ -304,24 +328,21 @@ class InboxVerifier:
                 public_keys = await self.__fetch_actor(activity)
                 if public_keys and creator:
                     public_key = public_keys.get_key(creator)
-            if public_key:
+            if public_key and creator:
                 try:
                     public_key = (
-                        public_key.public_key
+                        public_key
                         if not isinstance(public_key, str)
                         else public_key
                     )
-                    if public_key and not isinstance(public_key, Ed25519PublicKey):
+                    if public_key and isinstance(
+                        public_key, RSAPublicKey
+                    ):
                         ld.verify(body_json, public_key, raise_on_fail=True)
                         if not cache:
-                            if isinstance(public_key, rsa.RSAPublicKey):
-                                await self.config.kv.async_set(
-                                    f"signature:{creator}",
-                                    public_key.public_bytes(
-                                        serialization.Encoding.PEM,
-                                        serialization.PublicFormat.SubjectPublicKeyInfo,
-                                    ),
-                                )
+                            await self.__save_signature_to_kv(
+                                creator, public_key
+                            )
                         return True
                     raise VerificationFailedError("publicKey does not exist.")
                 except (
@@ -351,7 +372,9 @@ class InboxVerifier:
             if proof:
                 return True
         except Exception as e:
-            self.logger.debug(f"Object Integrity Proofs verification failed; {str(e)}")
+            self.logger.debug(
+                f"Object Integrity Proofs verification failed; {str(e)}"
+            )
         try:
             ld = await self.__verify_ld(body)
             if ld:
@@ -363,5 +386,7 @@ class InboxVerifier:
             if draft:
                 return True
         except Exception as e:
-            self.logger.debug(f"Draft HTTP signature verification failed; {str(e)}")
+            self.logger.debug(
+                f"Draft HTTP signature verification failed; {str(e)}"
+            )
         return False
