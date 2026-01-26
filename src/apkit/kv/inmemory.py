@@ -20,7 +20,7 @@ class InMemoryKV(KeyValueStore[Any, Any]):
         self._lru_configs[namespace] = max_size
         if namespace not in self._lru_keys:
             self._lru_keys[namespace] = OrderedDict()
-        
+
         if max_size is not None:
             self._enforce_lru(namespace, max_size)
 
@@ -37,13 +37,13 @@ class InMemoryKV(KeyValueStore[Any, Any]):
     def _update_lru_on_set(self, key: Any) -> None:
         namespace = self._get_namespace(key)
         max_size = self._lru_configs.get(namespace)
-        
+
         if namespace not in self._lru_keys:
-             self._lru_keys[namespace] = OrderedDict()
-             
+            self._lru_keys[namespace] = OrderedDict()
+
         self._lru_keys[namespace][key] = None
         self._lru_keys[namespace].move_to_end(key)
-        
+
         if max_size is not None:
             self._enforce_lru(namespace, max_size)
 
@@ -56,7 +56,7 @@ class InMemoryKV(KeyValueStore[Any, Any]):
         keys = self._lru_keys.get(namespace)
         if keys is None:
             return
-            
+
         while len(keys) > max_size:
             oldest_key, _ = keys.popitem(last=False)
             if oldest_key in self._store:
