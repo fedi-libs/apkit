@@ -27,7 +27,7 @@ class FakeKeyValueStore(KeyValueStore[Any, Any]):
     async def async_get(self, key):
         return self.get(key)
 
-    async def async_set(self, key, value):
+    async def async_set(self, key, value, ttl_seconds = None):
         self.set(key, value)
 
     async def async_delete(self, key):
