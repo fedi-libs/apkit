@@ -3,42 +3,13 @@ from typing import Any
 import pytest
 
 from apkit.kv import KeyValueStore
+from apkit.kv.inmemory import InMemoryKV
 from apkit.cache import Cache
 
 
-class FakeKeyValueStore(KeyValueStore[Any, Any]):
-    """Minimal in-memory KeyValueStore for tests."""
-
-    def __init__(self):
-        self._data = {}
-
-    def get(self, key):
-        return self._data.get(key)
-
-    def set(self, key, value, ttl_seconds = None):
-        self._data[key] = value
-
-    def delete(self, key):
-        self._data.pop(key, None)
-
-    def exists(self, key):
-        return key in self._data
-
-    async def async_get(self, key):
-        return self.get(key)
-
-    async def async_set(self, key, value, ttl_seconds = None):
-        self.set(key, value)
-
-    async def async_delete(self, key):
-        self.delete(key)
-
-    async def async_exists(self, key):
-        return self.exists(key)
-
 @pytest.fixture
 def store():
-    return FakeKeyValueStore()
+    return InMemoryKV()
 
 
 @pytest.fixture
@@ -107,7 +78,7 @@ async def test_async_set_and_get(cache):
 
 
 @pytest.mark.asyncio
-async def test_async_get_expired(cache, monkeypatch):
+async def test_async_get_expired(cache: Cache, monkeypatch):
     monkeypatch.setattr(time, "time", lambda: 1000.0)
     await cache.async_set("a", "value", ttl=1)
 
