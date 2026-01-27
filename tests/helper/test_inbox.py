@@ -6,6 +6,7 @@ from apkit.helper.inbox import InboxVerifier
 from apsig import draft
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+import logging
 
 
 def _prepare_signed_request():
@@ -66,6 +67,21 @@ async def test_verify_draft_http_signature():
 
     config = AppConfig()
     inbox_verifier = InboxVerifier(config)
+
+    result = await inbox_verifier.verify(body, url, method, headers)
+    assert result
+
+@pytest.mark.asyncio
+async def test_verify_draft_http_signature_repeated():
+    logging.getLogger("activitypub.server.inbox.helper").setLevel(logging.DEBUG)
+    
+    (body, url, method, headers) = _prepare_signed_request()
+
+    config = AppConfig()
+    inbox_verifier = InboxVerifier(config)
+
+    result = await inbox_verifier.verify(body, url, method, headers)
+    assert result
 
     result = await inbox_verifier.verify(body, url, method, headers)
     assert result
