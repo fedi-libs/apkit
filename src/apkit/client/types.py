@@ -1,4 +1,4 @@
-from typing import Any, Awaitable, Generic, Optional, Protocol, TypeVar
+from typing import Any, Awaitable, Optional, Protocol, TypeVar
 
 import aiohttp
 import apmodel
@@ -74,9 +74,7 @@ class UnifiedResponseAsync:
         content_type: Optional[str] = "application/json",
         **kwargs,
     ) -> Any:
-        return await self.json(
-            encoding=encoding, content_type=content_type, **kwargs
-        )
+        return await self.json(encoding=encoding, content_type=content_type, **kwargs)
 
     async def parse(
         self,
@@ -85,9 +83,7 @@ class UnifiedResponseAsync:
         **kwargs,
     ) -> Any:
         """Read the response body as an ActivityPub model."""
-        json = await self.json(
-            encoding=encoding, content_type=content_type, **kwargs
-        )
+        json = await self.json(encoding=encoding, content_type=content_type, **kwargs)
         return apmodel.load(json)
 
     async def close(self):
