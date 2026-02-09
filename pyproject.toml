@@ -31,6 +31,9 @@ server = [
     "fastapi>=0.116.1",
     "uvicorn>=0.35.0",
 ]
+speed = [
+    "google-re2>=1.1.20251105",
+]
 
 [tool.uv]
 default-groups = "all"

@@ -1,9 +1,8 @@
-import re
-from dataclasses import dataclass
+import re as standard_re
+from collections import defaultdict
 from typing import (
     Any,
     Dict,
-    Generic,
     List,
     Optional,
     ParamSpec,
@@ -11,109 +10,144 @@ from typing import (
     Union,
 )
 
+try:
+    import re2 as re
+except ImportError:
+    re = standard_re
+
 P = ParamSpec("P")
 R = TypeVar("R")
 
-
-@dataclass
-class Response(Generic[R]):
-    resp: R
-    status: int
+_ACCT_RE = re.compile(r"^([^@]+)@([^@]+)$")
 
 
-@dataclass(frozen=True)
 class Resource:
     """Represents a WebFinger resource."""
 
-    username: str
-    host: str
-    url: Optional[str] = None
+    __slots__ = ("_username", "_host", "_url")
+
+    def __init__(self, username: str, host: str, url: Optional[str] = None):
+        self._username = username
+        self._host = host
+        self._url = url
 
     def __str__(self) -> str:
-        return f"acct:{self.username}@{self.host}"
+        return f"acct:{self._username}@{self._host}"
+
+    @property
+    def username(self) -> str:
+        return self._username
+
+    @property
+    def host(self) -> str:
+        return self._host
+
+    @property
+    def url(self) -> Optional[str]:
+        return self._url
 
     @classmethod
     def parse(cls, resource_str: str) -> "Resource":
-        """Parses a resource string (e.g., 'acct:user@example.com')."""
+        orig = resource_str
         if resource_str.startswith("acct:"):
             resource_str = resource_str[5:]
 
-        match = re.match(r"^([^@]+)@([^@]+)$", resource_str)
-        if not match:
-            return cls(username="", host="", url=resource_str)
-            # raise ValueError(f"Invalid resource format: {resource_str}")
+        if "@" in resource_str:
+            parts = resource_str.split("@")
+            if len(parts) == 2:
+                return cls(username=parts[0], host=parts[1], url=None)
 
-        username, host = match.groups()
-        return cls(username=username, host=host, url=None)
+        match = _ACCT_RE.match(resource_str)
+        if not match:
+            return cls(username="", host="", url=orig)
+
+        u, h = match.groups()
+        if isinstance(u, str) and isinstance(h, str):
+            return cls(username=u, host=h, url=None)
+
+        return cls(username=str(u or ""), host=str(h or ""), url=None)
 
     def export(self) -> str:
-        return f"acct:{self.username}@{self.host}"
+        return f"acct:{self._username}@{self._host}"
 
 
-@dataclass(frozen=True)
 class Link:
     """Represents a link in a WebFinger response."""
 
-    rel: str
-    type: str | None
-    href: str | None
+    __slots__ = ("_rel", "_type", "_href")
+
+    def __init__(self, rel: str, type: Optional[str], href: Optional[str]):
+        self._rel = rel
+        self._type = type
+        self._href = href
+
+    @property
+    def rel(self) -> str:
+        return self._rel
+
+    @property
+    def type(self) -> Optional[str]:
+        return self._type
+
+    @property
+    def href(self) -> Optional[str]:
+        return self._href
 
     def to_json(self) -> dict:
-        return {"rel": self.rel, "type": self.type, "href": self.href}
+        return {"rel": self._rel, "type": self._type, "href": self._href}
 
 
-@dataclass(frozen=True)
 class WebfingerResult:
-    """Represents a parsed WebFinger response."""
+    __slots__ = ("_subject", "_links", "_type_map")
 
-    subject: Resource
-    links: List[Link]
+    def __init__(
+        self,
+        subject: Resource,
+        links: List[Link],
+        type_map: Dict[str, List[Link]],
+    ):
+        self._subject = subject
+        self._links = links
+        self._type_map = type_map
+
+    @property
+    def subject(self) -> Resource:
+        return self._subject
+
+    @property
+    def links(self) -> List[Link]:
+        return self._links
 
     def to_json(self) -> dict:
-        links = []
-        for link in self.links:
-            links.append(link.to_json())
-
-        return {"subject": self.subject.export(), "links": links}
+        return {
+            "subject": self._subject.export(),
+            "links": [link.to_json() for link in self._links],
+        }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "WebfingerResult":
-        """Parses a dictionary into a WebfingerResult object."""
         subject_str = data.get("subject")
         if not subject_str:
-            raise ValueError("Missing 'subject' in WebFinger response")
-
-        subject = Resource.parse(subject_str)
+            raise ValueError("Missing 'subject'")
 
         links_data = data.get("links", [])
-        links = [
-            Link(
-                rel=link_data.get("rel"),
-                type=link_data.get("type"),
-                href=link_data.get("href"),
-            )
-            for link_data in links_data
-        ]
+        links = []
+        type_map = defaultdict(list)
 
-        return cls(subject=subject, links=links)
+        append_link = links.append
+
+        for item in links_data:
+            l_type = item.get("type")
+            link = Link(item.get("rel"), l_type, item.get("href"))
+            append_link(link)
+
+            if l_type:
+                type_map[l_type].append(link)
+
+        return cls(Resource.parse(subject_str), links, dict(type_map))
 
     def get(self, link_type: str) -> Union[Link, List[Link], None]:
-        """
-        Gets links by their 'type' attribute.
-
-        Args:
-            link_type: The 'type' of the link to find.
-
-        Returns:
-            A single Link object if exactly one is found.
-            A list of Link objects if multiple are found.
-            None if no matching links are found.
-        """
-        found_links = [link for link in self.links if link.type == link_type]
-
-        if not found_links:
+        found = self._type_map.get(link_type)
+        if found is None:
             return None
-        elif len(found_links) == 1:
-            return found_links[0]
-        else:
-            return found_links
+        return found[0] if len(found) == 1 else found
