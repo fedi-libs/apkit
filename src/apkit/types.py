@@ -11,4 +11,3 @@ class Outbox:
 class ActorKey:
     key_id: str
     private_key: rsa.RSAPrivateKey | ed25519.Ed25519PrivateKey
-

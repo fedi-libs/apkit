@@ -15,9 +15,7 @@ from ..base.context import (
 from ..types import T, UnifiedResponse, UnifiedResponseAsync
 
 
-class PostReqContextManager(
-    BaseReqContextManagerImpl, BaseReqContextManagerDef[T]
-):
+class PostReqContextManager(BaseReqContextManagerImpl, BaseReqContextManagerDef[T]):
     def __init__(
         self,
         client: Optional[httpx.Client],
