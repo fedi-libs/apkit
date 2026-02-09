@@ -20,7 +20,7 @@ class Response(Protocol[T]):
     def parse(self, **kwargs) -> ActivityPubModel | Awaitable[ActivityPubModel]: ...
 
 
-class UnifiedResponse:
+class UnifiedResponse(Response):
     def __init__(self, native_response: httpx.Response):
         self._raw = native_response
 
@@ -38,17 +38,17 @@ class UnifiedResponse:
 
     def parse(self, **kwargs) -> Any:
         """Read the response body as an ActivityPub model."""
-        json = self._raw.json(**kwargs)
+        json = self.json(**kwargs)
         return apmodel.load(json)
 
     def json(self, **kwargs) -> Any:
-        return self.json()
+        return self._raw.json()
 
     def close(self):
         self._raw.close()
 
 
-class UnifiedResponseAsync:
+class UnifiedResponseAsync(Response):
     def __init__(self, native_response: aiohttp.ClientResponse):
         self._raw = native_response
 
@@ -62,11 +62,7 @@ class UnifiedResponseAsync:
 
     @property
     def status(self) -> int:
-        if isinstance(self._raw, httpx.Response):
-            return self._raw.status_code
-        elif isinstance(self._raw, aiohttp.ClientResponse):
-            return self._raw.status
-        raise ValueError(f"Unsupported response type: {type(self._raw)}")
+        return self._raw.status
 
     async def json(
         self,
@@ -74,7 +70,7 @@ class UnifiedResponseAsync:
         content_type: Optional[str] = "application/json",
         **kwargs,
     ) -> Any:
-        return await self.json(
+        return await self._raw.json(
             encoding=encoding, content_type=content_type, **kwargs
         )
 
