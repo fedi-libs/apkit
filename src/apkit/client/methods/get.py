@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 import aiohttp
@@ -24,7 +25,9 @@ class GetReqContextManager(
                 "Ensure you are using 'async with ActivityPubClient()'."
             )
         headers = self._reconstruct_headers(self._body)
-        _, headers = self._sign_request(headers, as_dict=False)
+        _, headers = await asyncio.to_thread(
+            self._sign_request, headers=headers, as_dict=True
+        )
         self._resp = await self._client_async.get(
             self._url,
             headers=headers,

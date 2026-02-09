@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, Dict, List, Optional
 
 import aiohttp
@@ -58,7 +59,9 @@ class PostReqContextManager(
             )
         args: Dict[str, Any] = {}
         headers = self._reconstruct_headers(self._body)
-        body, headers = self._sign_request(headers=headers, as_dict=True)
+        body, headers = await asyncio.to_thread(
+            self._sign_request, headers=headers, as_dict=True
+        )
         if body:
             if isinstance(body, dict):
                 args["json"] = body
