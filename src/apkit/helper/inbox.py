@@ -22,7 +22,7 @@ from cryptography.hazmat.primitives.asymmetric import ec, ed25519, rsa
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 
-from ..client.asyncio.client import ActivityPubClient
+from ..client.client import ActivityPubClient
 from ..config import AppConfig
 
 
