@@ -74,12 +74,8 @@ class BaseReqContextManagerImpl:
         self._max_redirects = max_redirects
         self._sign_as = set(sign_as) if sign_as else set()
 
-        self._resp: Optional[Union[httpx.Response, aiohttp.ClientResponse]] = (
-            None
-        )
-        self._body: Optional[Union[ActivityPubModel, Dict[str, Any], bytes]] = (
-            None
-        )
+        self._resp: Optional[Union[httpx.Response, aiohttp.ClientResponse]] = None
+        self._body: Optional[Union[ActivityPubModel, Dict[str, Any], bytes]] = None
         self._kwargs = kwargs
         self.__validate_sign_with(sign_with=sign_with)
 
@@ -137,9 +133,7 @@ class BaseReqContextManagerImpl:
         if isinstance(self._body, bytes):
             body_bytes = self._body
         else:
-            body_bytes = json.dumps(body_dict, ensure_ascii=False).encode(
-                "utf-8"
-            )
+            body_bytes = json.dumps(body_dict, ensure_ascii=False).encode("utf-8")
 
         for actor in self._sign_as:
             priv_key = actor.private_key
@@ -199,8 +193,6 @@ class BaseReqContextManagerImpl:
 
         final_body = body_dict
         if not as_dict and isinstance(body_dict, dict):
-            final_body = json.dumps(body_dict, ensure_ascii=False).encode(
-                "utf-8"
-            )
+            final_body = json.dumps(body_dict, ensure_ascii=False).encode("utf-8")
 
         return final_body, headers

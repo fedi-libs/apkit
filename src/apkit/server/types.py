@@ -39,9 +39,7 @@ class Context:
                 raise ValueError(f"Unsupported Inbox Type: {inbox}")
 
             if priv_key and key_id and inbox:
-                async with client.post(
-                    inbox, sign_as=keys, json=activity
-                ) as _:
+                async with client.post(inbox, sign_as=keys, json=activity) as _:
                     return None
             else:
                 pass
