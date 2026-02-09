@@ -18,7 +18,6 @@ class ActivityPubClient:
         self.__aiohttp: Optional[aiohttp.ClientSession] = None
         self.__httpx: Optional[httpx.Client] = None
 
-
     def get(
         self,
         url: str,

@@ -9,9 +9,7 @@ from ..base.context import (
 from ..types import T, UnifiedResponse, UnifiedResponseAsync
 
 
-class GetReqContextManager(
-    BaseReqContextManagerImpl, BaseReqContextManagerDef[T]
-):
+class GetReqContextManager(BaseReqContextManagerImpl, BaseReqContextManagerDef[T]):
     async def __aenter__(self) -> UnifiedResponseAsync:
         if self._resp:
             raise RuntimeError(

@@ -9,6 +9,7 @@ T = TypeVar("T", httpx.Response, aiohttp.ClientResponse, covariant=True)
 RT = TypeVar("RT", dict[str, Any], Awaitable[dict[str, Any]])
 PT = TypeVar("PT", ActivityPubModel, Awaitable[ActivityPubModel])
 
+
 class Response(Protocol[T, RT, PT]):
     @property
     def status(self) -> int: ...
@@ -49,7 +50,11 @@ class UnifiedResponse(Response[httpx.Response, dict[str, Any], ActivityPubModel]
         return self._raw.json()
 
 
-class UnifiedResponseAsync(Response[aiohttp.ClientResponse, Awaitable[dict[str, Any]], Awaitable[ActivityPubModel]]):
+class UnifiedResponseAsync(
+    Response[
+        aiohttp.ClientResponse, Awaitable[dict[str, Any]], Awaitable[ActivityPubModel]
+    ]
+):
     def __init__(self, native_response: aiohttp.ClientResponse):
         self._raw = native_response
 
@@ -85,9 +90,7 @@ class UnifiedResponseAsync(Response[aiohttp.ClientResponse, Awaitable[dict[str, 
         **kwargs,
     ) -> ActivityPubModel:
         """Read the response body as an ActivityPub model."""
-        json = await self.json(
-            encoding=encoding, content_type=content_type, **kwargs
-        )
+        json = await self.json(encoding=encoding, content_type=content_type, **kwargs)
         obj = apmodel.load(json)
         if isinstance(obj, ActivityPubModel):
             return obj
