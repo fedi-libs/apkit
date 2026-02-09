@@ -1,6 +1,24 @@
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import (
+    Any,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    ParamSpec,
+    TypeVar,
+    Union,
+)
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+@dataclass
+class Response(Generic[R]):
+    resp: R
+    status: int
 
 
 @dataclass(frozen=True)

@@ -1,4 +1,4 @@
-from typing import Any, Awaitable, Generic, Optional, Protocol, TypeVar
+from typing import Any, Awaitable, Optional, Protocol, TypeVar
 
 import aiohttp
 import apmodel
@@ -6,21 +6,22 @@ import httpx
 from apmodel.types import ActivityPubModel
 
 T = TypeVar("T", httpx.Response, aiohttp.ClientResponse, covariant=True)
+RT = TypeVar("RT", dict[str, Any], Awaitable[dict[str, Any]])
+PT = TypeVar("PT", ActivityPubModel, Awaitable[ActivityPubModel])
 
-
-class Response(Protocol[T]):
+class Response(Protocol[T, RT, PT]):
     @property
     def status(self) -> int: ...
 
     @property
     def raw(self) -> T: ...
 
-    def json(self, **kwargs) -> dict | Awaitable[dict]: ...
+    def json(self, **kwargs) -> RT: ...
 
-    def parse(self, **kwargs) -> ActivityPubModel | Awaitable[ActivityPubModel]: ...
+    def parse(self, **kwargs) -> PT: ...
 
 
-class UnifiedResponse(Response):
+class UnifiedResponse(Response[httpx.Response, dict[str, Any], ActivityPubModel]):
     def __init__(self, native_response: httpx.Response):
         self._raw = native_response
 
@@ -36,19 +37,19 @@ class UnifiedResponse(Response):
     def status(self) -> int:
         return self._raw.status_code
 
-    def parse(self, **kwargs) -> Any:
+    def parse(self, **kwargs) -> ActivityPubModel:
         """Read the response body as an ActivityPub model."""
         json = self.json(**kwargs)
-        return apmodel.load(json)
+        obj = apmodel.load(json)
+        if isinstance(obj, ActivityPubModel):
+            return obj
+        raise ValueError("failed to parse json")
 
-    def json(self, **kwargs) -> Any:
+    def json(self, **kwargs) -> dict:
         return self._raw.json()
 
-    def close(self):
-        self._raw.close()
 
-
-class UnifiedResponseAsync(Response):
+class UnifiedResponseAsync(Response[aiohttp.ClientResponse, Awaitable[dict[str, Any]], Awaitable[ActivityPubModel]]):
     def __init__(self, native_response: aiohttp.ClientResponse):
         self._raw = native_response
 
@@ -69,30 +70,25 @@ class UnifiedResponseAsync(Response):
         encoding: Optional[str] = None,
         content_type: Optional[str] = "application/json",
         **kwargs,
-    ) -> Any:
-        return await self._raw.json(
-            encoding=encoding, content_type=content_type, **kwargs
-        )
+    ) -> dict:
+        try:
+            return await self._raw.json(
+                encoding=encoding, content_type=content_type, **kwargs
+            )
+        finally:
+            await self._raw.release()
 
     async def parse(
         self,
         encoding: Optional[str] = None,
         content_type: Optional[str] = "application/json",
         **kwargs,
-    ) -> Any:
+    ) -> ActivityPubModel:
         """Read the response body as an ActivityPub model."""
         json = await self.json(
             encoding=encoding, content_type=content_type, **kwargs
         )
-        return apmodel.load(json)
-
-    async def close(self):
-        await self._raw.release()
-
-
-class UnifiedContextManager(Protocol[T]):
-    async def __aenter__(self) -> Response[T]: ...
-    async def __aexit__(self, *args: Any) -> None: ...
-
-    def __enter__(self) -> Response[T]: ...
-    def __exit__(self, *args: Any) -> None: ...
+        obj = apmodel.load(json)
+        if isinstance(obj, ActivityPubModel):
+            return obj
+        raise ValueError("failed to parse json")
