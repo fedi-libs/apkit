@@ -104,11 +104,17 @@ class WebfingerResult:
         self,
         subject: Resource,
         links: List[Link],
-        type_map: Dict[str, List[Link]],
     ):
         self._subject = subject
         self._links = links
-        self._type_map = type_map
+
+        type_map = defaultdict(list)
+        for item in links:
+            l_type = item.type
+            if l_type:
+                type_map[l_type].append(item)
+
+        self._type_map: Dict[str, List[Link]] = dict(type_map)
 
     @property
     def subject(self) -> Resource:
@@ -132,19 +138,18 @@ class WebfingerResult:
 
         links_data = data.get("links", [])
         links = []
-        type_map = defaultdict(list)
 
         append_link = links.append
 
         for item in links_data:
-            l_type = item.get("type")
-            link = Link(item.get("rel"), l_type, item.get("href"))
+            link = Link(
+                rel=str(item.get("rel", "")),
+                type=item.get("type"),
+                href=item.get("href")
+            )
             append_link(link)
 
-            if l_type:
-                type_map[l_type].append(link)
-
-        return cls(Resource.parse(subject_str), links, dict(type_map))
+        return cls(Resource.parse(subject_str), links)
 
     def get(self, link_type: str) -> Union[Link, List[Link], None]:
         found = self._type_map.get(link_type)
