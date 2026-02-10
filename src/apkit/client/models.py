@@ -145,7 +145,7 @@ class WebfingerResult:
             link = Link(
                 rel=str(item.get("rel", "")),
                 type=item.get("type"),
-                href=item.get("href")
+                href=item.get("href"),
             )
             append_link(link)
 
