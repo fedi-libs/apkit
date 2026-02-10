@@ -158,13 +158,10 @@ class WebfingerResult:
                     l_elem.set("href", link.href)
 
             return lxml_etree.tostring(
-                root,
-                encoding=encoding,
-                xml_declaration=True,
-                pretty_print=True
+                root, encoding=encoding, xml_declaration=True, pretty_print=True
             )
         else:
-            std_etree.register_namespace('', ns)
+            std_etree.register_namespace("", ns)
             root = std_etree.Element(f"{{{ns}}}XRD")
 
             subject = std_etree.SubElement(root, f"{{{ns}}}Subject")
@@ -220,9 +217,7 @@ class WebfingerResult:
         else:
             root = std_etree.fromstring(xml_data)
             subject_node = root.find("xrd:Subject", ns)
-            subject_str = (
-                subject_node.text if subject_node is not None else ""
-            ) or ""
+            subject_str = (subject_node.text if subject_node is not None else "") or ""
             link_nodes = root.findall("xrd:Link", ns)
 
         if not subject_str:
