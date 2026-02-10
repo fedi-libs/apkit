@@ -2,6 +2,23 @@ import pytest
 from dataclasses import FrozenInstanceError
 from apkit.client.models import Resource, Link, WebfingerResult
 
+@pytest.fixture
+def xrd_valid():
+    return """<?xml version="1.0" encoding="UTF-8"?>
+    <XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
+        <Subject>acct:alice@example.com</Subject>
+        <Alias>https://example.com/alice</Alias>
+        <Link href="https://example.com/alice" rel="http://webfinger.net/rel/profile-page" type="text/html" />
+        <Link href="https://example.com/alice" rel="self" type="application/activity+json" />
+        <Link rel="http://ostatus.org/schema/1.0/subscribe" template="https://example.com/ostatus_subscribe?acct={uri}" />
+    </XRD>"""
+
+@pytest.fixture
+def xrd_invalid():
+    return """<?xml version="1.0" encoding="UTF-8"?>
+    <XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
+        <Link rel="self" href="https://example.com/user" />
+    </XRD>"""
 
 class TestResource:
     """Test cases for the Resource class."""
@@ -270,6 +287,54 @@ class TestWebfingerResult:
         with pytest.raises(AttributeError):
             result.subject = Resource(username="bob", host="example.com", url=None) # pyrefly: ignore
 
+    def test_webfinger_result_from_xml(self, xrd_valid):
+        """Test creating WebfingerResult from XML (XRD)."""
+        result = WebfingerResult.from_xml(xrd_valid)
+
+        assert result.subject.username == "alice"
+        assert result.subject.host == "example.com"
+        assert len(result.links) == 3
+
+        ap_link = result.get("application/activity+json")
+        assert isinstance(ap_link, Link)
+        assert ap_link.href == "https://example.com/alice"
+
+        sub_links = [l for l in result.links if "subscribe" in l.rel]
+        assert len(sub_links) == 1
+        assert sub_links[0].href == "https://example.com/ostatus_subscribe?acct={uri}"
+
+    def test_webfinger_result_from_xml_missing_subject(self, xrd_invalid):
+        """Test from_xml with missing subject raises ValueError."""
+        with pytest.raises(ValueError, match="Missing 'Subject'"):
+            WebfingerResult.from_xml(xrd_invalid)
+
+    def test_webfinger_result_from_xml_bytes(self, xrd_valid):
+        """Test from_xml with bytes input (common in HTTP responses)."""
+        result = WebfingerResult.from_xml(xrd_valid.encode("utf-8"))
+        assert result.subject.username == "alice"
+
+    def test_webfinger_result_immutability(self):
+        """Test that WebfingerResult is immutable (__slots__ protection)."""
+        subject = Resource(username="alice", host="example.com", url=None)
+        result = WebfingerResult(subject=subject, links=[])
+
+        with pytest.raises(AttributeError):
+            result.subject = Resource(username="bob", host="example.com", url=None) # type: ignore
+
+    def test_webfinger_result_get_consistency(self, xrd_valid):
+        """Test that get() returns correct types regardless of parse source."""
+        result = WebfingerResult.from_xml(xrd_valid)
+
+        found = result.get("application/activity+json")
+        assert isinstance(found, Link)
+
+        assert result.get("image/png") is None
+
+    def test_xml_output_roundtrip(self):
+        result = WebfingerResult.from_dict({"subject": "acct:alice@example.com", "links": []})
+        xml_data = result.to_xml()
+        reparsed = WebfingerResult.from_xml(xml_data)
+        assert str(reparsed.subject) == str(result.subject)
 
 def test_integration():
     """Integration test covering the full workflow."""
@@ -315,3 +380,22 @@ def test_integration():
     html_links = reconstructed.get("text/html")
     assert isinstance(html_links, list)
     assert len(html_links) == 2
+
+def test_full_roundtrip_integration(xrd_valid):
+    from_xml = WebfingerResult.from_xml(xrd_valid)
+    json_data = from_xml.to_json()
+    reconstructed = WebfingerResult.from_dict(json_data)
+
+    assert str(reconstructed.subject) == str(from_xml.subject)
+    assert len(reconstructed.links) == len(from_xml.links)
+
+    def get_first_href(result: WebfingerResult, l_type: str) -> str:
+        res = result.get(l_type)
+        if isinstance(res, list):
+            return res[0].href or ""
+        if res is not None:
+            return res.href or ""
+        return ""
+
+    assert get_first_href(reconstructed, "text/html") == get_first_href(from_xml, "text/html")
+    assert get_first_href(reconstructed, "application/activity+json") == get_first_href(from_xml, "application/activity+json")
