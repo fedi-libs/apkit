@@ -134,7 +134,7 @@ class WebfingerResult:
     def from_dict(cls, data: Dict[str, Any]) -> "WebfingerResult":
         subject_str = data.get("subject")
         if not subject_str:
-            raise ValueError("Missing 'subject'")
+            raise ValueError("Missing 'subject' in WebFinger response")
 
         links_data = data.get("links", [])
         links = []

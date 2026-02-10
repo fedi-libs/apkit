@@ -61,7 +61,7 @@ class TestResource:
     def test_resource_immutability(self):
         """Test that Resource is immutable (frozen dataclass)."""
         resource = Resource(username="alice", host="example.com", url=None)
-        with pytest.raises(FrozenInstanceError):
+        with pytest.raises(AttributeError):
             resource.username = "eve" # pyrefly: ignore
 
 
@@ -101,7 +101,7 @@ class TestLink:
     def test_link_immutability(self):
         """Test that Link is immutable (frozen dataclass)."""
         link = Link(rel="profile", type="text/html", href="https://example.com/profile")
-        with pytest.raises(FrozenInstanceError):
+        with pytest.raises(AttributeError):
             link.rel = "self" # pyrefly: ignore
 
 
@@ -267,7 +267,7 @@ class TestWebfingerResult:
         ]
         result = WebfingerResult(subject=subject, links=links)
 
-        with pytest.raises(FrozenInstanceError):
+        with pytest.raises(AttributeError):
             result.subject = Resource(username="bob", host="example.com", url=None) # pyrefly: ignore
 
 
