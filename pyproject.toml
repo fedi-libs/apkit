@@ -33,6 +33,7 @@ server = [
 ]
 speed = [
     "google-re2>=1.1.20251105",
+    "lxml>=6.0.2"
 ]
 
 [tool.uv]
