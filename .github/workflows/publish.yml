@@ -19,7 +19,7 @@ jobs:
       head_ref: ${{ github.event.pull_request.head.ref }}
       pr_body: ${{ github.event.pull_request.body }}
     secrets:
-      app_id: ${{ secrets.RELEASE_BOT_APP_ID }}
-      private_key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+      app_id: ${{ vars.APP_ID }}
+      private_key: ${{ secrets.PRIVATE_KEY }}
   deploy-docs:
      uses: ./.github/workflows/docs.yml

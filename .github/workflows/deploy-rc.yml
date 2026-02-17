@@ -18,5 +18,5 @@ jobs:
       pr_number: ${{ github.event.issue.number }}
       package_name: ${{ github.event.repository.name }}
     secrets:
-      app_id: ${{ secrets.RELEASE_BOT_APP_ID }}
-      private_key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+      app_id: ${{ vars.APP_ID }}
+      private_key: ${{ secrets.PRIVATE_KEY }}
