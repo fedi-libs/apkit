@@ -1,60 +1,21 @@
-name: Publish Release
+name: Formal Release
 
 on:
-  release:
-    types: [created]
+  pull_request:
+    types: [closed]
 
 jobs:
-  merge:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Set up Git
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-      - name: Merge main into stable
-        run: |
-          git checkout origin/stable
-          git merge -m "build: merge latest main branch" origin/main
-          git push origin HEAD:stable
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  pypi-publish:
-    name: Upload release to PyPI
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/apsig
-    permissions:
-      id-token: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup uv
-        uses: astral-sh/setup-uv@v6
-        with:
-            version: ">=0.7.21,<0.8"
-
-      - name: Set SETUPTOOLS_SCM_PRETEND_VERSION
-        run: echo "SETUPTOOLS_SCM_PRETEND_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Display SETUPTOOLS_SCM_PRETEND_VERSION
-        run: echo "SETUPTOOLS_SCM_PRETEND_VERSION is $SETUPTOOLS_SCM_PRETEND_VERSION"
-
-      - name: Build Package
-        run: |
-          uv sync --locked
-          uv build
-
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+  call-formal-release:
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/') &&
+      github.event.pull_request.user.login == 'fedi-libs-release-bot[bot]'
+    uses: fedi-libs/release-manager/.github/workflows/reusable-formal-release.yml@main
+    with:
+      head_ref: ${{ github.event.pull_request.head.ref }}
+      pr_body: ${{ github.event.pull_request.body }}
+    secrets:
+      app_id: ${{ secrets.RELEASE_BOT_APP_ID }}
+      private_key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+  deploy-docs:
+     uses: ./.github/workflows/docs.yml

@@ -1,20 +1,16 @@
-name: Run release action
+name: Release Preparation
+
 on:
-  push:
-    branches:
-      - stable
+  release:
+    types: [created]
 
 jobs:
-  autorelease:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/create-github-app-token@v2
-        id: app-token
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-      - uses: googleapis/release-please-action@v4
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          config-file: release-please-config.json
-          target-branch: ${{ github.ref_name }}
+  call-prep:
+    if: github.event.release.draft == true
+    uses: fedi-libs/release-manager/.github/workflows/reusable-release-prep.yml@main
+    with:
+      tag_name: ${{ github.event.release.tag_name }}
+      base_branch: stable
+    secrets:
+      app_id: ${{ secrets.RELEASE_BOT_APP_ID }}
+      private_key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
