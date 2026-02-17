@@ -1,0 +1,19 @@
+name: RC Deployment
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  call-rc-deploy:
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/deploy')
+    uses: fedi-libs/release-manager/.github/workflows/reusable-rc-deploy.yml@main
+    with:
+      comment_user: ${{ github.event.comment.user.login }}
+      pr_number: ${{ github.event.issue.number }}
+      package_name: ${{ github.event.repository.name }}
+    secrets:
+      app_id: ${{ secrets.RELEASE_BOT_APP_ID }}
+      private_key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
