@@ -6,7 +6,6 @@ on:
 
 jobs:
   call-prep:
-    if: github.event.release.draft == true
     uses: fedi-libs/release-manager/.github/workflows/reusable-release-prep.yml@main
     with:
       tag_name: ${{ github.event.release.tag_name || github.event.client_payload.tag_name }}
