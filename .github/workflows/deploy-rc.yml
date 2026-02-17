@@ -38,10 +38,12 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
 
   post-deploy:
-    needs: pypi-publish
+    needs: [pre-deploy, pypi-publish]
     uses: fedi-libs/release-manager/.github/workflows/reusable-rc-deploy.yml@main
     with:
       phase: "2"
+      rc_version: ${{ needs.pre-deploy.outputs.rc_version }}
+      deployment_id: ${{ needs.pre-deploy.outputs.deployment_id }}
       comment_user: ${{ github.event.comment.user.login }}
       pr_number: ${{ github.event.issue.number }}
       package_name: ${{ github.event.repository.name }}
