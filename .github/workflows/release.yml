@@ -2,6 +2,7 @@ name: Release Preparation
 
 on:
   repository_dispatch:
+    types: [on-draft-release-created]
   release:
     types: [created]
 
