@@ -8,8 +8,9 @@ jobs:
   call-prep:
     uses: fedi-libs/release-manager/.github/workflows/reusable-release-prep.yml@main
     with:
-      tag_name: ${{ github.event.release.tag_name || github.event.client_payload.tag_name }}
+      tag_name: ${{ github.event.client_payload.tag_name }}
       base_branch: stable
+      target_branch: main
     secrets:
       app_id: ${{ vars.APP_ID }}
       private_key: ${{ secrets.PRIVATE_KEY }}
