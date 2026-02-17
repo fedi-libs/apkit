@@ -4,6 +4,9 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  id-token: write
+
 jobs:
   call-rc-deploy:
     if: |
