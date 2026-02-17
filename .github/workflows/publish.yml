@@ -9,17 +9,43 @@ permissions:
   id-token: write
 
 jobs:
-  call-formal-release:
+  build:
     if: |
       github.event.pull_request.merged == true &&
       startsWith(github.event.pull_request.head.ref, 'release/') &&
       github.event.pull_request.user.login == 'fedi-libs-release-bot[bot]'
     uses: fedi-libs/release-manager/.github/workflows/reusable-formal-release.yml@main
     with:
+      phase: "1"
       head_ref: ${{ github.event.pull_request.head.ref }}
       pr_body: ${{ github.event.pull_request.body }}
     secrets:
       app_id: ${{ vars.APP_ID }}
       private_key: ${{ secrets.PRIVATE_KEY }}
+
+  pypi-publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-github-release:
+    needs: pypi-publish
+    uses: fedi-libs/release-manager/.github/workflows/reusable-formal-release.yml@main
+    with:
+      phase: "2"
+      head_ref: ${{ github.event.pull_request.head.ref }}
+      pr_body: ${{ github.event.pull_request.body }}
+    secrets:
+      app_id: ${{ vars.APP_ID }}
+      private_key: ${{ secrets.PRIVATE_KEY }}
+
   deploy-docs:
-     uses: ./.github/workflows/docs.yml
+    needs: publish-github-release
+    uses: ./.github/workflows/docs.yml

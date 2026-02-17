@@ -5,15 +5,43 @@ on:
     types: [created]
 
 permissions:
+  contents: read
   id-token: write
 
 jobs:
-  call-rc-deploy:
-    if: |
-      github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/deploy')
+  pre-deploy:
     uses: fedi-libs/release-manager/.github/workflows/reusable-rc-deploy.yml@main
     with:
+      phase: "1"
+      comment_user: ${{ github.event.comment.user.login }}
+      pr_number: ${{ github.event.issue.number }}
+      package_name: ${{ github.event.repository.name }}
+    secrets:
+      app_id: ${{ vars.APP_ID }}
+      private_key: ${{ secrets.PRIVATE_KEY }}
+
+  pypi-publish:
+    name: Publish to TestPyPI
+    needs: pre-deploy
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist 
+          path: dist
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  post-deploy:
+    needs: pypi-publish
+    uses: fedi-libs/release-manager/.github/workflows/reusable-rc-deploy.yml@main
+    with:
+      phase: "2"
       comment_user: ${{ github.event.comment.user.login }}
       pr_number: ${{ github.event.issue.number }}
       package_name: ${{ github.event.repository.name }}
