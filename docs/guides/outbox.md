@@ -1,6 +1,6 @@
 # Using Outbox
 
-[Outbox](https://www.w3.org/wiki/ActivityPub/Primer/Outbox) is **required** in specification but, most implementation are recognize Actor if don't have Outbox.
+[Outbox](https://www.w3.org/wiki/ActivityPub/Primer/Outbox) is **required** by the specification, but most implementations recognize an Actor even if it doesn't have an Outbox.
 
 In this guide, explain how to implement a simple Outbox.
 
