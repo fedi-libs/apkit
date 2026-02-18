@@ -120,19 +120,22 @@ class HostMeta:
             lxml_etree.SubElement(root, "Link", attrs)
 
         return lxml_etree.tostring(
-            root,
-            encoding="UTF-8",
-            xml_declaration=True,
-            pretty_print=True
+            root, encoding="UTF-8", xml_declaration=True, pretty_print=True
         ).decode("utf-8")
 
     def _to_xml_with_std_etree(self) -> str:
-        xml.etree.ElementTree.register_namespace("", "http://docs.oasis-open.org/ns/xri/xrd-1.0")
-        root = xml.etree.ElementTree.Element("{http://docs.oasis-open.org/ns/xri/xrd-1.0}XRD")
+        xml.etree.ElementTree.register_namespace(
+            "", "http://docs.oasis-open.org/ns/xri/xrd-1.0"
+        )
+        root = xml.etree.ElementTree.Element(
+            "{http://docs.oasis-open.org/ns/xri/xrd-1.0}XRD"
+        )
 
         for link in self.links:
             attrs = {k: v for k, v in link._asdict().items() if v is not None}
-            xml.etree.ElementTree.SubElement(root, "{http://docs.oasis-open.org/ns/xri/xrd-1.0}Link", attrs)
+            xml.etree.ElementTree.SubElement(
+                root, "{http://docs.oasis-open.org/ns/xri/xrd-1.0}Link", attrs
+            )
 
         return xml.etree.ElementTree.tostring(root, encoding="unicode")
 
