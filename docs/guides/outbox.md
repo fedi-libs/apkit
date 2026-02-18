@@ -12,7 +12,7 @@ First, you must define the Outbox in order to use it:
 app.outbox("/users/{identifier}/outbox")
 ```
 
-The Outbox becomes usable by subscribing to the special Outbox class imported via `from apkit.types import Outbox` using `app.on`:
+The Outbox is handled by subscribing to the special `Outbox` class from `apkit.types` using the `app.on` decorator:
 
 ```python
 from apkit.models import OrderedCollection, Person
