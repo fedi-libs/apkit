@@ -45,7 +45,7 @@ However, this time let us retrieve and return actual data.
 ```python
 from datetime import datetime
 
-from apkit.models import Announce, Create, Delete, Note, Tombstone
+from apkit.models import Announce, Create, Delete, Note, Tombstone, Person, OrderedCollection, OrderedCollectionPage
 from fastapi.responses import JSONResponse
 
 ...
