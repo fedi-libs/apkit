@@ -48,7 +48,7 @@ from datetime import datetime
 from apkit.models import Announce, Create, Delete, Note, Tombstone, Person, OrderedCollection, OrderedCollectionPage
 from fastapi.responses import JSONResponse
 
-...
+person = Person(id="https://example.com/users/alice")
 
 PAGE_SIZE = 20
 posts = [
