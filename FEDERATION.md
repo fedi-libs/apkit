@@ -4,9 +4,10 @@
 
 - [ActivityPub](https://www.w3.org/TR/activitypub/) (Server-to-Server)
 - [WebFinger](https://webfinger.net/)
-- [Http Signatures](https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures)
+- [draft-cavage-http-signatures-12](https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures)
 - [Linked Data Signatures 1.0](https://web.archive.org/web/20170923124140/https://w3c-dvcg.github.io/ld-signatures/)
 - [NodeInfo](https://nodeinfo.diaspora.software/)
+- [RFC 9421: HTTP Message Signatures](https://datatracker.ietf.org/doc/html/rfc9421)
 
 ## Supported FEPs
 
