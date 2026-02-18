@@ -30,7 +30,7 @@ person = Person(
 async def listen_outbox(ctx: Context):
     identifier = ctx.request.path_params.get("identifier")
     col = OrderedCollection(
-        id=person.id,
+        id=f"https://example.com/users/{identifier}/outbox",
         total_items=0,
         ordered_items=[]
     )
