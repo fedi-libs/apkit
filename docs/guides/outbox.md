@@ -2,7 +2,7 @@
 
 [Outbox](https://www.w3.org/wiki/ActivityPub/Primer/Outbox) is **required** by the specification, but most implementations recognize an Actor even if it doesn't have an Outbox.
 
-In this guide, explain how to implement a simple Outbox.
+This guide explains how to implement a simple Outbox.
 
 ## Define Empty Outbox
 
