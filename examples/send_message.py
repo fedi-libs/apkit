@@ -117,10 +117,9 @@ async def send_note(recepient: str) -> None:
             cc=["https://www.w3.org/ns/activitystreams#Public"],
             tag=[
                 Mention(
-                    href=target_actor.url,
-                    name=f"@{target_actor.preferred_username}"
+                    href=target_actor.url, name=f"@{target_actor.preferred_username}"
                 )
-            ]
+            ],
         )
 
         # Create activity
