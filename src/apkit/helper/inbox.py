@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, cast, Dict
 
 import apmodel
 import http_sf
@@ -149,7 +149,8 @@ class InboxVerifier:
         for _, v in signature_input_parsed.items():
             if not isinstance(v, tuple) or len(v) != 2:
                 continue
-            _, params = v
+
+            params = cast(Dict[Any, Any], v[1])
             key_id = params.get("keyid")
             if not key_id:
                 continue
