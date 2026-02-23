@@ -219,9 +219,12 @@ class TestWebfingerResult:
         result = WebfingerResult(subject=subject, links=links)
 
         link = result.get("text/html")
-        assert isinstance(link, Link)
-        assert link.type == "text/html"
-        assert link.rel == "profile"
+        assert isinstance(link, List)
+        assert link != []
+        link_first = link[0]
+        assert isinstance(link_first, Link)
+        assert link_first.type == "text/html"
+        assert link_first.rel == "profile"
 
     def test_webfinger_result_get_multiple_links(self):
         """Test get method with multiple matching links."""
@@ -259,7 +262,7 @@ class TestWebfingerResult:
         result = WebfingerResult(subject=subject, links=links)
 
         link = result.get("application/xml")
-        assert link is None
+        assert link == []
 
     def test_webfinger_result_immutability(self):
         """Test that WebfingerResult is immutable (frozen dataclass)."""
