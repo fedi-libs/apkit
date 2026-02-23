@@ -1,3 +1,4 @@
+from typing import List
 import pytest
 from dataclasses import FrozenInstanceError
 from apkit.client.models import Resource, Link, WebfingerResult
@@ -62,7 +63,7 @@ class TestResource:
         """Test that Resource is immutable (frozen dataclass)."""
         resource = Resource(username="alice", host="example.com", url=None)
         with pytest.raises(FrozenInstanceError):
-            resource.username = "eve" # pyrefly: ignore
+            resource.username = "eve" # ty: ignore[invalid-assignment]
 
 
 class TestLink:
@@ -102,7 +103,7 @@ class TestLink:
         """Test that Link is immutable (frozen dataclass)."""
         link = Link(rel="profile", type="text/html", href="https://example.com/profile")
         with pytest.raises(FrozenInstanceError):
-            link.rel = "self" # pyrefly: ignore
+            link.rel = "self" # ty: ignore[invalid-assignment]
 
 
 class TestWebfingerResult:
@@ -240,6 +241,7 @@ class TestWebfingerResult:
 
         found_links = result.get("text/html")
         assert isinstance(found_links, list)
+        assert all(isinstance(x, Link) for x in found_links)
         assert len(found_links) == 2
         assert all(link.type == "text/html" for link in found_links)
 
@@ -268,7 +270,7 @@ class TestWebfingerResult:
         result = WebfingerResult(subject=subject, links=links)
 
         with pytest.raises(FrozenInstanceError):
-            result.subject = Resource(username="bob", host="example.com", url=None) # pyrefly: ignore
+            result.subject = Resource(username="bob", host="example.com", url=None) # ty: ignore[invalid-assignment]
 
 
 def test_integration():
