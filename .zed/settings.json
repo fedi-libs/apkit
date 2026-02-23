@@ -1,27 +1,10 @@
 {
     "languages": {
         "Python": {
-            "language_servers": ["ruff", "pyrefly"]
+            "language_servers": ["ruff", "ty"]
         }
     },
     "lsp": {
-        "pyrefly": {
-            "binary": {
-                "path": ".venv/bin/pyrefly",
-                "arguments": ["lsp"]
-            },
-            "settings": {
-                "python": {
-                    "pythonPath": ".venv/bin/python"
-                },
-                "pyrefly": {
-                    "project_includes": ["src/**/*.py", "tests/**/*.py"],
-                    "project_excludes": ["**/.[!/.]*", "**/*venv/**"],
-                    "search_path": ["src"],
-                    "ignore_errors_in_generated_code": true
-                }
-            }
-        },
         "ruff": {
             "initialization_options": {
                 "settings": {
