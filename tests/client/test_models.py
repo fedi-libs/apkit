@@ -310,9 +310,11 @@ def test_integration():
 
     # Test getting specific links
     activity_json_link = reconstructed.get("application/activity+json")
-    assert isinstance(activity_json_link, Link)
-    assert activity_json_link is not None
-    assert activity_json_link.rel == "self"
+    assert isinstance(activity_json_link, List)
+    assert activity_json_link != []
+    activity_json_link_first = activity_json_link[0]
+    assert isinstance(activity_json_link_first, Link)
+    assert activity_json_link_first.rel == "self"
 
     html_links = reconstructed.get("text/html")
     assert isinstance(html_links, list)
