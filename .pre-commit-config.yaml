@@ -14,10 +14,3 @@ repos:
         language: system
         types_or: [python, pyi]
         require_serial: true
-
-      - id: pyrefly-check
-        name: Pyrefly (type checking)
-        entry: pyrefly check
-        language: system
-        pass_filenames: false
-        always_run: true

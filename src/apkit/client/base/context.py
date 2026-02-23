@@ -13,6 +13,7 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    cast,
     get_args,
 )
 
@@ -81,8 +82,12 @@ class BaseReqContextManagerImpl:
         self.__validate_sign_with(sign_with=sign_with)
 
     def __validate_sign_with(self, sign_with: Optional[List[SignMethod]]):
-        raw_input = sign_with if sign_with is not None else ["draft-cavage"]
-        filtered_set = set(raw_input) & ALLOWED_SIGN_METHODS
+        raw_input = (
+            sign_with if sign_with is not None else [cast(SignMethod, "draft-cavage")]
+        )
+        filtered_set: Set[SignMethod] = set(raw_input) & cast(
+            Set[SignMethod], ALLOWED_SIGN_METHODS
+        )
 
         conflict_draft = EXCLUSIVE_SET["draft-9421"]
         if conflict_draft.issubset(filtered_set):
