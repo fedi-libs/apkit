@@ -209,3 +209,4 @@ __marimo__/
 private_key*.pem
 
 devel/
+data/
