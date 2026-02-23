@@ -1,5 +1,5 @@
 site_name: apkit
-site_url: https://fedi-libs.github.io/apkit
+site_url: https://apkit.fedi-libs.org
 repo_url: https://github.com/fedi-libs/apkit
 edit_uri: edit/main/docs/
 
@@ -11,6 +11,7 @@ nav:
     - Configuration: guides/configuration.md
     - Client: guides/client.md
     - Server: guides/server.md
+    - Outbox: guides/outbox.md
     - Models: guides/models.md
     - KV Store: guides/kv_store.md
     - Nodeinfo: guides/nodeinfo.md

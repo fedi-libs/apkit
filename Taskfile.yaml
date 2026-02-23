@@ -1,51 +1,74 @@
 version: '3'
 
+vars:
+  UV_SYNC: uv sync --all-extras --all-groups
+
 tasks:
   default:
+    desc: Install dependencies using lockfile
     cmds:
-      - uv sync --locked --all-extras --all-groups
+      - "{{.UV_SYNC}} --locked"
     silent: true
+
+  prepare:
+    desc: Setup development environment (uv, Python, and dependencies)
+    cmds:
+      - task: default
+      - |
+        if [ -f .git/hooks/pre-commit ]; then
+          echo "WARNING: .git/hooks/pre-commit already exists."
+          echo "Please remove or back it up before installing prek."
+        else
+          uv run prek install
+        fi
+    silent: true
+
   sync:
+    desc: Sync dependencies
     cmds:
-      - uv sync --all-extras --all-groups
+      - "{{.UV_SYNC}}"
     silent: true
+
   upgrade:
+    desc: Upgrade dependencies
     cmds:
       - uv lock --upgrade
-      - uv sync --locked --all-extras --all-groups
+      - task: default
     silent: true
+
   test:
-    deps:
-      - default
+    desc: Run tests
+    deps: [default]
     cmds:
       - uv run pytest
     silent: true
-  test-coverage:
-    deps:
-      - default
+
+  test:cov:
+    desc: Run tests with coverage
+    deps: [default]
     cmds:
       - uv run coverage run -m pytest
       - uv run coverage html
     silent: true
+
   docs:
+    desc: Build documentation
     cmds:
       - uv run mkdocs build
     silent: true
+
   docs:serve:
+    desc: Serve documentation
     cmds:
       - uv run mkdocs serve
     silent: true
+
   build:
+    desc: Build package
     cmds:
-      - cmd: rm --rf dist
+      - cmd: rm -rf dist
         platforms: [linux, darwin]
-      - cmd: rmdir /s /q dist
+      - cmd: powershell -Command "if (Test-Path dist) { Remove-Item -Recurse -Force dist }"
         platforms: [windows]
       - uv build
-    silent: true
-  changelog:
-    cmds:
-      - uv run git cliff -o CHANGELOG.md
-      - git add CHANGELOG.md
-      - 'git commit -m "chore: update changelog [skip ci]"'
     silent: true

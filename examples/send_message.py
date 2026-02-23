@@ -5,6 +5,7 @@ import sys
 import uuid
 from datetime import UTC, datetime
 
+from apmodel.vocab.mention import Mention
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
@@ -106,13 +107,20 @@ async def send_note(recepient: str) -> None:
         logger.info(f"Found actor's inbox: {inbox_url}")
 
         # Create note
+        t = f'<p><span class="h-card" translate="no"><a href="{target_actor.url}" class="u-url mention">@<span>{target_actor.preferred_username}</span></a></span></p>'
         note = Note(
             id=f"https://{HOST}/notes/{uuid.uuid4()}",
             attributed_to=actor.id,
-            content="<p>Hello from apkit</p>",
+            content=f"<p>{t} Hello from apkit</p>",
             published=datetime.now(UTC).isoformat() + "Z",
             to=[target_actor.id],
             cc=["https://www.w3.org/ns/activitystreams#Public"],
+            tag=[
+                Mention(
+                    href=target_actor.url,
+                    name=f"@{target_actor.preferred_username}"
+                )
+            ]
         )
 
         # Create activity
