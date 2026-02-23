@@ -55,7 +55,7 @@ dev = [
     "pytest>=8.4.1",
     "pytest-asyncio>=1.3.0",
     "pytest-cov>=7.0.0",
-    "pyrefly>=0.46.0",
+    "ty>=0.0.18",
     "ruff>=0.14.10",
     "prek>=0.3.3"
 ]
@@ -110,15 +110,6 @@ fixable = ["ALL"]
 unfixable = []
 
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.pyrefly]
-project-includes = [
-    "src/**/*.py*",
-    "tests/**/*.py*",
-]
-project-excludes = [
-    "scripts/**/*.py"
-]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -1,3 +1,4 @@
+from typing import List
 import pytest
 from dataclasses import FrozenInstanceError
 from apkit.client.models import Resource, Link, WebfingerResult
@@ -62,7 +63,7 @@ class TestResource:
         """Test that Resource is immutable (frozen dataclass)."""
         resource = Resource(username="alice", host="example.com", url=None)
         with pytest.raises(FrozenInstanceError):
-            resource.username = "eve" # pyrefly: ignore
+            resource.username = "eve" # ty: ignore[invalid-assignment]
 
 
 class TestLink:
@@ -102,7 +103,7 @@ class TestLink:
         """Test that Link is immutable (frozen dataclass)."""
         link = Link(rel="profile", type="text/html", href="https://example.com/profile")
         with pytest.raises(FrozenInstanceError):
-            link.rel = "self" # pyrefly: ignore
+            link.rel = "self" # ty: ignore[invalid-assignment]
 
 
 class TestWebfingerResult:
@@ -218,9 +219,12 @@ class TestWebfingerResult:
         result = WebfingerResult(subject=subject, links=links)
 
         link = result.get("text/html")
-        assert isinstance(link, Link)
-        assert link.type == "text/html"
-        assert link.rel == "profile"
+        assert isinstance(link, List)
+        assert link != []
+        link_first = link[0]
+        assert isinstance(link_first, Link)
+        assert link_first.type == "text/html"
+        assert link_first.rel == "profile"
 
     def test_webfinger_result_get_multiple_links(self):
         """Test get method with multiple matching links."""
@@ -240,6 +244,7 @@ class TestWebfingerResult:
 
         found_links = result.get("text/html")
         assert isinstance(found_links, list)
+        assert all(isinstance(x, Link) for x in found_links)
         assert len(found_links) == 2
         assert all(link.type == "text/html" for link in found_links)
 
@@ -257,7 +262,7 @@ class TestWebfingerResult:
         result = WebfingerResult(subject=subject, links=links)
 
         link = result.get("application/xml")
-        assert link is None
+        assert link == []
 
     def test_webfinger_result_immutability(self):
         """Test that WebfingerResult is immutable (frozen dataclass)."""
@@ -268,7 +273,7 @@ class TestWebfingerResult:
         result = WebfingerResult(subject=subject, links=links)
 
         with pytest.raises(FrozenInstanceError):
-            result.subject = Resource(username="bob", host="example.com", url=None) # pyrefly: ignore
+            result.subject = Resource(username="bob", host="example.com", url=None) # ty: ignore[invalid-assignment]
 
 
 def test_integration():
@@ -308,9 +313,11 @@ def test_integration():
 
     # Test getting specific links
     activity_json_link = reconstructed.get("application/activity+json")
-    assert isinstance(activity_json_link, Link)
-    assert activity_json_link is not None
-    assert activity_json_link.rel == "self"
+    assert isinstance(activity_json_link, List)
+    assert activity_json_link != []
+    activity_json_link_first = activity_json_link[0]
+    assert isinstance(activity_json_link_first, Link)
+    assert activity_json_link_first.rel == "self"
 
     html_links = reconstructed.get("text/html")
     assert isinstance(html_links, list)

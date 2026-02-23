@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 
 @dataclass(frozen=True)
@@ -79,7 +79,7 @@ class WebfingerResult:
 
         return cls(subject=subject, links=links)
 
-    def get(self, link_type: str) -> Union[Link, List[Link], None]:
+    def get(self, link_type: str) -> List[Link]:
         """
         Gets links by their 'type' attribute.
 
@@ -94,8 +94,8 @@ class WebfingerResult:
         found_links = [link for link in self.links if link.type == link_type]
 
         if not found_links:
-            return None
+            return []
         elif len(found_links) == 1:
-            return found_links[0]
+            return found_links
         else:
             return found_links
