@@ -111,15 +111,6 @@ unfixable = []
 
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[tool.pyrefly]
-project-includes = [
-    "src/**/*.py*",
-    "tests/**/*.py*",
-]
-project-excludes = [
-    "scripts/**/*.py"
-]
-
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
