@@ -21,6 +21,6 @@ repos:
 
       - id: pyrefly-check
         name: Pyrefly (type checking)
-        entry: pyrefly-check
+        entry: pyrefly check
         language: system
         pass_filenames: false
