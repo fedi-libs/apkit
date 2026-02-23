@@ -1,0 +1,28 @@
+name: Prek Auto Fix
+
+on:
+  pull_request:
+    branches: [main,stable]
+
+permissions:
+  contents: write
+
+jobs:
+  prek-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Run prek on PR changes
+        run: uv run prek run --origin origin/${{ github.base_ref }} --source HEAD || true
+
+      - name: Auto Commit Fixes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "auto fixes by prek [skip ci]"
