@@ -3,16 +3,38 @@ import pytest
 import respx
 from aioresponses import aioresponses
 from httpx import Response
-from apkit.client import ActivityPubClient
+from apkit.client import ActivityPubClient 
+
+@pytest.fixture(scope="session")
+def shared_data():
+    data = {
+        "actor_head": {
+            "Content-Type": "application/activity+json",
+            "vary": "Accept-Encoding, Accept"
+        },
+        "actor_json": {
+            "@context": ["https://www.w3.org/ns/activitystreams"],
+            "id": "https://example.com/actor",
+            "type": "Application",
+            "preferredUsername": "actor",
+            "inbox": "https://example.com/actor/inbox"
+        }
+    }
+    return data
 
 @respx.mock
-def test_get_sync_success():
+def test_get_sync_success(shared_data):
     url = "https://example.com/actor"
-    respx.get(url).mock(return_value=Response(200, json={"id": url, "type": "Person"}))
+    respx.get(url).mock(return_value=Response(
+        200, 
+        json=shared_data["actor_json"], 
+        headers=shared_data["actor_head"]
+    ))
+    
     with ActivityPubClient() as client:
         with client.get(url) as resp:
             data = resp.json()
-            assert data["type"] == "Person"
+            assert data["type"] == "Application"
             assert resp.status == 200
 
 @respx.mock
@@ -28,14 +50,20 @@ def test_sync_reused_error():
                 pass
 
 @pytest.mark.asyncio
-async def test_get_async_success():
+async def test_get_async_success(shared_data):
     url = "https://example.com/actor"
     with aioresponses() as m:
-        m.get(url, payload={"id": url, "type": "Person"}, status=200)
+        m.get(
+            url, 
+            payload=shared_data["actor_json"], 
+            headers=shared_data["actor_head"], 
+            status=200
+        )
+        
         async with ActivityPubClient() as client:
             async with client.get(url) as resp:
                 data = await resp.json()
-                assert data["type"] == "Person"
+                assert data["type"] == "Application"
                 assert resp.status == 200
 
 @pytest.mark.asyncio
