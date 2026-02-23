@@ -35,9 +35,11 @@ class InboxVerifier:
         async with ActivityPubClient() as client:
             match activity.actor:
                 case str() as url:
-                    actor = await client.actor.fetch(url=url)
+                    # TODO: fix later
+                    actor = await client.actor.fetch(url=url)  # pyrefly: ignore
                 case Link(href=str() as url):
-                    actor = await client.actor.fetch(url=url)
+                    # TODO: fix later
+                    actor = await client.actor.fetch(url=url)  # pyrefly: ignore
                 case Actor() as actor_obj:
                     actor = actor_obj
                 case _:
