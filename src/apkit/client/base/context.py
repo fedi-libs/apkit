@@ -74,6 +74,7 @@ class BaseReqContextManagerImpl:
         self._max_redirects = max_redirects
         self._sign_as = set(sign_as) if sign_as else set()
 
+        self._used: bool = False
         self._resp: Optional[Union[httpx.Response, aiohttp.ClientResponse]] = None
         self._body: Optional[Union[ActivityPubModel, Dict[str, Any], bytes]] = None
         self._kwargs = kwargs

@@ -12,7 +12,7 @@ from ..types import T, UnifiedResponse, UnifiedResponseAsync
 
 class GetReqContextManager(BaseReqContextManagerImpl, BaseReqContextManagerDef[T]):
     async def __aenter__(self) -> UnifiedResponseAsync:
-        if self._resp:
+        if self._used:
             raise RuntimeError(
                 f"{self.__class__.__name__} instance cannot be reused. "
                 "Each request requires a new context manager instance."
@@ -43,9 +43,10 @@ class GetReqContextManager(BaseReqContextManagerImpl, BaseReqContextManagerDef[T
         ):
             self._resp.close()
             self._resp = None
+            self._used = True
 
     def __enter__(self) -> UnifiedResponse:
-        if self._resp:
+        if self._used:
             raise RuntimeError(
                 f"{self.__class__.__name__} instance cannot be reused. "
                 "Each request requires a new context manager instance."
@@ -69,3 +70,4 @@ class GetReqContextManager(BaseReqContextManagerImpl, BaseReqContextManagerDef[T
         if self._resp:
             self._resp.close()
             self._resp = None
+            self._used = True
