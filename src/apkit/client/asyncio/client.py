@@ -178,8 +178,7 @@ class ActivityPubClient(aiohttp.ClientSession):
             if j and not isinstance(j, bytes):
                 json = j
 
-        # pyrefly: ignore
-        return await super()._request(
+        return await super()._request(  # ty: ignore[invalid-return-type]
             method,
             str_or_url,
             params=params,
@@ -213,7 +212,7 @@ class ActivityPubClient(aiohttp.ClientSession):
             middlewares=middlewares,
         )
 
-    def get(  # pyrefly: ignore[bad-override]
+    def get(  # ty: ignore[invalid-method-override]
         self,
         url: str | URL,
         *,
@@ -256,7 +255,7 @@ class ActivityPubClient(aiohttp.ClientSession):
             )
         )
 
-    def post(  # pyrefly: ignore
+    def post(  # ty: ignore[invalid-method-override]
         self,
         url: str | URL,
         *,

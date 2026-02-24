@@ -5,13 +5,17 @@ import sys
 import uuid
 from datetime import UTC, datetime
 
+import apmodel
+from apmodel.core import Link
+from apmodel.vocab.actor import Actor
 from apmodel.vocab.mention import Mention
 from cryptography.hazmat.primitives import serialization as crypto_serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 
 from apkit.client.asyncio import ActivityPubClient
 from apkit.client.models import Resource as WebfingerResource
 from apkit.models import Create, CryptographicKey, Note, Person
+from apkit.types import ActorKey
 
 if len(sys.argv) < 2:
     print("USAGE: python send_message.py <RECEPIENT_URI>", file=sys.stderr)
@@ -93,10 +97,16 @@ async def send_note(recepient: str) -> None:
             webfinger_result = await client.actor.resolve(res.username, res.host)
 
             # read the ActivityPub link from the result
-            recepient = webfinger_result.get("application/activity+json").href
+            res = webfinger_result.get("application/activity+json")[0].href
+            if not res:
+                raise ValueError("")
+            else:
+                recepient = res
 
         # Fetch a remote Actor
         target_actor = await client.actor.fetch(recepient)
+        if not isinstance(target_actor, Actor):
+            raise ValueError("Actor not found.")
         logger.info(f"Fetched actor: {target_actor.name}")
 
         # Get the inbox URL from the actor's profile
@@ -105,6 +115,14 @@ async def send_note(recepient: str) -> None:
             raise Exception("Could not find actor's inbox URL")
 
         logger.info(f"Found actor's inbox: {inbox_url}")
+
+        if (
+            actor.id is None
+            or target_actor.id is None
+            or target_actor.url is None
+            or isinstance(target_actor.url, Link)
+        ):
+            raise ValueError("Actor ID or URL is missing")
 
         # Create note
         t = f'<p><span class="h-card" translate="no"><a href="{target_actor.url}" class="u-url mention">@<span>{target_actor.preferred_username}</span></a></span></p>'
@@ -118,9 +136,9 @@ async def send_note(recepient: str) -> None:
             tag=[
                 Mention(
                     href=target_actor.url,
-                    name=f"@{target_actor.preferred_username}"
+                    name=f"@{target_actor.preferred_username}",
                 )
-            ]
+            ],
         )
 
         # Create activity
@@ -139,11 +157,18 @@ async def send_note(recepient: str) -> None:
         # Uncomment the following line if you want to see the code of the activity.
         # print(create.to_json())
 
+        if not actor.public_key:
+            raise ValueError("Actor's publickey is missing")
+
+        if not isinstance(private_key, rsa.RSAPrivateKey) and not isinstance(
+            private_key, ed25519.Ed25519PrivateKey
+        ):
+            raise ValueError("Invalid Key")
+
         resp = await client.post(
             inbox_url,
-            key_id=actor.publicKey.id,
-            signature=private_key,
-            json=create.to_json(keep_object=True),
+            signatures=[ActorKey(key_id=actor.public_key.id, private_key=private_key)],
+            json=apmodel.to_dict(create),
         )
         logger.info(f"Delivery result: {resp.status}")
 

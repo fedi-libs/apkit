@@ -210,3 +210,5 @@ private_key*.pem
 
 devel/
 _version.py
+
+/*.py
