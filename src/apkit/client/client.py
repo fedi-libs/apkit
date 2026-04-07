@@ -6,7 +6,7 @@ from apmodel.base import AS2Model
 
 from apkit.client.actor import ActorClient
 
-from .._version import __version__
+from ..helper.version import __version__
 from ..types import ActorKey
 from .base.context import SignMethod
 from .methods.get import GetReqContextManager

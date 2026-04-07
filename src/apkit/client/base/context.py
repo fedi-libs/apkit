@@ -27,7 +27,7 @@ from apsig.rfc9421 import RFC9421Signer
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
-from ..._version import __version__
+from ...helper.version import __version__
 from ...types import ActorKey
 from .._common import reconstruct_headers
 from ..types import UnifiedResponse, UnifiedResponseAsync

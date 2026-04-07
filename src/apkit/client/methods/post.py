@@ -5,7 +5,7 @@ import aiohttp
 import httpx
 from apmodel.base import AS2Model
 
-from ..._version import __version__
+from ...helper.version import __version__
 from ...types import ActorKey
 from ..base.context import (
     BaseReqContextManagerDef,
