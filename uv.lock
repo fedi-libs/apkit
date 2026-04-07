@@ -256,7 +256,7 @@ docs = [
 [[package]]
 name = "apmodel"
 version = "0.1.0"
-source = { git = "https://github.com/fedi-libs/apmodel.git?branch=develop#d4cfce0064d682b5617ae5dc24c7687eddc96a03" }
+source = { git = "https://github.com/fedi-libs/apmodel.git?branch=develop#058d32ea8966fe2f00ca768d4c3ee42e5de8a79e" }
 dependencies = [
     { name = "cryptography" },
     { name = "lxml" },
