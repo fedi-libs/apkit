@@ -256,9 +256,10 @@ docs = [
 [[package]]
 name = "apmodel"
 version = "0.1.0"
-source = { git = "https://github.com/fedi-libs/apmodel.git?branch=develop#45d7d2f65d23f9d81e96ff29040e6211ac9edf16" }
+source = { git = "https://github.com/fedi-libs/apmodel.git?branch=develop#d4cfce0064d682b5617ae5dc24c7687eddc96a03" }
 dependencies = [
     { name = "cryptography" },
+    { name = "lxml" },
     { name = "multiformats" },
     { name = "niquests", extra = ["http3"] },
     { name = "pydantic" },
