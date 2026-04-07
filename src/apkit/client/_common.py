@@ -16,7 +16,8 @@ from typing import (
 
 import apmodel
 import apsig
-from apmodel.types import ActivityPubModel
+from apmodel.base import AS2Model
+from apmodel.webfinger import Resource, Result
 from apsig import draft
 from apsig.rfc9421 import RFC9421Signer
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -25,8 +26,6 @@ from typing_extensions import ParamSpec
 
 from apkit.types import ActorKey
 
-from .models import Resource, WebfingerResult
-
 P = ParamSpec("P")
 R = TypeVar("R")
 
@@ -34,7 +33,7 @@ R = TypeVar("R")
 def reconstruct_headers(
     headers: Any,
     user_agent: str,
-    json: Optional[dict | ActivityPubModel | Any] = None,
+    json: Optional[dict | AS2Model | Any] = None,
 ) -> Dict[str, str]:
     final_headers: Dict[str, str] = {}
     key_map: Dict[str, str] = {}
@@ -62,7 +61,7 @@ def reconstruct_headers(
 
     if json and "content-type" not in key_map:
         match json:
-            case ActivityPubModel():
+            case AS2Model():
                 final_headers["Content-Type"] = (
                     "application/activity+json; charset=UTF-8"
                 )
@@ -77,9 +76,7 @@ def build_webfinger_url(host: str, resource: Resource) -> str:
     return f"https://{host}/.well-known/webfinger?resource={resource}"
 
 
-def validate_webfinger_result(
-    result: WebfingerResult, expected_subject: Resource
-) -> None:
+def validate_webfinger_result(result: Result, expected_subject: Resource) -> None:
     """Validates the subject in a WebfingerResult."""
     if result.subject != expected_subject:
         raise ValueError(
@@ -107,7 +104,7 @@ def sign_request(
     url: str,
     headers: dict,
     signatures: List[ActorKey],
-    body: Optional[Union[dict, ActivityPubModel, bytes]] = None,
+    body: Optional[Union[dict, AS2Model, bytes]] = None,
     sign_with: List[str] = [
         "draft-cavage",
         #        "rsa2017",
@@ -115,7 +112,7 @@ def sign_request(
     ],
     as_dict: bool = False,
 ) -> Tuple[Optional[bytes | dict], dict]:
-    if isinstance(body, ActivityPubModel):
+    if isinstance(body, AS2Model):
         body = apmodel.to_dict(body)
 
     signed_cavage = False

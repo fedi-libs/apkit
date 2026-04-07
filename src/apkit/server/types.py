@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Optional
 
 from apmodel import Activity
-from apmodel.types import ActivityPubModel
-from apmodel.vocab.activity import Accept, Reject
-from apmodel.vocab.actor import Actor, ActorEndpoints
+from apmodel.activity import Accept, Reject
+from apmodel.base import AS2Model
+from apmodel.objects import Actor, ActorEndpoints
 from fastapi import Request
 
 from ..client.client import ActivityPubClient
@@ -21,9 +21,7 @@ class Context:
     activity: Activity
     request: Request
 
-    async def send(
-        self, keys: List[ActorKey], target: Actor, activity: ActivityPubModel
-    ):
+    async def send(self, keys: List[ActorKey], target: Actor, activity: AS2Model):
         async with ActivityPubClient() as client:
             inbox = target.inbox
             priv_key = None

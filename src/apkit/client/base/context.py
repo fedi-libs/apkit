@@ -21,13 +21,13 @@ import aiohttp
 import apmodel
 import apsig
 import httpx
-from apmodel.types import ActivityPubModel
+from apmodel.base import AS2Model
 from apsig import draft
 from apsig.rfc9421 import RFC9421Signer
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
-from ..._version import __version__
+from ...helper.version import __version__
 from ...types import ActorKey
 from .._common import reconstruct_headers
 from ..types import UnifiedResponse, UnifiedResponseAsync
@@ -77,7 +77,7 @@ class BaseReqContextManagerImpl:
 
         self._used: bool = False
         self._resp: Optional[Union[httpx.Response, aiohttp.ClientResponse]] = None
-        self._body: Optional[Union[ActivityPubModel, Dict[str, Any], bytes]] = None
+        self._body: Optional[Union[AS2Model, Dict[str, Any], bytes]] = None
         self._kwargs = kwargs
         self.__validate_sign_with(sign_with=sign_with)
 
@@ -101,7 +101,7 @@ class BaseReqContextManagerImpl:
 
     def _reconstruct_headers(
         self,
-        body: Optional[Union[ActivityPubModel, Dict[str, Any], bytes]] = None,
+        body: Optional[Union[AS2Model, Dict[str, Any], bytes]] = None,
     ) -> Dict[str, str]:
         return reconstruct_headers(self._headers, self._user_agent, body)
 
@@ -129,7 +129,7 @@ class BaseReqContextManagerImpl:
             )
             is_rfc = False
 
-        if isinstance(self._body, ActivityPubModel):
+        if isinstance(self._body, AS2Model):
             body_dict = apmodel.to_dict(self._body)
         elif isinstance(self._body, bytes):
             body_dict = json.loads(self._body)

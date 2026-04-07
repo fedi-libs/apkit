@@ -70,8 +70,8 @@ class NodeinfoBuilder:
 
     def set_services(
         self,
-        inbound: list[Union[str, Inbound]],
-        outbound: list[Union[str, Outbound]],
+        inbound: list[Inbound],
+        outbound: list[Outbound],
     ) -> "NodeinfoBuilder":
         self.__services_inbound = inbound
         self.__services_outbound = outbound
@@ -141,11 +141,11 @@ class NodeinfoBuilder:
             usage=Usage(
                 users=Users(
                     total=self.__usage_users_total,
-                    activeHalfyear=self.__usage_active_halfyear,
-                    activeMonth=self.__usage_active_month,
+                    active_half_year=self.__usage_active_halfyear,
+                    active_month=self.__usage_active_month,
                 ),
-                localComments=self.__usage_local_comments,
-                localPosts=self.__usage_local_posts,
+                local_comments=self.__usage_local_comments,
+                local_posts=self.__usage_local_posts,
             ),
             metadata=self.__metadata,
         )

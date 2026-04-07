@@ -5,11 +5,13 @@ import sys
 import uuid
 from datetime import UTC, datetime
 
+from apmodel.objects import Actor
 from cryptography.hazmat.primitives import serialization as crypto_serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 
-from apkit.client.asyncio import ActivityPubClient
+from apkit.client import ActivityPubClient
 from apkit.models import CryptographicKey, Like, Person
+from apkit.types import ActorKey
 
 if len(sys.argv) < 2:
     print("USAGE: python like.py <OBJECT_ID>", file=sys.stderr)
@@ -89,6 +91,9 @@ async def like(object_id: str) -> None:
         logger.info(f"Author of the object is: {sender_id}")
 
         target_actor = await client.actor.fetch(sender_id)
+        if not isinstance(target_actor, Actor):
+            raise ValueError("Actor not found.")
+
         # Get the inbox URL from the actor's profile
         inbox_url = target_actor.inbox
         if not inbox_url:
@@ -109,10 +114,17 @@ async def like(object_id: str) -> None:
         # Deliver the activity
         logger.info("Delivering activity...")
 
+        if not actor.public_key or not actor.public_key.id:
+            raise ValueError("Actor's publickey is missing")
+
+        if not isinstance(private_key, rsa.RSAPrivateKey) and not isinstance(
+            private_key, ed25519.Ed25519PrivateKey
+        ):
+            raise ValueError("Invalid Key")
+
         resp = await client.post(
             inbox_url,
-            key_id=actor.publicKey.id,
-            signature=private_key,
+            signatures=[ActorKey(key_id=actor.public_key.id, private_key=private_key)],
             json=activity,
         )
         logger.info(f"Delivery result: {resp.status}")

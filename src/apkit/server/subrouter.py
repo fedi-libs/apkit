@@ -14,6 +14,7 @@ from typing import (
 )
 
 from apmodel import Activity
+from apmodel.webfinger import Resource
 from fastapi import APIRouter, Request, Response
 from fastapi.params import Depends
 from fastapi.routing import APIRoute
@@ -22,7 +23,6 @@ from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
 from starlette.types import ASGIApp, Lifespan
 
-from ..client.models import Resource as WebfingerResource
 from ..types import Outbox
 from .types import Context
 
@@ -52,7 +52,7 @@ class SubRouter(APIRouter):
         self._ap_events = {}
         self._ap_outbox: Optional[Callable[[Context], Awaitable[Any]]] = None
         self._ap_webfinger_route: Optional[
-            Callable[[Request, WebfingerResource], Awaitable[Any]]
+            Callable[[Request, Resource], Awaitable[Any]]
         ] = None
         super().__init__(
             prefix=prefix,

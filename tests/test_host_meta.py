@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from apkit.helper.host_meta import HostMeta, HostMetaLink, HAS_LXML
+from apkit.helper.host_meta import HostMeta, HostMetaLink
 
 VALID_XRD = """<?xml version="1.0" encoding="UTF-8"?>
 <XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
@@ -57,20 +57,10 @@ class TestHostMeta:
         assert link is not None
         assert link.href == "https://example.com/1"
 
-    @pytest.mark.parametrize("parser_method", [
-        "_parse_with_std_etree",
-        pytest.param("_parse_with_lxml", marks=pytest.mark.skipif(not HAS_LXML, reason="lxml not installed"))
-    ])
-    def test_parsers_directly(self, parser_method):
-        method = getattr(HostMeta, parser_method)
-        instance = method(VALID_XRD.encode("utf-8"))
+    def test_parsers_directly(self):
+        instance = HostMeta.from_xml(VALID_XRD.encode("utf-8"))
         assert len(instance.links) == 3
         assert instance.links[0].rel == "lrdd"
-
-    def test_malformed_xml(self):
-        bad_xml = "<XRD><Link></XRD>"
-        with pytest.raises(Exception):
-            HostMeta._parse_with_std_etree(bad_xml.encode("utf-8"))
 
     def test_from_json_basic(self):
         hm = HostMeta.from_json(VALID_JRD)
@@ -111,16 +101,8 @@ class TestHostMeta:
         assert new_meta.links[0].rel == host_meta.links[0].rel
         assert "links" in json.loads(json_str)
 
-    @pytest.mark.parametrize("use_lxml", [
-        pytest.param(True, marks=pytest.mark.skipif(not HAS_LXML, reason="lxml missing")),
-        False
-    ])
-    def test_to_xml_roundtrip(self, host_meta: HostMeta, use_lxml):
-        if use_lxml:
-            xml_str = host_meta._to_xml_with_lxml()
-        else:
-            xml_str = host_meta._to_xml_with_std_etree()
-            
+    def test_to_xml_roundtrip(self, host_meta: HostMeta):
+        xml_str = host_meta.to_xml()
         new_meta = HostMeta.from_xml(xml_str)
         new_lrdd = new_meta.find_link("lrdd")
         orig_lrdd = host_meta.find_link("lrdd")

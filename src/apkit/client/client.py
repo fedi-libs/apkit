@@ -2,9 +2,11 @@ from typing import Any, Dict, List, Optional
 
 import aiohttp
 import httpx
-from apmodel.types import ActivityPubModel
+from apmodel.base import AS2Model
 
-from .._version import __version__
+from apkit.client.actor import ActorClient
+
+from ..helper.version import __version__
 from ..types import ActorKey
 from .base.context import SignMethod
 from .methods.get import GetReqContextManager
@@ -13,10 +15,15 @@ from .methods.post import PostReqContextManager
 
 class ActivityPubClient:
     def __init__(self, user_agent: str = f"apkit/{__version__}"):
-        self.__user_agent = user_agent
+        self._user_agent = user_agent
 
         self.__aiohttp: Optional[aiohttp.ClientSession] = None
         self.__httpx: Optional[httpx.Client] = None
+        self.__actor = ActorClient(self)
+
+    @property
+    def actor(self) -> ActorClient:
+        return self.__actor
 
     def get(
         self,
@@ -31,7 +38,7 @@ class ActivityPubClient:
             self.__httpx,
             self.__aiohttp,
             url,
-            self.__user_agent,
+            self._user_agent,
             headers,
             allow_redirect,
             max_redirects,
@@ -43,7 +50,7 @@ class ActivityPubClient:
         self,
         url: str,
         headers: Optional[Dict[str, str]] = None,
-        json: Optional[ActivityPubModel | dict[str, Any]] = None,
+        json: Optional[AS2Model | dict[str, Any]] = None,
         allow_redirect: bool = True,
         max_redirects: int = 10,
         sign_as: Optional[List[ActorKey]] = None,
@@ -53,7 +60,7 @@ class ActivityPubClient:
             self.__httpx,
             self.__aiohttp,
             url,
-            self.__user_agent,
+            self._user_agent,
             headers,
             json,
             allow_redirect,

@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-from apkit.client.asyncio import ActivityPubClient
+from apkit.client import ActivityPubClient
 from apkit.models import CryptographicKey, Delete, Person
 
 if len(sys.argv) < 3:
@@ -104,9 +104,12 @@ async def delete_note(recepient: str, object_id: str) -> None:
         # Deliver the activity
         logger.info("Delivering activity...")
 
+        if not actor.public_key or not actor.public_key.id:
+            raise ValueError("public_key.id not found")
+
         resp = await client.post(
             inbox_url,
-            key_id=actor.publicKey.id,
+            key_id=actor.public_key.id,
             signature=private_key,
             json=delete,
         )

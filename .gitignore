@@ -209,4 +209,10 @@ __marimo__/
 private_key*.pem
 
 devel/
+_version.py
+
+/*.py
 data/
+
+# auto-generated file
+src/apkit/_version.py

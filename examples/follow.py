@@ -7,8 +7,8 @@ import uuid
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-from apkit.client.asyncio import ActivityPubClient
-from apkit.client.models import Resource as WebfingerResource
+from apkit.client import ActivityPubClient
+from apmodel.webfinger import Resource as WebfingerResource
 from apkit.models import CryptographicKey, Follow, Person
 
 if len(sys.argv) < 2:
@@ -70,10 +70,10 @@ actor = Person(
     summary="This is a demo actor powered by apkit!",
     inbox=f"https://{HOST}/users/{USER_ID}/inbox",
     outbox=f"https://{HOST}/users/{USER_ID}/outbox",
-    public_key_pem=CryptographicKey(
+    public_key=CryptographicKey(
         id=f"https://{HOST}/users/{USER_ID}#main-key",
         owner=f"https://{HOST}/users/{USER_ID}",
-        public_key=public_key_pem,
+        public_key_pem=public_key_pem,
     ),
 )
 
@@ -112,6 +112,9 @@ async def follow(actor_id: str) -> None:
 
         # Deliver the activity
         logger.info("Delivering activity...")
+
+        if not actor.public_key or not actor.public_key.id:
+            raise ValueError("public_key.id not found")
 
         resp = await client.post(
             inbox_url,

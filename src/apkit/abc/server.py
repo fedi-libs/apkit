@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Callable, Union, Literal
+from typing import Any, Callable, Literal, Optional, Union
 
-from ..types import Outbox
 from ..models import Activity
+from ..types import Outbox
 
 
 class AbstractApkitIntegration(ABC):
@@ -14,13 +14,13 @@ class AbstractApkitIntegration(ABC):
 
     @abstractmethod
     def on(
-        self, type: Union[type[Activity], type[Outbox]], func: Optional[Callable] = None
-    ) -> Any:
-        def decorator(func: Callable) -> Callable: ...
+        self,
+        type: Union[type[Activity], type[Outbox]],
+        func: Optional[Callable] = None,
+    ) -> Any: ...
 
     @abstractmethod
-    def webfinger(self, func: Optional[Callable] = None) -> Any:
-        def decorator(func: Callable) -> Callable: ...
+    def webfinger(self, func: Optional[Callable] = None) -> Any: ...
 
     @abstractmethod
     def nodeinfo(
@@ -28,5 +28,4 @@ class AbstractApkitIntegration(ABC):
         route: str,
         version: Literal["2.0", "2.1"],
         func: Optional[Callable] = None,
-    ) -> Any:
-        def decorator(fn: Callable) -> Callable: ...
+    ) -> Any: ...
