@@ -1,17 +1,9 @@
 import json
-import xml.etree.ElementTree
 from collections import defaultdict
 from typing import Any, Dict, List, NamedTuple, Optional, Union
 
-HAS_LXML = False
-try:
-    from lxml import etree as _lxml
-    from lxml.etree import _Element
-
-    lxml_etree = _lxml
-    HAS_LXML = True
-except ImportError:
-    pass
+from lxml import etree as etree
+from lxml.etree import _Element
 
 
 class HostMetaLink(NamedTuple):
@@ -52,18 +44,9 @@ class HostMeta:
         if isinstance(xml_data, str):
             xml_data = xml_data.encode("utf-8")
 
-        if HAS_LXML and lxml_etree is not None:
-            return cls._parse_with_lxml(xml_data)
-        else:
-            return cls._parse_with_std_etree(xml_data)
-
-    @classmethod
-    def _parse_with_lxml(cls, xml_data: bytes) -> "HostMeta":
-        assert lxml_etree is not None
-
         ns = {"xrd": "http://docs.oasis-open.org/ns/xri/xrd-1.0"}
-        parser = lxml_etree.XMLParser(recover=True, no_network=True)
-        root = lxml_etree.fromstring(xml_data, parser=parser)
+        parser = etree.XMLParser(recover=True, no_network=True)
+        root = etree.fromstring(xml_data, parser=parser)
 
         result = root.xpath("xrd:Link", namespaces=ns)
         nodes = result if isinstance(result, list) else []
@@ -81,24 +64,6 @@ class HostMeta:
                 )
         return cls(links)
 
-    @classmethod
-    def _parse_with_std_etree(cls, xml_data: bytes) -> "HostMeta":
-        ns = {"xrd": "http://docs.oasis-open.org/ns/xri/xrd-1.0"}
-        root = xml.etree.ElementTree.fromstring(xml_data)
-
-        nodes = root.findall("xrd:Link", ns)
-
-        links = [
-            HostMetaLink(
-                rel=n.get("rel", ""),
-                type=n.get("type"),
-                href=n.get("href"),
-                template=n.get("template"),
-            )
-            for n in nodes
-        ]
-        return cls(links)
-
     def to_json(self, indent: Optional[int] = None) -> str:
         data = {
             "links": [
@@ -109,39 +74,16 @@ class HostMeta:
         return json.dumps(data, indent=indent, ensure_ascii=False)
 
     def to_xml(self) -> str:
-        if HAS_LXML and lxml_etree is not None:
-            return self._to_xml_with_lxml()
-        return self._to_xml_with_std_etree()
-
-    def _to_xml_with_lxml(self) -> str:
-        if lxml_etree is None:
-            raise RuntimeError("lxml is not available even though HAS_LXML is True.")
         nsmap: dict[Any, str] = {None: "http://docs.oasis-open.org/ns/xri/xrd-1.0"}
-        root = lxml_etree.Element("XRD", nsmap=nsmap)
+        root = etree.Element("XRD", nsmap=nsmap)
 
         for link in self.links:
             attrs = {k: v for k, v in link._asdict().items() if v is not None}
-            lxml_etree.SubElement(root, "Link", attrs)
+            etree.SubElement(root, "Link", attrs)
 
-        return lxml_etree.tostring(
+        return etree.tostring(
             root, encoding="UTF-8", xml_declaration=True, pretty_print=True
         ).decode("utf-8")
-
-    def _to_xml_with_std_etree(self) -> str:
-        xml.etree.ElementTree.register_namespace(
-            "", "http://docs.oasis-open.org/ns/xri/xrd-1.0"
-        )
-        root = xml.etree.ElementTree.Element(
-            "{http://docs.oasis-open.org/ns/xri/xrd-1.0}XRD"
-        )
-
-        for link in self.links:
-            attrs = {k: v for k, v in link._asdict().items() if v is not None}
-            xml.etree.ElementTree.SubElement(
-                root, "{http://docs.oasis-open.org/ns/xri/xrd-1.0}Link", attrs
-            )
-
-        return xml.etree.ElementTree.tostring(root, encoding="unicode")
 
     def find_link(self, rel: str) -> Optional[HostMetaLink]:
         return next((i for i in self.links if i.rel == rel), None)

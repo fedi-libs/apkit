@@ -11,11 +11,11 @@ dependencies = [
     "aiohttp>=3.13.3",
     "apmodel>=0.5.1",
     "apsig>=0.6.0",
-    "charset-normalizer>=3.4.3",
-    "httpcore[http2,socks]>=1.0.9",
+    "cryptography>=46.0.6",
+    "http-sf>=1.1.1",
     "httpx>=0.28.1",
-    "requests>=2.32.5",
-    "types-requests>=2.32.4.20250913",
+    "lxml>=6.0.2",
+    "typing-extensions>=4.15.0",
 ]
 
 [project.urls]
@@ -29,12 +29,19 @@ redis = [
 ]
 server = [
     "fastapi>=0.116.1",
-    "uvicorn>=0.35.0",
+    "starlette>=1.0.0"
 ]
 speed = [
-    "google-re2>=1.1.20251105",
-    "lxml>=6.0.2"
+    "apmodel[speed]>=0.5.1"
 ]
+
+[tool.deptry]
+exclude = [
+  ".venv",
+  "examples",
+  "tests"
+]
+known_first_party = ["apkit"]
 
 [tool.uv]
 default-groups = "all"
