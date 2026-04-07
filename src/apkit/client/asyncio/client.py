@@ -32,15 +32,18 @@ from aiohttp.http_writer import (
     StreamWriter as StreamWriter,
 )
 from aiohttp.typedefs import JSONEncoder, LooseCookies, LooseHeaders, StrOrURL
-from apmodel.types import ActivityPubModel
+from apmodel.base import AS2Model
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from yarl import URL, Query
 
 from ..._version import __version__
 from ...types import ActorKey
 from .._common import reconstruct_headers, sign_request
-from .actor import ActorFetcher
-from .types import ActivityPubClientResponse, _RequestContextManager
+from .actor import ActorFetcher  # ty: ignore
+from .types import (  # ty: ignore
+    ActivityPubClientResponse,
+    _RequestContextManager,
+)
 
 
 class ActivityPubClient(aiohttp.ClientSession):
@@ -178,7 +181,7 @@ class ActivityPubClient(aiohttp.ClientSession):
             if j and not isinstance(j, bytes):
                 json = j
 
-        return await super()._request(  # ty: ignore[invalid-return-type]
+        return await super()._request(
             method,
             str_or_url,
             params=params,
@@ -212,7 +215,7 @@ class ActivityPubClient(aiohttp.ClientSession):
             middlewares=middlewares,
         )
 
-    def get(  # ty: ignore[invalid-method-override]
+    def get(
         self,
         url: str | URL,
         *,
@@ -255,11 +258,11 @@ class ActivityPubClient(aiohttp.ClientSession):
             )
         )
 
-    def post(  # ty: ignore[invalid-method-override]
+    def post(
         self,
         url: str | URL,
         *,
-        json: Union[dict, ActivityPubModel] = {},
+        json: Union[dict, AS2Model] = {},
         headers: Optional[LooseHeaders] = None,
         signatures: List[ActorKey] = [],
         sign_with: Optional[List[str]] = [

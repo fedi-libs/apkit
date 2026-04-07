@@ -16,7 +16,7 @@ from typing import (
 
 import apmodel
 import apsig
-from apmodel.types import ActivityPubModel
+from apmodel.base import AS2Model
 from apsig import draft
 from apsig.rfc9421 import RFC9421Signer
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -34,7 +34,7 @@ R = TypeVar("R")
 def reconstruct_headers(
     headers: Any,
     user_agent: str,
-    json: Optional[dict | ActivityPubModel | Any] = None,
+    json: Optional[dict | AS2Model | Any] = None,
 ) -> Dict[str, str]:
     final_headers: Dict[str, str] = {}
     key_map: Dict[str, str] = {}
@@ -62,7 +62,7 @@ def reconstruct_headers(
 
     if json and "content-type" not in key_map:
         match json:
-            case ActivityPubModel():
+            case AS2Model():
                 final_headers["Content-Type"] = (
                     "application/activity+json; charset=UTF-8"
                 )
@@ -107,7 +107,7 @@ def sign_request(
     url: str,
     headers: dict,
     signatures: List[ActorKey],
-    body: Optional[Union[dict, ActivityPubModel, bytes]] = None,
+    body: Optional[Union[dict, AS2Model, bytes]] = None,
     sign_with: List[str] = [
         "draft-cavage",
         #        "rsa2017",
@@ -115,7 +115,7 @@ def sign_request(
     ],
     as_dict: bool = False,
 ) -> Tuple[Optional[bytes | dict], dict]:
-    if isinstance(body, ActivityPubModel):
+    if isinstance(body, AS2Model):
         body = apmodel.to_dict(body)
 
     signed_cavage = False

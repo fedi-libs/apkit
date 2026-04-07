@@ -8,19 +8,20 @@ from typing import (
     ParamSpec,
     TypeVar,
     Union,
+    cast,
 )
 
 try:
     import re2 as re  #
 except ImportError:
-    re = standard_re
+    re = standard_re  # ty: ignore[invalid-assignment]
 
 try:
     import lxml.etree as lxml_etree
 
     HAS_LXML = True
 except ImportError:
-    lxml_etree = None
+    lxml_etree = None  # ty: ignore[invalid-assignment]
     HAS_LXML = False
 
 from xml.etree import ElementTree as std_etree  # noqa: N813
@@ -144,7 +145,7 @@ class WebfingerResult:
         ns = "http://docs.oasis-open.org/ns/xri/xrd-1.0"
 
         if HAS_LXML and lxml_etree is not None:
-            root = lxml_etree.Element(f"{{{ns}}}XRD", nsmap={None: ns})
+            root = lxml_etree.Element(f"{{{ns}}}XRD", nsmap=cast(dict, {None: ns}))
             subject = lxml_etree.SubElement(root, f"{{{ns}}}Subject")
             subject.text = self._subject.export()
 
@@ -157,9 +158,10 @@ class WebfingerResult:
                 if link.href:
                     l_elem.set("href", link.href)
 
-            return lxml_etree.tostring(
+            r = lxml_etree.tostring(
                 root, encoding=encoding, xml_declaration=True, pretty_print=True
             )
+            return r if isinstance(r, bytes) else r.encode("utf-8")
         else:
             std_etree.register_namespace("", ns)
             root = std_etree.Element(f"{{{ns}}}XRD")
@@ -212,23 +214,30 @@ class WebfingerResult:
             root = lxml_etree.fromstring(xml_data, parser=parser)
 
             subject_nodes = root.xpath("xrd:Subject/text()", namespaces=ns)
-            subject_str = str(subject_nodes[0]) if subject_nodes else ""
-            link_nodes = root.xpath("xrd:Link", namespaces=ns)
+            if isinstance(subject_nodes, list) and subject_nodes:
+                subject_str = str(subject_nodes[0])
+            else:
+                subject_str = ""
         else:
             root = std_etree.fromstring(xml_data)
             subject_node = root.find("xrd:Subject", ns)
             subject_str = (subject_node.text if subject_node is not None else "") or ""
-            link_nodes = root.findall("xrd:Link", ns)
+        xpath_result = root.findall("xrd:Link", ns)
+        if not isinstance(xpath_result, list):
+            link_nodes: List[Any] = []
+        else:
+            link_nodes = xpath_result
 
         if not subject_str:
             raise ValueError("Missing 'Subject' in XRD response")
 
         links: List[Link] = []
         for node in link_nodes:
-            rel = node.get("rel", "")
-            l_type = node.get("type")
-            href = node.get("href") or node.get("template")
-            links.append(Link(rel=rel, type=l_type, href=href))
+            if hasattr(node, "get"):
+                rel = str(node.get("rel", ""))
+                l_type = node.get("type")
+                href = node.get("href") or node.get("template")
+                links.append(Link(rel=rel, type=l_type, href=href))
 
         return cls(Resource.parse(subject_str), links)
 

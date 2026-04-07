@@ -4,7 +4,7 @@ import sys
 from typing import TYPE_CHECKING, Callable, Dict, Union
 
 import apmodel
-from apmodel.core.object import Object
+from apmodel.core import Object
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 

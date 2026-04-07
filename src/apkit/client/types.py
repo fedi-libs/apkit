@@ -3,11 +3,11 @@ from typing import Any, Awaitable, Optional, Protocol, TypeVar
 import aiohttp
 import apmodel
 import httpx
-from apmodel.types import ActivityPubModel
+from apmodel.base import AS2Model
 
 T = TypeVar("T", httpx.Response, aiohttp.ClientResponse, covariant=True)
 RT = TypeVar("RT", dict[str, Any], Awaitable[dict[str, Any]])
-PT = TypeVar("PT", ActivityPubModel, Awaitable[ActivityPubModel])
+PT = TypeVar("PT", AS2Model, Awaitable[AS2Model])
 
 
 class Response(Protocol[T, RT, PT]):
@@ -22,7 +22,7 @@ class Response(Protocol[T, RT, PT]):
     def parse(self, **kwargs) -> PT: ...
 
 
-class UnifiedResponse(Response[httpx.Response, dict[str, Any], ActivityPubModel]):
+class UnifiedResponse(Response[httpx.Response, dict[str, Any], AS2Model]):
     def __init__(self, native_response: httpx.Response):
         self._raw = native_response
 
@@ -38,11 +38,11 @@ class UnifiedResponse(Response[httpx.Response, dict[str, Any], ActivityPubModel]
     def status(self) -> int:
         return self._raw.status_code
 
-    def parse(self, **kwargs) -> ActivityPubModel:
+    def parse(self, **kwargs) -> AS2Model:
         """Read the response body as an ActivityPub model."""
         json = self.json(**kwargs)
         obj = apmodel.load(json)
-        if isinstance(obj, ActivityPubModel):
+        if isinstance(obj, AS2Model):
             return obj
         raise ValueError("failed to parse json")
 
@@ -51,9 +51,7 @@ class UnifiedResponse(Response[httpx.Response, dict[str, Any], ActivityPubModel]
 
 
 class UnifiedResponseAsync(
-    Response[
-        aiohttp.ClientResponse, Awaitable[dict[str, Any]], Awaitable[ActivityPubModel]
-    ]
+    Response[aiohttp.ClientResponse, Awaitable[dict[str, Any]], Awaitable[AS2Model]]
 ):
     def __init__(self, native_response: aiohttp.ClientResponse):
         self._raw = native_response
@@ -88,10 +86,10 @@ class UnifiedResponseAsync(
         encoding: Optional[str] = None,
         content_type: Optional[str] = "application/json",
         **kwargs,
-    ) -> ActivityPubModel:
+    ) -> AS2Model:
         """Read the response body as an ActivityPub model."""
         json = await self.json(encoding=encoding, content_type=content_type, **kwargs)
         obj = apmodel.load(json)
-        if isinstance(obj, ActivityPubModel):
+        if isinstance(obj, AS2Model):
             return obj
         raise ValueError("failed to parse json")

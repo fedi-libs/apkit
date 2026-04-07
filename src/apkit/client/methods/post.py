@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 
 import aiohttp
 import httpx
-from apmodel.types import ActivityPubModel
+from apmodel.base import AS2Model
 
 from ..._version import __version__
 from ...types import ActorKey
@@ -23,7 +23,7 @@ class PostReqContextManager(BaseReqContextManagerImpl, BaseReqContextManagerDef[
         url: str,
         user_agent: str = f"apkit/{__version__}",
         headers: Optional[Dict[str, str]] = None,
-        json: Optional[ActivityPubModel | Dict[str, Any]] = None,
+        json: Optional[AS2Model | Dict[str, Any]] = None,
         allow_redirect: bool = True,
         max_redirects: int = 10,
         sign_as: Optional[List[ActorKey]] = None,

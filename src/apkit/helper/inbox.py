@@ -1,14 +1,14 @@
 import json
 import logging
-from typing import Any, Optional, cast, Dict
+from typing import Any, Dict, Optional, cast
 
 import apmodel
 import http_sf
 from apmodel import Activity
-from apmodel.core.link import Link
-from apmodel.extra.cid import Multikey
-from apmodel.extra.security import CryptographicKey
-from apmodel.vocab.actor import Actor
+from apmodel.cid import Multikey
+from apmodel.core import Link
+from apmodel.objects import Actor
+from apmodel.security import CryptographicKey
 from apsig import LDSignature, ProofVerifier
 from apsig.draft.verify import Verifier
 from apsig.exceptions import (

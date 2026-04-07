@@ -290,7 +290,7 @@ class TestWebfingerResult:
         result = WebfingerResult(subject=subject, links=links)
 
         with pytest.raises(AttributeError):
-            result.subject = Resource(username="bob", host="example.com", url=None) # pyrefly: ignore
+            result.subject = Resource(username="bob", host="example.com", url=None) # ty: ignore[invalid-assignment]
 
     def test_webfinger_result_from_xml(self, xrd_valid):
         """Test creating WebfingerResult from XML (XRD)."""

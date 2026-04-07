@@ -109,7 +109,7 @@ def get_keys_for_actor(identifier: str) -> list[ActorKey]:
         private_key, ed25519.Ed25519PrivateKey
     ):
         raise ValueError("Invalid Key")
-    if identifier == USER_ID:
+    if identifier == USER_ID and actor.public_key.id:
         return [ActorKey(key_id=actor.public_key.id, private_key=private_key)]
     return []
 
