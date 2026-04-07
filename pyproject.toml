@@ -39,6 +39,9 @@ speed = [
 [tool.uv]
 default-groups = "all"
 
+[tool.uv.sources]
+apmodel = { git = "https://github.com/fedi-libs/apmodel.git", branch = "develop" }
+
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
@@ -65,6 +68,7 @@ dev = [
     "ruff>=0.14.10",
     "prek>=0.3.3",
     "pre-commit>=4.5.1",
+    "lxml-stubs>=0.5.1",
 ]
 docs = [
     "mkdocs>=1.6.1",
