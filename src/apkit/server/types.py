@@ -3,12 +3,11 @@ from typing import TYPE_CHECKING, List, Optional
 
 from apmodel import Activity
 from apmodel.activity import Accept, Reject
-from apmodel.objects import Actor, ActorEndpoints
 from apmodel.base import AS2Model
-from cryptography.hazmat.primitives.asymmetric import rsa
+from apmodel.objects import Actor, ActorEndpoints
 from fastapi import Request
 
-from ..client.asyncio.client import ActivityPubClient
+from ..client.client import ActivityPubClient
 from ..types import ActorKey, Outbox  # noqa: F401
 
 if TYPE_CHECKING:
@@ -37,15 +36,8 @@ class Context:
             if not isinstance(inbox, str):
                 raise ValueError(f"Unsupported Inbox Type: {inbox}")
 
-            for key in keys:
-                if isinstance(key.private_key, rsa.RSAPrivateKey):
-                    priv_key = key.private_key
-                    key_id = key.key_id
-                    break
             if priv_key and key_id and inbox:
-                async with client.post(
-                    inbox, key_id=key_id, signature=priv_key, json=activity
-                ) as _:
+                async with client.post(inbox, sign_as=keys, json=activity) as _:
                     return None
             else:
                 pass

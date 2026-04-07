@@ -135,8 +135,7 @@ async def send_note(recepient: str) -> None:
             cc=["https://www.w3.org/ns/activitystreams#Public"],
             tag=[
                 Mention(
-                    href=target_actor.url,
-                    name=f"@{target_actor.preferred_username}",
+                    href=target_actor.url, name=f"@{target_actor.preferred_username}"
                 )
             ],
         )
@@ -164,6 +163,9 @@ async def send_note(recepient: str) -> None:
             private_key, ed25519.Ed25519PrivateKey
         ):
             raise ValueError("Invalid Key")
+
+        if not actor.public_key.id:
+            raise ValueError("public_key.key_id is required")
 
         resp = await client.post(
             inbox_url,

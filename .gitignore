@@ -212,3 +212,4 @@ devel/
 _version.py
 
 /*.py
+data/
