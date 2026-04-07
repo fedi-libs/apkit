@@ -2,9 +2,10 @@ import json
 import logging
 import os
 import sys
+import uuid
 
 from cryptography.hazmat.primitives import serialization as crypto_serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
@@ -83,16 +84,17 @@ public_key_pem = (
 actor = Person(
     id=f"https://{HOST}/users/{USER_ID}",
     name="apkit Demo",
-    preferredUsername="demo",
+    preferred_username="demo",
     summary="This is a demo actor powered by apkit!",
     inbox=f"https://{HOST}/users/{USER_ID}/inbox",
     outbox=f"https://{HOST}/users/{USER_ID}/outbox",
-    publicKey=CryptographicKey(
+    public_key=CryptographicKey(
         id=f"https://{HOST}/users/{USER_ID}#main-key",
         owner=f"https://{HOST}/users/{USER_ID}",
-        publicKeyPem=public_key_pem,
+        public_key_pem=public_key_pem,
     ),
 )
+
 
 # --- Server Initialization ---
 app = ActivityPubServer()
@@ -101,8 +103,14 @@ app = ActivityPubServer()
 # --- Key Retrieval Function ---
 # This function provides the private key for signing outgoing activities.
 def get_keys_for_actor(identifier: str) -> list[ActorKey]:
+    if not actor.public_key:
+        raise ValueError("PublicKey not found.")
+    if not isinstance(private_key, rsa.RSAPrivateKey) and not isinstance(
+        private_key, ed25519.Ed25519PrivateKey
+    ):
+        raise ValueError("Invalid Key")
     if identifier == USER_ID:
-        return [ActorKey(key_id=actor.publicKey.id, private_key=private_key)]
+        return [ActorKey(key_id=actor.public_key.id, private_key=private_key)]
     return []
 
 
@@ -177,7 +185,7 @@ async def outbox(ctx: Context):
 
     if not ctx.request.query_params.get("page"):
         outbox = OrderedCollection()
-        outbox.totalItems = 0  # No letter in the mail today.
+        outbox.total_items = 0  # No letter in the mail today.
         outbox.id = f"https://{HOST}/users/{identifier}/outbox"
         outbox.first = f"{outbox.id}?page=true"
         outbox.last = f"{outbox.id}?min_id=0&page=true"
@@ -202,7 +210,7 @@ async def on_follow_activity(ctx: Context) -> Response:
     elif isinstance(activity.actor, APKitActor):
         follower_actor = activity.actor
 
-    if not follower_actor:
+    if not follower_actor or not isinstance(follower_actor, APKitActor):
         return JSONResponse(
             {"error": "Could not resolve follower actor"}, status_code=400
         )
@@ -210,7 +218,7 @@ async def on_follow_activity(ctx: Context) -> Response:
     logger.info(f"🫂 {follower_actor.name} follows me.")
 
     # Automatically accept the follow request
-    id_ = "https://{HOST}/activity/{uuid.uuid4()}"
+    id_ = f"https://{HOST}/activity/{uuid.uuid4()}"
     accept_activity = activity.accept(id_, actor)
 
     # Send the signed Accept activity back to the follower's inbox
