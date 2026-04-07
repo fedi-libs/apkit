@@ -1,7 +1,8 @@
+from apmodel.webfinger import Result
 from typing import List
 import pytest
 from dataclasses import FrozenInstanceError
-from apkit.client.models import Resource, Link, WebfingerResult
+from apmodel.webfinger import Resource, Link, Result
 
 @pytest.fixture
 def xrd_valid():
@@ -123,11 +124,11 @@ class TestLink:
             link.rel = "self" # ty: ignore[invalid-assignment]
 
 
-class TestWebfingerResult:
-    """Test cases for the WebfingerResult class."""
+class TestResult:
+    """Test cases for the Result class."""
 
     def test_webfinger_result_creation(self):
-        """Test basic WebfingerResult creation."""
+        """Test basic Result creation."""
         subject = Resource(username="alice", host="example.com", url=None)
         links = [
             Link(rel="profile", type="text/html", href="https://example.com/alice"),
@@ -137,7 +138,7 @@ class TestWebfingerResult:
                 href="https://example.com/users/alice",
             ),
         ]
-        result = WebfingerResult(subject=subject, links=links)
+        result = Result(subject=subject, links=links)
 
         assert result.subject == subject
         assert result.links == links
@@ -153,7 +154,7 @@ class TestWebfingerResult:
                 href="https://example.org/users/bob",
             ),
         ]
-        result = WebfingerResult(subject=subject, links=links)
+        result = Result(subject=subject, links=links)
 
         expected = {
             "subject": "acct:bob@example.org",
@@ -173,7 +174,7 @@ class TestWebfingerResult:
         assert result.to_json() == expected
 
     def test_webfinger_result_from_dict(self):
-        """Test creating WebfingerResult from dictionary."""
+        """Test creating Result from dictionary."""
         data = {
             "subject": "acct:charlie@example.net",
             "links": [
@@ -190,7 +191,7 @@ class TestWebfingerResult:
             ],
         }
 
-        result = WebfingerResult.from_dict(data)
+        result = Result.from_dict(data)
 
         assert result.subject.username == "charlie"
         assert result.subject.host == "example.net"
@@ -211,13 +212,13 @@ class TestWebfingerResult:
         }
 
         with pytest.raises(ValueError, match="Missing 'subject' in WebFinger response"):
-            WebfingerResult.from_dict(data)
+            Result.from_dict(data)
 
     def test_webfinger_result_from_dict_empty_links(self):
         """Test from_dict with empty links list."""
         data = {"subject": "acct:user@example.com", "links": []}
 
-        result = WebfingerResult.from_dict(data)
+        result = Result.from_dict(data)
         assert result.subject.username == "user"
         assert result.subject.host == "example.com"
         assert result.links == []
@@ -233,7 +234,7 @@ class TestWebfingerResult:
                 href="https://example.com/users/alice",
             ),
         ]
-        result = WebfingerResult(subject=subject, links=links)
+        result = Result(subject=subject, links=links)
 
         link = result.get("text/html")
         assert isinstance(link, List)
@@ -257,13 +258,13 @@ class TestWebfingerResult:
                 href="https://example.com/users/alice",
             ),
         ]
-        result = WebfingerResult(subject=subject, links=links)
+        result = Result(subject=subject, links=links)
 
         found_links = result.get("text/html")
         assert isinstance(found_links, list)
         assert all(isinstance(x, Link) for x in found_links)
         assert len(found_links) == 2
-        assert all(link.type == "text/html" for link in found_links)
+        assert all(isinstance(link, Link) and link.type == "text/html" for link in found_links)
 
     def test_webfinger_result_get_no_links(self):
         """Test get method with no matching links."""
@@ -276,25 +277,25 @@ class TestWebfingerResult:
                 href="https://example.com/users/alice",
             ),
         ]
-        result = WebfingerResult(subject=subject, links=links)
+        result = Result(subject=subject, links=links)
 
         link = result.get("application/xml")
         assert link == []
 
     def test_webfinger_result_immutability(self):
-        """Test that WebfingerResult is immutable (frozen dataclass)."""
+        """Test that Result is immutable (frozen dataclass)."""
         subject = Resource(username="alice", host="example.com", url=None)
         links = [
             Link(rel="profile", type="text/html", href="https://example.com/alice")
         ]
-        result = WebfingerResult(subject=subject, links=links)
+        result = Result(subject=subject, links=links)
 
         with pytest.raises(AttributeError):
             result.subject = Resource(username="bob", host="example.com", url=None) # ty: ignore[invalid-assignment]
 
     def test_webfinger_result_from_xml(self, xrd_valid):
-        """Test creating WebfingerResult from XML (XRD)."""
-        result = WebfingerResult.from_xml(xrd_valid)
+        """Test creating Result from XML (XRD)."""
+        result = Result.from_xml(xrd_valid)
 
         assert result.subject.username == "alice"
         assert result.subject.host == "example.com"
@@ -311,24 +312,24 @@ class TestWebfingerResult:
     def test_webfinger_result_from_xml_missing_subject(self, xrd_invalid):
         """Test from_xml with missing subject raises ValueError."""
         with pytest.raises(ValueError, match="Missing 'Subject'"):
-            WebfingerResult.from_xml(xrd_invalid)
+            Result.from_xml(xrd_invalid)
 
     def test_webfinger_result_from_xml_bytes(self, xrd_valid):
         """Test from_xml with bytes input (common in HTTP responses)."""
-        result = WebfingerResult.from_xml(xrd_valid.encode("utf-8"))
+        result = Result.from_xml(xrd_valid.encode("utf-8"))
         assert result.subject.username == "alice"
 
     def test_webfinger_result_immutability(self):
-        """Test that WebfingerResult is immutable (__slots__ protection)."""
+        """Test that Result is immutable (__slots__ protection)."""
         subject = Resource(username="alice", host="example.com", url=None)
-        result = WebfingerResult(subject=subject, links=[])
+        result = Result(subject=subject, links=[])
 
         with pytest.raises(AttributeError):
-            result.subject = Resource(username="bob", host="example.com", url=None) # type: ignore
+            result.subject = Resource(username="bob", host="example.com", url=None) # ty: ignore[invalid-assignment]
 
     def test_webfinger_result_get_consistency(self, xrd_valid):
         """Test that get() returns correct types regardless of parse source."""
-        result = WebfingerResult.from_xml(xrd_valid)
+        result = Result.from_xml(xrd_valid)
 
         found = result.get("application/activity+json")
         assert isinstance(found, Link)
@@ -336,9 +337,9 @@ class TestWebfingerResult:
         assert result.get("image/png") is None
 
     def test_xml_output_roundtrip(self):
-        result = WebfingerResult.from_dict({"subject": "acct:alice@example.com", "links": []})
+        result = Result.from_dict({"subject": "acct:alice@example.com", "links": []})
         xml_data = result.to_xml()
-        reparsed = WebfingerResult.from_xml(xml_data)
+        reparsed = Result.from_xml(xml_data)
         assert str(reparsed.subject) == str(result.subject)
 
 def test_integration():
@@ -362,14 +363,14 @@ def test_integration():
         ),
     ]
 
-    # Create WebfingerResult
-    result = WebfingerResult(subject=resource, links=links)
+    # Create Result
+    result = Result(subject=resource, links=links)
 
     # Convert to JSON
     json_data = result.to_json()
 
     # Parse back from dictionary
-    reconstructed = WebfingerResult.from_dict(json_data)
+    reconstructed = Result.from_dict(json_data)
 
     # Verify round-trip
     assert reconstructed.subject.username == "testuser"
@@ -389,18 +390,20 @@ def test_integration():
     assert len(html_links) == 2
 
 def test_full_roundtrip_integration(xrd_valid):
-    from_xml = WebfingerResult.from_xml(xrd_valid)
+    from_xml = Result.from_xml(xrd_valid)
     json_data = from_xml.to_json()
-    reconstructed = WebfingerResult.from_dict(json_data)
+    reconstructed = Result.from_dict(json_data)
 
     assert str(reconstructed.subject) == str(from_xml.subject)
     assert len(reconstructed.links) == len(from_xml.links)
 
-    def get_first_href(result: WebfingerResult, l_type: str) -> str:
+    def get_first_href(result: Result, l_type: str) -> str:
         res = result.get(l_type)
         if isinstance(res, list):
-            return res[0].href or ""
-        if res is not None:
+            res0 = res[0]
+            if isinstance(res0, Link):
+                return res0.href or ""
+        if res is not None and isinstance(res, Link):
             return res.href or ""
         return ""
 

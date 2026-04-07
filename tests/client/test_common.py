@@ -1,4 +1,4 @@
-from apkit.client.models import Resource
+from apmodel.webfinger import Resource
 from apkit.client._common import build_webfinger_url
 
 

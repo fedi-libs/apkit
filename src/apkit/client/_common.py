@@ -17,6 +17,7 @@ from typing import (
 import apmodel
 import apsig
 from apmodel.base import AS2Model
+from apmodel.webfinger import Resource, Result
 from apsig import draft
 from apsig.rfc9421 import RFC9421Signer
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -24,8 +25,6 @@ from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from typing_extensions import ParamSpec
 
 from apkit.types import ActorKey
-
-from .models import Resource, WebfingerResult
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -77,9 +76,7 @@ def build_webfinger_url(host: str, resource: Resource) -> str:
     return f"https://{host}/.well-known/webfinger?resource={resource}"
 
 
-def validate_webfinger_result(
-    result: WebfingerResult, expected_subject: Resource
-) -> None:
+def validate_webfinger_result(result: Result, expected_subject: Resource) -> None:
     """Validates the subject in a WebfingerResult."""
     if result.subject != expected_subject:
         raise ValueError(

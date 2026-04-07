@@ -9,8 +9,12 @@ from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
-from apkit.client import WebfingerLink, WebfingerResource, WebfingerResult
-from apkit.client.asyncio.client import ActivityPubClient
+from apkit.client import (
+    ActivityPubClient,
+    WebfingerLink,
+    WebfingerResource,
+    WebfingerResult,
+)
 from apkit.models import (
     Actor as APKitActor,
 )

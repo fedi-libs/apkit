@@ -16,6 +16,7 @@ from typing import (
 )
 
 from apmodel import Activity
+from apmodel.webfinger import Resource
 from fastapi import APIRouter, FastAPI, Request, Response
 from fastapi.middleware import Middleware
 from fastapi.params import Depends
@@ -27,7 +28,6 @@ from starlette.routing import BaseRoute
 from apkit.server.routes.outbox import create_outbox_route
 
 from ..abc.server import AbstractApkitIntegration
-from ..client.models import Resource as WebfingerResource
 from ..config import AppConfig
 from ..types import Outbox
 from .routes.inbox import create_inbox_route
@@ -92,7 +92,7 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
         self.__ap_events = {}
         self.__ap_outbox: Optional[Callable[[Context], Awaitable[Any]]] = None
         self.__ap_webfinger_route: Optional[
-            Callable[[Request, WebfingerResource], Awaitable[Any]]
+            Callable[[Request, Resource], Awaitable[Any]]
         ] = None
         self.__ap_config = apkit_config
         self._get_actor_keys: Optional[Callable[[str], Awaitable[List["ActorKey"]]]] = (
@@ -156,7 +156,7 @@ class ActivityPubServer(AbstractApkitIntegration, FastAPI):
         if func:
             resource = request.query_params.get("resource")
             if resource:
-                acct = WebfingerResource.parse(resource)
+                acct = Resource.parse(resource)
                 return await func(request, acct)
 
     def setup(self) -> None:

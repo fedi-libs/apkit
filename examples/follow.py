@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from apkit.client import ActivityPubClient
-from apkit.client.models import Resource as WebfingerResource
+from apmodel.webfinger import Resource as WebfingerResource
 from apkit.models import CryptographicKey, Follow, Person
 
 if len(sys.argv) < 2:

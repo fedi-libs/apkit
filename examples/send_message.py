@@ -8,11 +8,11 @@ from datetime import UTC, datetime
 import apmodel
 from apmodel.core import Link
 from apmodel.objects import Actor, Mention
+from apmodel.webfinger import Resource as WebfingerResource
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 
 from apkit.client import ActivityPubClient
-from apkit.client.models import Resource as WebfingerResource
 from apkit.models import Create, CryptographicKey, Note, Person
 from apkit.types import ActorKey
 
