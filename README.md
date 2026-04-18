@@ -19,6 +19,9 @@
   <a href="https://deepwiki.com/fedi-libs/apkit" target="_blank">
       <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki">
   </a>
+  <a href="https://flatt.tech/oss/gmo/trampoline" target="_blank">
+      <img src="https://flatt.tech/assets/images/badges/gmo-oss.svg" height="24px"/>
+  </a>
 </p>
 
 ---
