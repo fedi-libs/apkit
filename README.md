@@ -32,6 +32,11 @@
 
 ---
 
+> [!CAUTION]
+> **Project Archived**
+> This project is no longer actively maintained. For more details regarding this decision, please read our discussion: [**Project Status**](https://github.com).
+
+
 > [!WARNING]
 > **apkit is not stable. API changes with no regard for backward compatibility and new releases are sometimes made at short intervals**.
 
