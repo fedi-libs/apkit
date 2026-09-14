@@ -30,6 +30,11 @@
 
 ---
 
+
+::: failure "Project Archived"
+This project has been archived and is no longer actively maintained. For more details on this decision, please read the discussion: [**Project Status**](https://github.com/orgs/fedi-libs/discussions/2){: .md-button .md-button--primary }.
+:::
+
 **apkit** is a modern, fast, and powerful toolkit for building ActivityPub-based applications with Python, based on standard Python type hints.
 
 The key features are:
